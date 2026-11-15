@@ -38,6 +38,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   clothes). From age 4 each adds one fact: "The elephant has a long trunk". Computer
   parts (keyboard, mouse, printer and more) are cards for ages 4 to 8, then a quiz from
   5: "Which one do we type letters with?".
+- **The body, drawn**: a whole child where every part is where it really is, ringed and
+  named ("This is your elbow"), then a quiz: "Tap the knee!". Emoji cannot show an elbow,
+  a shoulder or an ankle.
 - **Drawn pictures where emoji fall short**: bhindi, lauki, karela, gobhi, mooli, palak,
   kaddu, matar, adrak, chukandar and rajma among the vegetables (see `art/README.md`).
 - **Drag-and-drop games**: find the missing piece of a picture, put shapes in their holes,

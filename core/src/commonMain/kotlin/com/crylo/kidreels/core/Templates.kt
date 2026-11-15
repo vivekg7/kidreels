@@ -284,6 +284,9 @@ object Templates {
                 whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) },
             )
         },
+        // The whole child, drawn: parts emoji cannot show, where they really are.
+        Template(Topic.BODY_PARTS, 2..6, solving = false, weight = 0.6) { g -> Body.card(g) },
+        Template(Topic.BODY_TAP, 3..8, solving = true) { g -> Body.tap(g) },
         // The computer cards asked the other way round: what each part is for.
         Template(Topic.COMPUTER_USE, 5..9, solving = true, weight = 0.6) { g ->
             val parts = Words.computer

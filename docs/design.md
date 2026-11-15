@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-57 templates, and why the tests can check every template at every age and difficulty.
+59 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -212,6 +212,24 @@ the square furthest from the start along the paths, so the whole maze is used. F
   where the runner is, not every wrong turn.
 - **A dead end is not a wrong try.** Exploring is what a maze is, so a maze is always
   "right first time" to the feed's skill score.
+
+### The body, drawn
+
+A drawn child (`art/drawn/body.svg`) in short sleeves, shorts and bare feet, so elbows,
+knees and toes all show. `core/Body.kt` holds where each of 23 parts is on the drawing,
+in its own units: one spot per side and a radius, from which a tap is told apart (the
+nearest spot it lands inside) and the part is ringed. A test taps every spot and checks
+it lands on its own part, so two parts never sit too close to tell apart.
+
+- **"Parts of the body"** (2 to 6) rings a part and names it, then with the child, and
+  from 4 says what it does. Tapping any other part rings and names that one instead.
+- **"Find it on the body"** (3 to 8): "Tap the knee!" A wrong part is ringed red for a
+  moment and named: "That is the elbow. Where is the knee?".
+- **Parts come by age**: eyes, nose, hands and feet at 2; elbows, knees, shoulders and
+  toes at 4; wrists, ankles, chin and eyebrows at 6. The quiz leans on the newest ones
+  for the age, so a six-year-old is asked about wrists, not noses.
+- The emoji cards ("My body") stay: they show the tongue, the teeth and the brain, which
+  a picture of a whole child does not.
 
 ### Adding a reel type
 

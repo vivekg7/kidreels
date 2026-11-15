@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 440">
+  <!--
+    A child facing us, for "Tap the knee!". Short sleeves, shorts and bare feet, so
+    elbows, knees and toes all show. Where each part is (for tapping and lighting up)
+    lives in core/Body.kt, in this drawing's units.
+  -->
+  <!-- Legs and feet -->
+  <path fill="#D9A06F" d="M86,276 L114,276 L111,392 L91,392 Z"/>
+  <path fill="#D9A06F" d="M154,276 L126,276 L129,392 L149,392 Z"/>
+  <ellipse fill="#C98E5E" cx="100" cy="334" rx="11" ry="8"/>
+  <ellipse fill="#C98E5E" cx="140" cy="334" rx="11" ry="8"/>
+  <path fill="#D9A06F" d="M90,388 L112,388 C114,398 112,412 100,414 L78,414 C70,414 70,404 78,400 C84,398 88,394 90,388 Z"/>
+  <path fill="#D9A06F" d="M150,388 L128,388 C126,398 128,412 140,414 L162,414 C170,414 170,404 162,400 C156,398 152,394 150,388 Z"/>
+  <g fill="#C98E5E">
+    <circle cx="74" cy="409" r="4"/><circle cx="81" cy="411" r="3.5"/><circle cx="87" cy="412" r="3.2"/><circle cx="93" cy="413" r="3"/>
+    <circle cx="166" cy="409" r="4"/><circle cx="159" cy="411" r="3.5"/><circle cx="153" cy="412" r="3.2"/><circle cx="147" cy="413" r="3"/>
+  </g>
+  <!-- Shorts -->
+  <path fill="#F7A325" d="M80,228 L160,228 L164,284 L126,284 L120,262 L114,284 L76,284 Z"/>
+  <path fill="#E08E12" d="M120,240 L120,262 L114,284 L110,284 L117,258 Z"/>
+  <!-- Arms, behind the sleeves -->
+  <path fill="#D9A06F" d="M63,180 L80,186 L67,288 L50,284 Z"/>
+  <path fill="#D9A06F" d="M177,180 L160,186 L173,288 L190,284 Z"/>
+  <ellipse fill="#C98E5E" cx="66" cy="236" rx="8" ry="6"/>
+  <ellipse fill="#C98E5E" cx="174" cy="236" rx="8" ry="6"/>
+  <!-- Hands, with a thumb and four fingers -->
+  <ellipse fill="#D9A06F" cx="57" cy="300" rx="13" ry="15"/>
+  <ellipse fill="#D9A06F" cx="70" cy="294" rx="5" ry="9"/>
+  <g fill="#D9A06F">
+    <rect x="45" y="304" width="6" height="18" rx="3"/><rect x="51" y="306" width="6" height="20" rx="3"/>
+    <rect x="57" y="306" width="6" height="19" rx="3"/><rect x="63" y="304" width="5.5" height="15" rx="2.75"/>
+  </g>
+  <ellipse fill="#D9A06F" cx="183" cy="300" rx="13" ry="15"/>
+  <ellipse fill="#D9A06F" cx="170" cy="294" rx="5" ry="9"/>
+  <g fill="#D9A06F">
+    <rect x="189" y="304" width="6" height="18" rx="3"/><rect x="183" y="306" width="6" height="20" rx="3"/>
+    <rect x="177" y="306" width="6" height="19" rx="3"/><rect x="171.5" y="304" width="5.5" height="15" rx="2.75"/>
+  </g>
+  <!-- Neck, then the T-shirt over the shoulders -->
+  <rect fill="#C98E5E" x="107" y="118" width="26" height="26" rx="6"/>
+  <path fill="#4F7DF3" d="M78,146 C96,138 108,136 120,142 C132,136 144,138 162,146 L180,184 L161,192 L158,234 L82,234 L79,192 L60,184 Z"/>
+  <path fill="#3D66D6" d="M104,140 C110,150 130,150 136,140 C130,144 110,144 104,140 Z"/>
+  <path fill="#3D66D6" d="M79,192 L80,170 L84,196 Z"/>
+  <path fill="#3D66D6" d="M161,192 L160,170 L156,196 Z"/>
+  <!-- Ears, then the face -->
+  <ellipse fill="#C98E5E" cx="75" cy="84" rx="9" ry="13"/>
+  <ellipse fill="#C98E5E" cx="165" cy="84" rx="9" ry="13"/>
+  <ellipse fill="#D9A06F" cx="120" cy="80" rx="45" ry="49"/>
+  <!-- Hair -->
+  <path fill="#33231A" d="M74,86 C68,42 94,24 120,24 C146,24 172,42 166,86 C160,66 150,56 136,58 C124,50 106,52 96,60 C86,62 78,72 74,86 Z"/>
+  <!-- Eyebrows, eyes, nose, cheeks, mouth -->
+  <path fill="#33231A" d="M94,68 Q104,60 114,66 L113,70 Q104,65 95,72 Z"/>
+  <path fill="#33231A" d="M146,68 Q136,60 126,66 L127,70 Q136,65 145,72 Z"/>
+  <ellipse fill="#FFFFFF" cx="104" cy="84" rx="8" ry="9"/>
+  <ellipse fill="#FFFFFF" cx="136" cy="84" rx="8" ry="9"/>
+  <circle fill="#33231A" cx="105" cy="85" r="4.5"/>
+  <circle fill="#33231A" cx="135" cy="85" r="4.5"/>
+  <ellipse fill="#C98E5E" cx="120" cy="99" rx="6" ry="4.5"/>
+  <ellipse fill="#E88A8A" fill-opacity="0.55" cx="95" cy="102" rx="9" ry="5.5"/>
+  <ellipse fill="#E88A8A" fill-opacity="0.55" cx="145" cy="102" rx="9" ry="5.5"/>
+  <path fill="#C2413B" d="M105,111 Q120,127 135,111 Q120,118 105,111 Z"/>
+</svg>

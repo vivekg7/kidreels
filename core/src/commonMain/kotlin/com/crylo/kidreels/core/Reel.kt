@@ -50,6 +50,8 @@ enum class Topic(val channel: Channel, val title: Txt) {
     BIRDS(Channel.WORLD, txt("Birds", "चिड़ियाँ")),
     VEHICLES(Channel.WORLD, txt("Vehicles", "गाड़ियाँ")),
     BODY(Channel.WORLD, txt("My body", "मेरा शरीर")),
+    BODY_PARTS(Channel.WORLD, txt("Parts of the body", "शरीर के अंग")),
+    BODY_TAP(Channel.WORLD, txt("Find it on the body", "शरीर पर ढूँढो")),
     FRUITS(Channel.WORLD, txt("Fruits", "फल")),
     VEGETABLES(Channel.WORLD, txt("Vegetables", "सब्ज़ियाँ")),
     HOME_THINGS(Channel.WORLD, txt("At home", "घर की चीज़ें")),
@@ -395,6 +397,12 @@ fun Reel.intro(main: Lang): List<Say> {
         is PairsGame -> listOf(line(Memory.pairsSay))
         is OrderGame -> listOf(line(Memory.orderSay))
         is MazeGame -> listOf(line(Mazes.say(runner)))
+        // Named, then named again with the child, as on the picture cards.
+        is BodyCard -> listOfNotNull(
+            line(Body.thisIs(part)), line(Phrases.sayWithMe), Say(part.name[lang], lang, pauseMillis = Letter.PART_PAUSE),
+            part.fact.takeIf { showFact }?.let { line(it) },
+        )
+        is BodyTap -> listOf(line(Body.tapSay(part)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

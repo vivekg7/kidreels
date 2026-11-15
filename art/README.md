@@ -15,14 +15,15 @@ with the file's name, so draw with fills, or flatten those in the source first.
 
 ## Where each picture comes from
 
-| Folder   | Pictures                                                                     | Source and licence                                                                                                                                                                                                                                     |
-| -------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `noto/`  | peas (U+1FADB), ginger (U+1FADA), beetroot (U+1FADC), kidney beans (U+1FAD8) | [Noto Emoji](https://github.com/googlefonts/noto-emoji) `2D/svg/`, © 2013 Google LLC. Licence text in `noto/LICENSE` (SIL Open Font License 1.1); Noto's README puts its images under Apache 2.0. Either way: keep the notice, credit it (About does). |
-| `drawn/` | okra, bottle gourd, bitter gourd, cauliflower, radish, spinach, pumpkin      | Drawn for Kid Reels, MIT like the rest of the app.                                                                                                                                                                                                     |
+| Folder   | Pictures                                                                                         | Source and licence                                                                                                                                                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `noto/`  | peas (U+1FADB), ginger (U+1FADA), beetroot (U+1FADC), kidney beans (U+1FAD8)                     | [Noto Emoji](https://github.com/googlefonts/noto-emoji) `2D/svg/`, © 2013 Google LLC. Licence text in `noto/LICENSE` (SIL Open Font License 1.1); Noto's README puts its images under Apache 2.0. Either way: keep the notice, credit it (About does). |
+| `drawn/` | okra, bottle gourd, bitter gourd, cauliflower, radish, spinach, pumpkin, the child in `body.svg` | Drawn for Kid Reels, MIT like the rest of the app.                                                                                                                                                                                                     |
 
 The Noto pictures are emoji newer than Emoji 13.1, which Android 12's font cannot draw,
 in the same style as the emoji around them. Nothing freely licensed showed Indian
-vegetables (bhindi, lauki, karela), so those are drawn here in the same flat style.
+vegetables (bhindi, lauki, karela) or a whole child with every part where it really is,
+so those are drawn here in the same flat style.
 
 ## Adding a picture
 

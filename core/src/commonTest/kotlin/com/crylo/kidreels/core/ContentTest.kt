@@ -98,6 +98,16 @@ class ContentTest {
         assertTrue(missing.isEmpty(), "No name for $missing")
     }
 
+    /** Every spot on the drawn child is inside the drawing and taps as its own part. */
+    @Test
+    fun bodyPartsCanEachBeTapped() {
+        for (p in Body.parts) for ((x, y) in p.spots) {
+            assertTrue(x in 0f..Body.WIDTH && y in 0f..Body.HEIGHT, "${p.key} is off the picture")
+            assertEquals(p, Body.at(x, y), "a tap on the ${p.key} lands on ${Body.at(x, y)?.key}")
+        }
+        assertEquals(Body.parts.size, Body.parts.map { it.key }.distinct().size)
+    }
+
     @Test
     fun pictureCardsHaveAFactAndDoNotRepeat() {
         val all = Words.byTopic.values.flatten()
