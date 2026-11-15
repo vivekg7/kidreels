@@ -45,4 +45,7 @@ interface Host {
 
     /** Whether the status bar icons should be dark (on a light background). */
     fun darkSystemIcons(dark: Boolean)
+
+    /** Puts [text] on the clipboard: the crash report, for a parent to paste somewhere. */
+    fun copyText(text: String)
 }

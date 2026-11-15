@@ -209,6 +209,15 @@ object S {
 
     val privacyPolicy = txt("Privacy policy", "गोपनीयता नीति")
 
+    val crashTitle = txt("The app closed unexpectedly", "ऐप अचानक बंद हो गया था")
+    val crashBody = txt(
+        "A report was kept on this phone. The app cannot send it (it has no internet access), but you can copy it and paste it into an email to vivek@ivy.homes or an issue on GitHub. It holds the app and Android versions, the phone model and where the app went wrong; nothing about your child.",
+        "एक रिपोर्ट इस फ़ोन पर रखी गई है। ऐप इसे भेज नहीं सकता (उसके पास इंटरनेट नहीं है), पर आप इसे कॉपी करके vivek@ivy.homes पर ईमेल या GitHub पर issue में चिपका सकते हैं। इसमें ऐप और Android का वर्ज़न, फ़ोन का मॉडल और ऐप में गड़बड़ी की जगह है; बच्चे के बारे में कुछ नहीं।",
+    )
+    val copyReport = txt("Copy report", "रिपोर्ट कॉपी करें")
+    val copied = txt("Copied", "कॉपी हो गई")
+    val deleteReport = txt("Delete", "मिटाएँ")
+
     /** Linked from Google Play too, so the two can never say different things. */
     const val PRIVACY_URL = "https://github.com/vivekg7/kidreels/blob/main/PRIVACY.md"
 

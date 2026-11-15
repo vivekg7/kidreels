@@ -1,5 +1,7 @@
 package com.crylo.kidreels
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
@@ -76,6 +78,10 @@ class MainActivity : ComponentActivity(), Host {
     override fun keepScreenOn(on: Boolean) {
         if (on) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun copyText(text: String) {
+        getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("Kid Reels report", text))
     }
 
     override fun darkSystemIcons(dark: Boolean) {

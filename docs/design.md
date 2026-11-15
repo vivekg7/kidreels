@@ -304,6 +304,14 @@ the feed, and picking another child once the last one's time is up.
 
 ## Small decisions worth knowing
 
+- **Crash reports without the internet.** With no internet permission there is no crash
+  service, and a crash on a family's phone would never reach anyone. `KidReelsApplication`
+  keeps the last uncaught exception (app and Android version, phone model, time, stack
+  trace, cut to 12,000 characters) under `device.crash`, written with `commit()` because
+  the process is about to die. Settings shows it with "Copy report" and "Delete"; the
+  parent decides whether it goes anywhere. Only one is kept: the latest crash is the one
+  worth fixing, and an older one is likely fixed by the next update.
+
 - **Words follow age.** Up to age 5 a child hears the words used at home, not the
   textbook's: "तिकोना" not "त्रिभुज", "नंबर" not "संख्या", "take away" not "minus".
   From 6 they hear the school word their class uses. A `Txt` can carry a simpler

@@ -20,6 +20,11 @@ Kid Reels collects nothing.
   example Google's Speech Services) to be spoken. That engine is a separate app with its
   own privacy policy; with the voice installed it works offline. "Install voice" only
   opens the engine's or the system's voice settings.
+- **Crash reports:** if the app crashes, a report is kept on the phone: the app and
+  Android versions, the phone's make and model, the time, and the error's stack trace.
+  Nothing about the child is in it. The app cannot send it; settings shows it to a
+  grown-up, who can copy it to send by email or on GitHub, or delete it. Only the latest
+  is kept.
 - **Permissions:** none.
 
 Questions: vivek@ivy.homes

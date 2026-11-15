@@ -108,6 +108,15 @@ class AppState(val host: Host) {
             }
         }
 
+    /** The last crash, kept by the platform shell for a parent to copy from settings. */
+    var crashReport by mutableStateOf(profiles.device.get(CRASH))
+        private set
+
+    fun clearCrash() {
+        profiles.device.put(CRASH, null)
+        crashReport = null
+    }
+
     fun voiceLater(lang: Lang) {
         profiles.device.put(VOICE_LATER + lang.tag, host.clock.today().toString())
         voiceSnoozes++
@@ -231,6 +240,9 @@ class AppState(val host: Host) {
 
     private companion object {
         const val VOICE_LATER = "voiceLater."
+
+        /** "device.crash" in the shared store: where Android's crash keeper writes. */
+        const val CRASH = "crash"
         const val VOICE_SNOOZE_DAYS = 7
     }
 

@@ -80,6 +80,9 @@ On first launch, and later in settings (behind a 3-second press-and-hold gate):
 - **Age check-in**: every 1, 3 or 6 months (or never), a "For grown-ups" banner asks
   whether the child is ready for the next age, with how they did at this one.
 - **Speech**: slow speech, and which voices are installed.
+- **Error report**: if the app ever crashes, settings says so and offers the report to copy
+  (to email, or paste into a GitHub issue) or delete. The app has no internet access, so
+  it never sends it.
 - **Progress**: the last 7 days in a few lines: minutes and days played, puzzles and how
   many were right first time, and which topics the child does well at, finds hard (worth
   trying one together) and likes most.

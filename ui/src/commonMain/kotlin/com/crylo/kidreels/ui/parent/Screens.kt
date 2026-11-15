@@ -245,6 +245,7 @@ fun SettingsScreen(app: AppState) {
                 // Opening a link needs no internet permission; the browser does the fetching.
                 val links = LocalUriHandler.current
                 Pill(S.privacyPolicy[main], false, { runCatching { links.openUri(S.PRIVACY_URL) } })
+                app.crashReport?.let { CrashCard(app, it) }
                 Spacer(Modifier.height(24.dp))
             }
         }
@@ -381,5 +382,29 @@ private fun WeekNote(app: AppState) {
         if (week.strong.isNotEmpty()) Body(S.doingWell[main] + " " + names(week.strong))
         if (week.hard.isNotEmpty()) Body(S.findsHard[main] + " " + names(week.hard))
         if (week.liked.isNotEmpty()) Body(S.likesMost[main] + " " + names(week.liked))
+    }
+}
+
+/** The last crash: what it was, and a way to pass it on. The app itself never sends it. */
+@Composable
+private fun CrashCard(app: AppState, report: String) {
+    val c = LocalParent.current
+    val main = app.settings.main
+    var copied by remember { mutableStateOf(false) }
+    Column(
+        Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        T(S.crashTitle[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+        Body(S.crashBody[main])
+        // The first lines say which version, which phone, when, and what broke.
+        T(report.lines().take(5).joinToString("\n"), color = c.sub, size = 12.sp, lineHeight = 16.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Pill(if (copied) S.copied[main] else S.copyReport[main], true, {
+                app.host.copyText(report)
+                copied = true
+            })
+            Pill(S.deleteReport[main], false, { app.clearCrash() })
+        }
     }
 }
