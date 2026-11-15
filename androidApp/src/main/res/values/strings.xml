@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Everything else the app says lives in the shared code, in every supported
+         language at once, because a reel shows up to three languages side by side. -->
+    <string name="app_name">Kid Reels</string>
+</resources>

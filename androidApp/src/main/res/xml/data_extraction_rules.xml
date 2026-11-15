@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings and progress live in one preferences file. Backing it up saves a parent
+     setting everything up again on a new phone; nothing in it identifies the child. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="sharedpref" path="kidreels.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="sharedpref" path="kidreels.xml" />
+    </device-transfer>
+</data-extraction-rules>

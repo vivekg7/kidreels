@@ -1,0 +1,31 @@
+Kid Reels looks and swipes like the short-video reels apps children already love, but every reel is a tiny learning game.
+
+Made for children who will not eat or sit still without reels: keep the swipe, swap the content for games that teach, and get a gentle, built-in end to screen time.
+
+WHAT YOUR CHILD PLAYS
+• Counting, adding and taking away, with matchsticks under the numbers
+• Times tables shown as dot arrays, number patterns, which is more
+• English ABC and Hindi वर्णमाला: "A for Apple", "अ से अनानास", and first-letter puzzles
+• Shapes whose corners count themselves, 3D solids to spin with a finger
+• Angles to drag open and see named, curves that draw themselves (ages 7 to 10)
+• Telling the time, colours, big and small, odd one out, patterns
+• One-square sudoku, with pictures for the youngest
+• Animal sounds and animal homes
+
+HOW IT KEEPS THINGS HEALTHY
+• You set a daily time limit. Near the end only easy reels appear, then a calm goodbye reel says it is time to eat and play.
+• An easy reel always follows a hard one; puzzles skipped come back a little easier.
+• No streaks, points or badges to chase. Wrong answers just say "try again".
+• Settings open only after a grown-up holds a button for 3 seconds.
+• Every few months, it asks you whether your child is ready for the next age.
+
+FOR INDIAN FAMILIES
+• Every line in up to three languages (English and Hindi now, more coming)
+• Spoken aloud in the main language; Hindi letters in Hindi
+• Ages 2 to 10, chosen by you
+
+THREE LOOKS
+Classic (dark, laid out like familiar reels apps), Candy (bright and bubbly) and Calm (soft and simple).
+
+PRIVATE BY DESIGN
+No ads, no tracking, no account and no internet permission: nothing leaves the phone. Free and open source (MIT).
