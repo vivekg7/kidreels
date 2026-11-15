@@ -233,8 +233,8 @@ data class Category(val key: String, val name: Txt, val one: Txt, val items: Lis
 
 object Categories {
     val all: List<Category> = listOf(
-        Category("fruit", txt("fruits", "फल"), txt("a fruit", "फल"), listOf("🍎", "🍌", "🍇", "🍊", "🍉", "🍓", "🍍", "🥭", "🍐", "🍒"), setOf("veg")),
-        Category("veg", txt("vegetables", "सब्ज़ियाँ"), txt("a vegetable", "सब्ज़ी"), listOf("🥕", "🥦", "🌽", "🥔", "🍆", "🧅", "🥒", "🫑"), setOf("fruit")),
+        Category("fruit", txt("fruits", "फल"), txt("a fruit", "फल"), listOf("🍎", "🍌", "🍇", "🍊", "🍉", "🍓", "🍍", "🥭", "🍐", "🍒", "🍈", "🫐"), setOf("veg")),
+        Category("veg", txt("vegetables", "सब्ज़ियाँ"), txt("a vegetable", "सब्ज़ी"), listOf("🥕", "🥦", "🌽", "🥔", "🍆", "🧅", "🥒", "🫑", "🍠"), setOf("fruit")),
         Category("animal", txt("animals", "जानवर"), txt("an animal", "जानवर"), listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐯", "🦁", "🐮", "🐷", "🐵"), setOf("bird", "sea")),
         Category("bird", txt("birds", "पक्षी").simpler("birds", "चिड़िया"), txt("a bird", "पक्षी").simpler("a bird", "चिड़िया"), listOf("🐦", "🦜", "🦆", "🦉", "🐧", "🦅", "🦚", "🐔"), setOf("animal", "bug")),
         Category("sea", txt("sea animals", "समुद्री जीव").simpler("sea animals", "समुद्र के जानवर"), txt("a sea animal", "समुद्री जीव").simpler("a sea animal", "समुद्र का जानवर"), listOf("🐟", "🐠", "🐙", "🦀", "🐬", "🐳", "🦈", "🐡"), setOf("animal")),

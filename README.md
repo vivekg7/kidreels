@@ -35,7 +35,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 
 - **Picture cards** for ages 2 to 5: "This is an elephant" / "यह हाथी है", in eight
   groups (animals, birds, vehicles, my body, fruits, vegetables, things at home,
-  clothes). From age 4 each adds one fact: "The elephant has a long trunk".
+  clothes). From age 4 each adds one fact: "The elephant has a long trunk". Computer
+  parts (keyboard, mouse, printer and more) are cards for ages 4 to 8, then a quiz from
+  5: "Which one do we type letters with?".
 - **Drag-and-drop games**: find the missing piece of a picture, put shapes in their holes,
   feed each animal its food, put 4 mangoes in the basket, sort fruits from vegetables. A
   piece dropped in the wrong place slides back with a reason ("That is not the dog's

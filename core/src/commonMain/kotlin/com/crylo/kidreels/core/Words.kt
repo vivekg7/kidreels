@@ -128,6 +128,10 @@ object Words {
         w("🍒", "cherries", "चेरी", "Cherries are small and red.", "चेरी छोटी और लाल होती हैं।", plural = true),
         w("🍑", "peach", "आड़ू", "The peach is soft and juicy.", "आड़ू मुलायम और रसीला होता है।"),
         w("🥝", "kiwi", "कीवी", "The kiwi is brown outside and green inside.", "कीवी बाहर से भूरा और अंदर से हरा होता है।"),
+        w("🍈", "melon", "ख़रबूज़ा", "The melon smells sweet when it is ripe.", "पका ख़रबूज़ा मीठी ख़ुशबू देता है।"),
+        w("🫐", "blueberries", "ब्लूबेरी", "Blueberries are tiny and blue.", "ब्लूबेरी छोटी और नीली होती हैं।", plural = true),
+        w("🥑", "avocado", "एवोकाडो", "The avocado has one big seed inside.", "एवोकाडो के अंदर एक बड़ा बीज होता है।", article = "an"),
+        w("🫒", "olive", "जैतून", "Oil is made from olives.", "जैतून से तेल बनता है।", article = "an"),
     )
 
     val vegetables = listOf(
@@ -143,6 +147,7 @@ object Words {
         w("🧄", "garlic", "लहसुन", "Garlic has a strong smell.", "लहसुन की गंध तेज़ होती है।", article = ""),
         w("🥦", "broccoli", "ब्रोकली", "Broccoli looks like a little tree.", "ब्रोकली छोटे पेड़ जैसी दिखती है।", article = ""),
         w("🍄", "mushroom", "मशरूम", "The mushroom looks like a little umbrella.", "मशरूम छोटे छाते जैसा दिखता है।"),
+        w("🍠", "sweet potato", "शकरकंद", "The sweet potato is sweet when it is roasted.", "भुना शकरकंद मीठा लगता है।"),
     )
 
     val home = listOf(
@@ -182,6 +187,41 @@ object Words {
         w("👓", "glasses", "चश्मा", "Glasses help us see clearly.", "चश्मे से साफ़ दिखता है।", plural = true, pluralHi = false),
     )
 
+    /**
+     * Computer parts, for children who see a grown-up's computer every day. From age 4,
+     * so the cards come with their fact, and up to 8.
+     */
+    val computer = listOf(
+        w("🖥️", "computer", "कंप्यूटर", "The screen of a computer is called a monitor.", "कंप्यूटर की स्क्रीन को मॉनिटर कहते हैं।"),
+        w("⌨️", "keyboard", "कीबोर्ड", "We type letters with a keyboard.", "कीबोर्ड से अक्षर टाइप करते हैं।"),
+        w("🖱️", "mouse", "माउस", "A mouse moves the arrow on the screen.", "माउस से स्क्रीन पर तीर चलता है।"),
+        w("💻", "laptop", "लैपटॉप", "A laptop folds shut and goes in a bag.", "लैपटॉप बंद करके बैग में रख सकते हैं।"),
+        w("🖨️", "printer", "प्रिंटर", "A printer puts what is on the screen onto paper.", "प्रिंटर स्क्रीन की चीज़ काग़ज़ पर छाप देता है।"),
+        w("🎧", "headphones", "हेडफ़ोन", "With headphones, only you hear the sound.", "हेडफ़ोन से आवाज़ सिर्फ़ तुम्हें सुनाई देती है।", plural = true, pluralHi = false),
+        w("🔈", "speaker", "स्पीकर", "A speaker plays the sound out loud.", "स्पीकर से आवाज़ ज़ोर से आती है।"),
+        w("🎤", "microphone", "माइक", "A microphone lets the computer hear you.", "माइक से कंप्यूटर तुम्हारी आवाज़ सुनता है।"),
+        w("📷", "camera", "कैमरा", "A camera takes photos.", "कैमरा फ़ोटो खींचता है।"),
+        w("🎮", "game controller", "गेम कंट्रोलर", "We play video games with a game controller.", "गेम कंट्रोलर से वीडियो गेम खेलते हैं।"),
+        w("🔌", "plug", "प्लग", "A plug brings electricity from the wall. Never touch it with wet hands!", "प्लग दीवार से बिजली लाता है। गीले हाथों से कभी मत छूना!"),
+        w("🔋", "battery", "बैटरी", "A battery keeps electricity inside it.", "बैटरी के अंदर बिजली भरी रहती है।"),
+    )
+
+    /** What each computer part is for, asked the other way round: "Which one do we type with?". */
+    val computerUses: Map<String, Txt> = mapOf(
+        "🖥️" to txt("Which one is a computer with a screen?", "स्क्रीन वाला कंप्यूटर कौन-सा है?"),
+        "⌨️" to txt("Which one do we type letters with?", "अक्षर किससे टाइप करते हैं?"),
+        "🖱️" to txt("Which one moves the arrow on the screen?", "स्क्रीन पर तीर किससे चलाते हैं?"),
+        "💻" to txt("Which computer folds shut and goes in a bag?", "कौन-सा कंप्यूटर बंद करके बैग में जाता है?"),
+        "🖨️" to txt("Which one puts pictures onto paper?", "तस्वीर काग़ज़ पर कौन छापता है?"),
+        "🎧" to txt("Which do we wear to listen on our own?", "अकेले सुनने के लिए क्या पहनते हैं?"),
+        "🔈" to txt("Which one plays the sound out loud?", "आवाज़ ज़ोर से कौन सुनाता है?"),
+        "🎤" to txt("Which one lets the computer hear you?", "कंप्यूटर तुम्हारी आवाज़ किससे सुनता है?"),
+        "📷" to txt("Which one takes photos?", "फ़ोटो किससे खींचते हैं?"),
+        "🎮" to txt("Which one do we play video games with?", "वीडियो गेम किससे खेलते हैं?"),
+        "🔌" to txt("Which one brings electricity from the wall?", "दीवार से बिजली कौन लाता है?"),
+        "🔋" to txt("Which one keeps electricity inside it?", "किसके अंदर बिजली भरी रहती है?"),
+    )
+
     /** Which list each picture-card topic shows. */
     val byTopic: Map<Topic, List<Word>> = mapOf(
         Topic.ANIMALS to animals,
@@ -192,7 +232,11 @@ object Words {
         Topic.VEGETABLES to vegetables,
         Topic.HOME_THINGS to home,
         Topic.CLOTHES to clothes,
+        Topic.COMPUTER to computer,
     )
+
+    /** Picture cards are for ages 2 to 5, except where a topic says otherwise. */
+    fun agesOf(topic: Topic): IntRange = if (topic == Topic.COMPUTER) 4..8 else 2..5
 
     /** Every other picture in the app: in quizzes, as examples, in patterns. Names only. */
     private val others = listOf(
@@ -223,7 +267,7 @@ n("🦴", "bone", "हड्डी"), n("🥛", "milk", "दूध", article = "
         n("🕐", "clock", "घड़ी"), n("⌚", "watch", "घड़ी"), n("⛺", "tent", "तंबू"),
         n("⚠️", "warning sign", "ख़तरे का निशान"), n("🛑", "stop sign", "रुकने का निशान"), n("🎄", "Christmas tree", "क्रिसमस ट्री"),
         n("💌", "love letter", "प्यार भरी चिट्ठी"), n("💎", "diamond", "हीरा"), n("🪁", "kite", "पतंग"), n("🔩", "nut and bolt", "नट-बोल्ट"),
-        n("🎲", "dice", "पासा"), n("🔋", "battery", "बैटरी"), n("🎉", "party popper", "पार्टी पॉपर"), n("📦", "box", "डिब्बा"),
+        n("🎲", "dice", "पासा"), n("🎉", "party popper", "पार्टी पॉपर"), n("📦", "box", "डिब्बा"),
         n("🧱", "brick", "ईंट"), n("🎡", "big wheel", "बड़ा झूला"), n("🪀", "yo-yo", "यो-यो"), n("🥁", "drum", "ढोल"),
         n("🏹", "bow and arrow", "धनुष-बाण"), n("🚰", "tap", "नल"), n("👜", "bag", "थैला"), n("🐚", "conch", "शंख"),
         n("🇮🇳", "flag of India", "भारत का झंडा", article = "the"), n("🔱", "trident", "त्रिशूल"), n("☔", "umbrella", "छाता", article = "an"),

@@ -426,7 +426,8 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
                 if (choice.sticks) Sticks(choice.n, if (right) Color.White else colors.stick, Modifier.padding(top = 4.dp), height = 30.dp)
             }
             is Choice.Token -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                T(choice.text, color = ink, size = 46.sp, weight = FontWeight.Bold)
+                // Bigger in the big cards a quiz with nothing else on screen gets.
+                T(choice.text, color = ink, size = if (big) 64.sp else 46.sp, weight = FontWeight.Bold)
                 choice.label?.let { T(it[env.main], color = ink, size = 13.sp, weight = FontWeight.SemiBold) }
             }
             is Choice.Group -> Column(horizontalAlignment = Alignment.CenterHorizontally) {

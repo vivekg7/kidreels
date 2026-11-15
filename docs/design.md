@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-55 templates, and why the tests can check every template at every age and difficulty.
+57 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -439,9 +439,13 @@ the feed, and picking another child once the last one's time is up.
   reel can say (praise, "try again") are kept simple for all ages; easy words
   suit a nine-year-old too. `littleChildrenHearHomeWordsNotSchoolWords` fails if a
   school word reaches a child of 5 or under.
-- **Picture cards are eight small topics, not one**, so each can be shown on its own
-  later. Each weighs 0.4 in the mix, about three reels' worth together,
-  so they do not crowd out the puzzles at ages 2 to 5.
+- **Picture cards are small topics, not one**, so each can be shown on its own. Each
+  weighs 0.4 in the mix, about three reels' worth together, so they do not crowd out the
+  puzzles at ages 2 to 5. Computer parts are the exception in age, 4 to 8: a toddler has
+  no use for "printer", and an older child sees a grown-up's computer every day. "What
+  is it for?" (5 to 9) asks them the other way round, and a wrong tap says what the
+  tapped part does, so every miss teaches a part. The plug's fact adds "never touch it
+  with wet hands".
 - **Capital letters only.** The alphabet card shows "A", not "A a": two shapes side by
   side read as two different letters to a child just starting. The first-letter quiz uses
   capitals too.

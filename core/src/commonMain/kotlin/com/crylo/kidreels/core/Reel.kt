@@ -54,6 +54,8 @@ enum class Topic(val channel: Channel, val title: Txt) {
     VEGETABLES(Channel.WORLD, txt("Vegetables", "सब्ज़ियाँ")),
     HOME_THINGS(Channel.WORLD, txt("At home", "घर की चीज़ें")),
     CLOTHES(Channel.WORLD, txt("Clothes", "कपड़े")),
+    COMPUTER(Channel.WORLD, txt("Computer parts", "कंप्यूटर के हिस्से")),
+    COMPUTER_USE(Channel.WORLD, txt("What is it for?", "किस काम आता है?")),
     SAME_FIGURE(Channel.THINKING, txt("Same figure", "एक जैसी आकृति")),
     ODD_FIGURE(Channel.THINKING, txt("Odd figure out", "अलग आकृति")),
     COMPLETE_PATTERN(Channel.THINKING, txt("Complete the pattern", "पैटर्न पूरा करो")),

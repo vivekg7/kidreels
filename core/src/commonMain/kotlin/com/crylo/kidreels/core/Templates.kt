@@ -284,9 +284,21 @@ object Templates {
                 whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) },
             )
         },
+        // The computer cards asked the other way round: what each part is for.
+        Template(Topic.COMPUTER_USE, 5..9, solving = true, weight = 0.6) { g ->
+            val parts = Words.computer
+            val word = g.pick(parts)
+            val (choices, answer) = g.shuffleIn(word, parts.filter { it != word }.shuffled(g.random).take(g.optionCount - 1))
+            val question = Words.computerUses.getValue(word.emoji)
+            Quiz(
+                g.id, Topic.COMPUTER_USE, g.level, g.difficulty, question, Stage.None,
+                choices.map { Choice.Token(it.emoji) }, answer, reveal = word.fact, say = question + Phrases.tapIt,
+                whyNot = whyNot(choices, answer) { it.thisIs() + it.fact!! },
+            )
+        },
     ) + Words.byTopic.map { (topic, words) ->
-        // Eight small topics: light weights, so together they are about three reels' worth.
-        Template(topic, 2..5, solving = false, weight = 0.4) { g ->
+        // Small topics with light weights, so together they are about three reels' worth.
+        Template(topic, Words.agesOf(topic), solving = false, weight = 0.4) { g ->
             WordCard(g.id, topic, g.level, g.difficulty, words[g.inOrder("words.${topic.name}", words.size)], showFact = g.level >= 4)
         }
     }
