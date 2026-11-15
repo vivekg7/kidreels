@@ -96,3 +96,12 @@ AI-generated assets: none.
    under the bundle's Downloads without a separate upload; the archived `mapping.txt` is
    the copy that outlives Play. Play warns that native debug symbols are missing: the
    native code is AndroidX's, not ours, so there is nothing to upload.
+5. If `full_description.txt` changed, paste it into the main store listing too.
+
+While a production release is still in review, the next one goes to **internal
+testing** instead: it reaches the testers' phones within minutes, without waiting
+behind the review, and is promoted to production from there once the review is done.
+1.2 (3) went this way while 1.1 (2) was in review. The track's testers are the
+account's "Galla testers" email list; they join at
+https://play.google.com/apps/internaltest/4699901465540780758. Until the app's first
+review is done, Play shows them the app as "com.crylo.kidreels (unreviewed)".
