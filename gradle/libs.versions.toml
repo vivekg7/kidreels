@@ -1,0 +1,25 @@
+[versions]
+# AGP 9 has built-in Kotlin support for Android apps; shared modules use its
+# Kotlin Multiplatform library plugin instead of the old com.android.library.
+agp = "9.5.1"
+kotlin = "2.4.21"
+# Compose Multiplatform: the same UI code compiles for Android now and for desktop
+# (and later iOS). Only foundation is used, no Material, so the kid-facing look is
+# entirely our own and there is one fewer library to keep in step.
+composeMultiplatform = "1.12.2"
+activityCompose = "1.13.0"
+coreKtx = "1.19.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composeMultiplatform" }
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "composeMultiplatform" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "composeMultiplatform" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
