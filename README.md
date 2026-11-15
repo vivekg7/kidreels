@@ -70,6 +70,9 @@ On first launch, and later in settings (behind a 3-second press-and-hold gate):
 - **Daily time limit**: 10 to 60 minutes, or none. In the last two minutes only easy reels
   appear and an "Almost done" chip shows; then a goodbye reel says it is time to eat and
   play, and the feed stops. A grown-up can hold a button there for 10 more minutes.
+- **Bedtime**: off, or 7 pm to 9:30 pm. From then until 6 in the morning a good-night reel
+  takes the feed's place, however many minutes are left, with the same wind-down before
+  it and the same 10 more minutes for a grown-up.
 - **Show only**: one topic for now, such as just the alphabet or just vehicles. It goes in
   order (the alphabet from A, counting from 1, shapes from the simplest) and puzzles get
   harder as they are solved. A chip on the feed says which topic is on. It is not saved:

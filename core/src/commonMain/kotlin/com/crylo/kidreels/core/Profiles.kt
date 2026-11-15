@@ -129,10 +129,11 @@ class Profiles(private val kv: KeyValueStore) {
      */
     fun needsGate(id: Int, clock: Clock): Boolean = id != last && timeUp(last, clock)
 
-    /** Whether [id] has used up today's time (and any extra a grown-up gave). */
+    /** Whether [id] is done for now: today's time used up (with any extra a grown-up gave), or past bedtime. */
     fun timeUp(id: Int, clock: Clock): Boolean {
-        val minutes = SettingsStore(storeOf(id)).load().dailyMinutes
-        return TimeBudget(storeOf(id), clock).remainingMillis(minutes) == 0L
+        val s = SettingsStore(storeOf(id)).load()
+        val budget = TimeBudget(storeOf(id), clock)
+        return budget.remainingMillis(s.dailyMinutes) == 0L || budget.isBedtime(s.bedtime)
     }
 
     companion object {

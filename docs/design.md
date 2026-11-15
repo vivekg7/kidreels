@@ -13,6 +13,12 @@ apps hard to put down:
   three screens deep. The last two minutes get only easy, calm reels and an "Almost done"
   chip, so the stop is expected; then a goodbye reel ("time to eat, play and rest")
   replaces the feed. An abrupt cut-off causes meltdowns; a wind-down does not.
+- **And a bedtime.** Minutes alone let a child who saved them up watch at 11 pm, and
+  screens just before sleep are what paediatric advice warns about most. Each child can
+  have a bedtime, from which until 6 am a good-night reel ("brush your teeth, hug your
+  teddy") ends the feed, with the same wind-down before it. A grown-up's "10 more
+  minutes" there is wall-clock time, ten minutes before bed, not ten minutes of feed.
+  6 am rather than later, so a child up at dawn is not told good night.
 - **No streaks, badges, points or "just one more".** A right answer is celebrated on the
   spot and then it is over. Nothing accumulates that a child would be afraid to lose.
 - **Nothing to watch passively.** Every reel needs a tap, a drag or a count.
@@ -158,7 +164,7 @@ with easier versions earlier:
    first-try answer, down on struggles. Difficulty is 3 + skill ± 1. Moving to a new age
    resets it.
 6. **Likes.** A liked topic comes up a little more often, up to 1.5×.
-7. **Wind-down.** In the last two minutes before the limit: difficulty 1, mostly explore.
+7. **Wind-down.** In the last two minutes before the limit or bedtime: difficulty 1, mostly explore.
 
 Reels are generated two ahead of the one on screen, so a swipe never waits. The "after a
 hard one, an easy one" rule uses the _difficulty_ of the previous reel, which is known

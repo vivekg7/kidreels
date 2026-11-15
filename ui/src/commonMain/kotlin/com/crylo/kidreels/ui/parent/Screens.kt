@@ -179,7 +179,7 @@ fun SettingsScreen(app: AppState) {
     val main = s.main
     val close = {
         app.screen = Screen.FEED
-        app.feed.onSettingsClosed()
+        app.feed.recheck()
     }
     ParentPage { c ->
         LaunchedEffect(c.dark) { app.host.darkSystemIcons(!c.dark) }
@@ -207,6 +207,10 @@ fun SettingsScreen(app: AppState) {
                 SectionTitle(S.limitTitle[main])
                 app.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[main]) }
                 LimitPicker(s.dailyMinutes, main) { app.update(s.copy(dailyMinutes = it)) }
+
+                SectionTitle(S.bedtimeTitle[main])
+                Body(S.bedtimeBody[main])
+                BedtimePicker(s.bedtime, main) { app.update(s.copy(bedtime = it)) }
 
                 SectionTitle(S.showOnly[main])
                 Body(S.showOnlyBody[main])

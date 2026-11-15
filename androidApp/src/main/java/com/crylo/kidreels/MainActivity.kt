@@ -15,6 +15,7 @@ import com.crylo.kidreels.ui.Host
 import com.crylo.kidreels.ui.KidReelsApp
 import com.crylo.kidreels.ui.Sfx
 import java.time.LocalDate
+import java.time.LocalTime
 
 /** The Android shell: storage, clock, speech and sound for the shared app. Nothing else lives here. */
 class MainActivity : ComponentActivity(), Host {
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity(), Host {
     override val clock: Clock = object : Clock {
         override fun nowMillis() = System.currentTimeMillis()
         override fun today() = LocalDate.now().toEpochDay()
+        override fun minuteOfDay() = LocalTime.now().let { it.hour * 60 + it.minute }
     }
     override val speaker get() = tts
     override val appVersion: String

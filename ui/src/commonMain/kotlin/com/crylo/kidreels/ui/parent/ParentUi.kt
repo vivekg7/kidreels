@@ -196,6 +196,14 @@ fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+fun BedtimePicker(bedtime: Int, main: Lang, onChange: (Int) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Settings.BEDTIMES.forEach { m -> Pill(if (m == 0) S.off[main] else S.clock(m)[main], m == bedtime, { onChange(m) }) }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
 fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Settings.CHECK_IN_MONTHS.forEach { m -> Pill(S.everyMonths(m)[main], m == months, { onChange(m) }) }

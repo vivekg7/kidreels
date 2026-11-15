@@ -54,6 +54,9 @@ object Phrases {
     /** Under the goodbye reel: what comes after the phone. */
     val goodbyeThings = listOf("🍽️", "⚽", "🧸", "📚", "🛏️")
 
+    /** Under the good-night reel. */
+    val bedtimeThings = listOf("🪥", "🧸", "🛏️", "🌟")
+
     /** What tapping a picture says: see [Word.thisIs]. */
     fun thisIs(name: Txt, plural: Boolean, pluralHi: Boolean, article: String?, colour: Boolean): Txt {
         val en = name.en
@@ -366,6 +369,8 @@ object Phrases {
     val allDone = txt("All done for today!", "आज के लिए बस!")
     val allDoneBody = txt("Time to eat, play and rest. See you tomorrow!", "अब खाना, खेलना और आराम। कल मिलते हैं!")
     val almostDone = txt("Almost done", "बस थोड़ा और")
+    val bedtime = txt("Time for bed!", "सोने का समय हो गया!")
+    val bedtimeBody = txt("Brush your teeth, hug your teddy and sleep tight. Good night!", "ब्रश करो, टेडी को गले लगाओ और मीठे सपने देखो। शुभ रात्रि!")
 
     fun <T> pick(list: List<T>, random: Random): T = list[random.nextInt(list.size)]
 

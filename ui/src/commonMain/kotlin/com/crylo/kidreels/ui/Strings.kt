@@ -111,6 +111,21 @@ object S {
     )
     val noLimit = txt("No limit", "कोई सीमा नहीं")
 
+    val bedtimeTitle = txt("Bedtime", "सोने का समय")
+    val bedtimeBody = txt(
+        "No reels from this time until 6 in the morning, however many minutes are left. A good-night reel says it is time to sleep; a grown-up can add 10 minutes from there.",
+        "इस समय से सुबह 6 बजे तक कोई रील नहीं, चाहे कितने भी मिनट बचे हों। एक रील कहती है कि अब सोने का समय है; बड़े वहाँ से 10 मिनट और दे सकते हैं।",
+    )
+    val off = txt("Off", "बंद")
+
+    /** An evening time: "8:30 pm" / "रात 8:30". */
+    fun clock(minuteOfDay: Int): Txt {
+        val h = minuteOfDay / 60
+        val m = (minuteOfDay % 60).toString().padStart(2, '0')
+        val h12 = (h + 11) % 12 + 1
+        return txt("$h12:$m ${if (h < 12) "am" else "pm"}", "${if (h < 20) "शाम" else "रात"} $h12:$m")
+    }
+
     fun minutes(n: Int): Txt = txt("$n min", "$n मिनट")
 
     fun leftToday(minutes: Long): Txt = txt("$minutes min left today", "आज $minutes मिनट बाकी")

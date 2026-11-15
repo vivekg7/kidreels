@@ -9,6 +9,7 @@ class ProfilesTest {
     private val clock = object : Clock {
         override fun nowMillis() = 0L
         override fun today() = 100L
+        override fun minuteOfDay() = 12 * 60
     }
 
     @Test

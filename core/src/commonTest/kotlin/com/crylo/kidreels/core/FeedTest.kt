@@ -194,6 +194,7 @@ class FeedTest {
         val clock = object : Clock {
             override fun nowMillis() = 0L
             override fun today() = day
+            override fun minuteOfDay() = 12 * 60
         }
         val budget = TimeBudget(store, clock)
         assertNull(budget.remainingMillis(0))

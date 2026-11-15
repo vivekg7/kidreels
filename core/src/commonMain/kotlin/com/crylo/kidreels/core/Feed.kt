@@ -128,7 +128,7 @@ class Feed(
         return reel
     }
 
-    fun timeUp(): Reel = TimeUp(nextId++)
+    fun timeUp(bedtime: Boolean = false): Reel = TimeUp(nextId++, bedtime)
 
     fun record(reel: Reel, outcome: Outcome) {
         if (!reel.needsSolving) return

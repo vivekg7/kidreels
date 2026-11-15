@@ -319,13 +319,13 @@ data class WordCard(
     override val voice: Lang? get() = null
 }
 
-/** The last reel of the day, once the parent's time limit is used up. */
-data class TimeUp(override val id: Long) : Reel {
+/** The last reel of the day: the parent's time limit is used up, or it is [bedtime]. */
+data class TimeUp(override val id: Long, val bedtime: Boolean = false) : Reel {
     override val topic get() = Topic.BREAK
     override val level get() = 2
     override val difficulty get() = 1
     override val needsSolving get() = false
-    override val prompt get() = Phrases.allDone
+    override val prompt get() = if (bedtime) Phrases.bedtime else Phrases.allDone
     override val voice: Lang? get() = null
 }
 
@@ -338,7 +338,11 @@ fun Reel.intro(main: Lang): List<Say> {
     val lang = voice ?: main
     fun line(t: Txt, tone: Tone = Tone.TALK) = Say(t[lang], lang, tone)
     return when (this) {
-        is TimeUp -> listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
+        is TimeUp -> if (bedtime) {
+            listOf(line(Phrases.bedtime, Tone.CALM), line(Phrases.bedtimeBody, Tone.CALM))
+        } else {
+            listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
+        }
         // Said, then said again with the child: toddlers learn a letter by repeating it.
         is LetterCard -> letter.spoken() + line(Phrases.sayWithMe) + letter.spoken()
         is Quiz -> listOf(line(say ?: prompt))

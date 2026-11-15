@@ -132,6 +132,8 @@ class AppState(val host: Host) {
             }
             val away = awaySince ?: return
             awaySince = null
+            // Bedtime may have come, or morning, while the app was away.
+            feed.recheck()
             if (now - away >= Profiles.ASK_AGAIN_MILLIS && profiles.count > 1 && screen == Screen.FEED && gateAction == null) {
                 checkInOpen = false
                 voiceOpen = null
@@ -178,7 +180,7 @@ class AppState(val host: Host) {
         child = c
         host.speaker.setSlow(c.settings.slowSpeech)
         // A new day may have started since this child last played.
-        c.feed.onSettingsClosed()
+        c.feed.recheck()
     }
 
     /** A child picked themselves at "Who's playing?". */
@@ -252,7 +254,7 @@ class AppState(val host: Host) {
         editing != null -> true.also { editing = null }
         screen == Screen.SETTINGS -> true.also {
             screen = Screen.FEED
-            feed.onSettingsClosed()
+            feed.recheck()
         }
         // Back to the child who was playing: they are never the one the gate guards.
         screen == Screen.PICKER && played -> true.also {
@@ -290,6 +292,13 @@ class FeedModel(private val app: AppState, private val child: Child) {
     var remainingMillis by mutableStateOf<Long?>(null)
         private set
 
+    /** The last couple of minutes before the limit or bedtime: easy reels and an "almost done" chip. */
+    var windingDown by mutableStateOf(false)
+        private set
+
+    /** Why [timeUp]: past bedtime rather than out of minutes. */
+    private var bedtime = false
+
     /**
      * The topic a parent picked to show alone, for as long as the app runs: it is not
      * saved, so the next start is the usual mix. Changing it remakes the reel on screen.
@@ -323,7 +332,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
     fun fill(current: Int) {
         if (reels.isEmpty()) refreshBudget()
         if (timeUp) {
-            if (reels.lastOrNull() !is TimeUp) reels += engine.timeUp()
+            if (reels.lastOrNull() !is TimeUp) reels += engine.timeUp(bedtime)
             return
         }
         while (reels.size < current + AHEAD + 1) reels += engine.next()
@@ -378,36 +387,49 @@ class FeedModel(private val app: AppState, private val child: Child) {
         child.budget.add(millis)
         refreshBudget()
         if (timeUp) {
-            // The child finishes the reel they are on; the goodbye reel is the next one.
-            if (reels.size > current + 1) reels.removeRange(current + 1, reels.size)
-            reels += engine.timeUp()
+            goodbyeAfter(current)
             return true
         }
         return false
     }
 
-    /** A grown-up gave more time from the goodbye reel. */
+    /** The child finishes the reel they are on; the goodbye reel is the next one. */
+    private fun goodbyeAfter(current: Int) {
+        if (reels.size > current + 1) reels.removeRange(current + 1, reels.size)
+        reels += engine.timeUp(bedtime)
+    }
+
+    /** A grown-up gave more time from the goodbye reel: past bedtime, before bed; otherwise on the limit. */
     fun addTime(minutes: Int) {
-        child.budget.addBonus(minutes)
+        if (bedtime) child.budget.addBedtimeMinutes(minutes)
+        if (remainingMillis == 0L) child.budget.addBonus(minutes)
         refreshBudget()
         reels.removeAll { it is TimeUp }
         fill(current)
     }
 
     private fun refreshBudget() {
-        val left = child.budget.remainingMillis(child.settings.dailyMinutes)
+        val s = child.settings
+        val left = child.budget.remainingMillis(s.dailyMinutes)
         remainingMillis = left
-        timeUp = left == 0L
-        engine.windDown = left != null && left <= TimeBudget.WIND_DOWN_MILLIS
+        bedtime = child.budget.isBedtime(s.bedtime)
+        timeUp = left == 0L || bedtime
+        val toBed = child.budget.minutesToBedtime(s.bedtime)
+        windingDown = !timeUp &&
+            ((left != null && left <= TimeBudget.WIND_DOWN_MILLIS) || (toBed != null && toBed * TimeBudget.MINUTE <= TimeBudget.WIND_DOWN_MILLIS))
+        engine.windDown = windingDown
     }
 
-    /** Settings may have changed the limit. */
-    fun onSettingsClosed() {
+    /** Settings may have changed the limit or bedtime, or the clock may have passed one. */
+    fun recheck() {
         val wasUp = timeUp
         refreshBudget()
         if (wasUp && !timeUp) {
             reels.removeAll { it is TimeUp }
             fill(current)
+        } else if (!wasUp && timeUp && reels.isNotEmpty()) {
+            // A bedtime set for a time already past, or reached while the app was away.
+            goodbyeAfter(current)
         }
     }
 

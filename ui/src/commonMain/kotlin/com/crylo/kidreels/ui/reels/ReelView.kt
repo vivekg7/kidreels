@@ -100,7 +100,7 @@ fun ReelView(
         is CurveLab -> CurveView(reel, padding)
         is WordCard -> WordView(reel, padding)
         is DragGame -> DragView(reel, state, padding, onSolved)
-        is TimeUp -> TimeUpView(padding, onMoreTime)
+        is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }
 }
 

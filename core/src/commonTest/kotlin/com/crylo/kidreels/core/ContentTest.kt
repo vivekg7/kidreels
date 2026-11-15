@@ -90,6 +90,7 @@ class ContentTest {
             Solids.all.forEach { addAll(it.examples) }
             Curves.all.forEach { add(it.example) }
             addAll(Phrases.goodbyeThings)
+            addAll(Phrases.bedtimeThings)
         }
         val missing = pictures.distinct().filter { Words.of(it) == null }
         assertTrue(missing.isEmpty(), "No name for $missing")

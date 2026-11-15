@@ -126,7 +126,7 @@ fun FeedScreen(app: AppState) {
     val onTimeUpReel = model.reels.getOrNull(pager.currentPage) is TimeUp
     val limitMillis = settings.dailyMinutes * TimeBudget.MINUTE
     val timeFraction = model.remainingMillis?.let { (1f - it.toFloat() / limitMillis).coerceIn(0f, 1f) }
-    val windingDown = model.remainingMillis.let { it != null && it in 1..TimeBudget.WIND_DOWN_MILLIS }
+    val windingDown = model.windingDown
     val focus = model.focus
     // One note for a grown-up at a time, under the header: the age check-in first, as it
     // changes what the child sees; then a voice the reels need and the phone lacks.

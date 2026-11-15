@@ -22,11 +22,16 @@ class MapStore(private val map: MutableMap<String, String> = mutableMapOf()) : K
     override fun keys(): Set<String> = map.keys.toSet()
 }
 
-/** Wall-clock time from the platform. [today] is the local calendar day, as days since 1970-01-01. */
+/**
+ * Wall-clock time from the platform. [today] is the local calendar day, as days since
+ * 1970-01-01; [minuteOfDay] is the local time, 0 at midnight to 1439.
+ */
 interface Clock {
     fun nowMillis(): Long
 
     fun today(): Long
+
+    fun minuteOfDay(): Int
 }
 
 /** The kid-facing look of the feed. Parent screens look the same whatever is picked. */
@@ -45,6 +50,8 @@ data class Settings(
     /** The day [age] was last chosen or confirmed (days since 1970-01-01). */
     val ageSetDay: Long = 0,
     val slowSpeech: Boolean = false,
+    /** No reels from this time (minutes after midnight) until [Bedtime.MORNING]; 0 is off. */
+    val bedtime: Int = 0,
 ) {
     val main: Lang get() = langs.first()
 
@@ -53,6 +60,7 @@ data class Settings(
         val AGES = 2..10
         val DAILY_MINUTES = listOf(10, 15, 20, 30, 45, 60, 0)
         val CHECK_IN_MONTHS = listOf(1, 3, 6, 0)
+        val BEDTIMES = listOf(0, 19 * 60, 19 * 60 + 30, 20 * 60, 20 * 60 + 30, 21 * 60, 21 * 60 + 30)
     }
 }
 
@@ -69,6 +77,7 @@ class SettingsStore(private val kv: KeyValueStore) {
             checkInMonths = kv.get("checkInMonths")?.toIntOrNull()?.coerceAtLeast(0) ?: d.checkInMonths,
             ageSetDay = kv.get("ageSetDay")?.toLongOrNull() ?: d.ageSetDay,
             slowSpeech = kv.get("slowSpeech") == "true",
+            bedtime = kv.get("bedtime")?.toIntOrNull()?.takeIf { it == 0 || it in Bedtime.MORNING until 24 * 60 } ?: d.bedtime,
         )
     }
 
@@ -81,6 +90,7 @@ class SettingsStore(private val kv: KeyValueStore) {
         kv.put("checkInMonths", s.checkInMonths.toString())
         kv.put("ageSetDay", s.ageSetDay.toString())
         kv.put("slowSpeech", s.slowSpeech.toString())
+        kv.put("bedtime", s.bedtime.toString())
     }
 }
 
@@ -123,6 +133,31 @@ class TimeBudget(private val kv: KeyValueStore, private val clock: Clock) {
         return (dailyMinutes * MINUTE + bonus - used).coerceAtLeast(0)
     }
 
+    /**
+     * Whether it is past this child's [bedtime] and before morning, and no grown-up has
+     * given extra minutes tonight. The extra is wall-clock time, "ten more minutes before
+     * bed", rather than feed time like [addBonus].
+     */
+    fun isBedtime(bedtime: Int): Boolean =
+        Bedtime.isNight(bedtime, clock.minuteOfDay()) && clock.nowMillis() >= (kv.get("bed.until")?.toLongOrNull() ?: 0)
+
+    fun addBedtimeMinutes(minutes: Int) {
+        val from = maxOf(clock.nowMillis(), kv.get("bed.until")?.toLongOrNull() ?: 0)
+        kv.put("bed.until", (from + minutes * MINUTE).toString())
+    }
+
+    /**
+     * Minutes left before bed, for the calm last stretch: until [bedtime], or past it, until
+     * the end of a grown-up's extra minutes. Null when bedtime is off or already here.
+     */
+    fun minutesToBedtime(bedtime: Int): Int? {
+        if (bedtime <= 0) return null
+        val now = clock.minuteOfDay()
+        if (!Bedtime.isNight(bedtime, now)) return bedtime - now
+        val extra = (kv.get("bed.until")?.toLongOrNull() ?: 0) - clock.nowMillis()
+        return if (extra > 0) ((extra + MINUTE - 1) / MINUTE).toInt() else null
+    }
+
     companion object {
         const val MINUTE = 60_000L
 
@@ -142,4 +177,16 @@ object CheckIn {
 
     /** "Ask me later": comes back in a week. */
     fun snooze(s: Settings, today: Long): Settings = s.copy(ageSetDay = today - s.checkInMonths * 30L + 7)
+}
+
+/**
+ * No reels at night. From the parent's bedtime until [MORNING] the feed shows the
+ * good-night reel instead; a limit on minutes alone would still let a child who saved
+ * them up watch at 11 pm.
+ */
+object Bedtime {
+    /** 6 am: early enough that a child up at dawn is not met by "good night". */
+    const val MORNING = 6 * 60
+
+    fun isNight(bedtime: Int, minuteOfDay: Int): Boolean = bedtime > 0 && (minuteOfDay >= bedtime || minuteOfDay < MORNING)
 }

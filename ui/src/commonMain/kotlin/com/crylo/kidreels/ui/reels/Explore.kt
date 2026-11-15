@@ -264,9 +264,9 @@ fun WordView(reel: WordCard, padding: PaddingValues) {
     }
 }
 
-/** The goodbye reel. Calm on purpose: no confetti, nothing to tap but the parent button. */
+/** The goodbye reel, or good night. Calm on purpose: no confetti, nothing to tap but the parent button. */
 @Composable
-fun TimeUpView(padding: PaddingValues, onMoreTime: () -> Unit) {
+fun TimeUpView(bedtime: Boolean, padding: PaddingValues, onMoreTime: () -> Unit) {
     val env = LocalReelEnv.current
     val colors = LocalReelColors.current
     Column(
@@ -278,10 +278,10 @@ fun TimeUpView(padding: PaddingValues, onMoreTime: () -> Unit) {
             T("🌙", Modifier.floating(6f, 2600), size = 120.sp)
             Snooze(colors.ink, Modifier.align(Alignment.TopEnd).padding(top = 10.dp))
         }
-        MultiText(Phrases.allDone, env.langs, colors.ink, size = 32.sp, say = { env.say(it) })
-        MultiText(Phrases.allDoneBody, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+        MultiText(if (bedtime) Phrases.bedtime else Phrases.allDone, env.langs, colors.ink, size = 32.sp, say = { env.say(it) })
+        MultiText(if (bedtime) Phrases.bedtimeBody else Phrases.allDoneBody, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Phrases.goodbyeThings.forEach { Pic(it, 38.sp) }
+            (if (bedtime) Phrases.bedtimeThings else Phrases.goodbyeThings).forEach { Pic(it, 38.sp) }
         }
         HoldButton(S.moreTime[env.main], onMoreTime, Modifier.fillMaxWidth(), background = colors.ink.copy(alpha = 0.16f), content = colors.ink)
     }
