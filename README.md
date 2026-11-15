@@ -130,6 +130,13 @@ archived release. The script also refuses an unsigned APK, archives a dirty tree
 `v<version>-dirty-g<commit>/`, and never replaces an existing archive without `--force`.
 Bump `versionCode` and `versionName` in `androidApp/build.gradle.kts` for each release.
 
+### Google Play
+
+The store listing (texts, icon, feature graphic, screenshots) is in
+`fastlane/metadata/android/en-GB/`, and the privacy policy in [PRIVACY.md](PRIVACY.md).
+What is filled in on Play Console, and why (target audience, the Families policy, data
+safety): [docs/play-store.md](docs/play-store.md).
+
 ## Permissions
 
 None that a user sees. The manifest asks for nothing; the only entry `aapt2 dump
