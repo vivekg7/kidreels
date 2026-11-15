@@ -307,6 +307,15 @@ the feed, and picking another child once the last one's time is up.
 
 ## Small decisions worth knowing
 
+- **Tablets get the phone layout, scaled to fit.** Phones keep the portrait lock, but
+  Android 16 and later ignore it on large screens, so a tablet turns. Rather than a
+  second layout, `screenScale` draws everything bigger or smaller until the phone layout
+  (400 × 880 dp) fits both ways: 1.45× on a 10-inch tablet upright, where it otherwise
+  showed phone-sized pictures in a sea of background, and 0.91× on its side, where the
+  swipe hint ran into the reel. The reels cap their width, so the sides of a landscape
+  tablet are the look's background, as in a reels app on a tablet. Phones (shorter side
+  under 600 dp) always stay at 1.
+
 - **Crash reports without the internet.** With no internet permission there is no crash
   service, and a crash on a family's phone would never reach anyone. `KidReelsApplication`
   keeps the last uncaught exception (app and Android version, phone model, time, stack

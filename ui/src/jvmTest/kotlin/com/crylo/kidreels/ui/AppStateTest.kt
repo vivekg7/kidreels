@@ -243,4 +243,17 @@ class AppStateTest {
         assertNull(app.crashReport)
         assertNull(host.store.get("device.crash"))
     }
+
+    @Test
+    fun tabletsFitThePhoneLayoutAndPhonesAreLeftAlone() {
+        // Phones, small and large: as designed.
+        assertEquals(1f, screenScale(360f, 760f))
+        assertEquals(1f, screenScale(411f, 923f))
+        assertEquals(1f, screenScale(450f, 980f))
+        // A 10-inch tablet: bigger upright; on its side, a little smaller, to fit the height.
+        assertEquals(1.45f, screenScale(800f, 1280f), 0.01f)
+        assertEquals(0.91f, screenScale(1280f, 800f), 0.01f)
+        // A big screen is not blown up without end.
+        assertEquals(1.6f, screenScale(1600f, 2400f))
+    }
 }

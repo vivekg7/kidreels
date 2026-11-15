@@ -20,8 +20,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.KidReels">
-        <!-- Portrait, like every reels app. Android 16+ ignores this on large screens,
-             so the layouts also cap their width rather than rely on it. -->
+        <!-- Portrait, like every reels app. Android 16+ ignores this on large screens, so
+             tablets turn: the UI scales the phone layout to fit (see screenScale in
+             ui/App.kt) and the reels cap their width. -->
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
