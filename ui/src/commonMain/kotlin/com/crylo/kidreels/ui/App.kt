@@ -9,6 +9,7 @@ import com.crylo.kidreels.ui.feed.FeedScreen
 import com.crylo.kidreels.ui.feed.WhoIsPlaying
 import com.crylo.kidreels.ui.parent.ChildEditor
 import com.crylo.kidreels.ui.parent.CheckInDialog
+import com.crylo.kidreels.ui.parent.VoiceDialog
 import com.crylo.kidreels.ui.parent.Gate
 import com.crylo.kidreels.ui.parent.Onboarding
 import com.crylo.kidreels.ui.parent.SettingsScreen
@@ -33,6 +34,7 @@ fun KidReelsApp(app: AppState) {
             }
         }
         if (app.checkInOpen) CheckInDialog(app)
+        app.voiceOpen?.let { VoiceDialog(app, it) }
         if (app.gateAction != null) Gate(app)
     }
 }

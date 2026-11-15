@@ -263,7 +263,12 @@ the feed, and picking another child once the last one's time is up.
   perspective, flat shading, and back-face culling, which is enough because every school
   solid is convex.
 - Speech is the phone's TTS engine, so no voice recordings ship. A missing voice means
-  silence for that language, never Devanagari read by an English voice.
+  silence for that language, never Devanagari read by an English voice. Silence nobody
+  can explain is the worst outcome, and settings is only seen by a parent who goes
+  looking, so the feed also shows a banner for grown-ups ("no Hindi voice") that leads,
+  past the gate, to the engine's install screen. "Not now" quiets it for a week, phone
+  wide, since some engines have no voice for the language at all. The age check-in
+  banner wins when both are due: it changes what the child sees.
 - **The voice talks to the child, not at them.** Read out flat, the screen text ("कितने
   हैं?") sounded curt, and a generic opener in front of it ("Can you help me?") only
   added words. So each reel says what a parent beside the child would: what is on the

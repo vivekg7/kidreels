@@ -77,6 +77,9 @@ class Profiles(private val kv: KeyValueStore) {
         get() = kv.get(LAST)?.toIntOrNull()?.takeIf { it in ids() } ?: ids().first()
         set(id) = kv.put(LAST, id.toString())
 
+    /** The phone's own keys, shared by every child: a missing voice is missing for all of them. */
+    val device: KeyValueStore = PrefixedStore(kv, DEVICE)
+
     /** One child's own store: what [SettingsStore], [Progress] and [TimeBudget] are given. */
     fun storeOf(id: Int): KeyValueStore = PrefixedStore(kv, prefix(id))
 

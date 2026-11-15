@@ -75,7 +75,7 @@ fun FeedScreen(app: AppState) {
 
     if (model.reels.isEmpty()) model.fill(model.current)
     val pager = rememberPagerState(initialPage = model.current) { model.reels.size }
-    val onScreen = app.foreground && app.screen == Screen.FEED && app.gateAction == null && !app.checkInOpen
+    val onScreen = app.foreground && app.screen == Screen.FEED && app.gateAction == null && !app.checkInOpen && app.voiceOpen == null
     val onScreenNow by rememberUpdatedState(onScreen)
 
     LaunchedEffect(colors.dark, app.screen) { if (app.screen == Screen.FEED) host.darkSystemIcons(!colors.dark) }
@@ -128,7 +128,15 @@ fun FeedScreen(app: AppState) {
     val timeFraction = model.remainingMillis?.let { (1f - it.toFloat() / limitMillis).coerceIn(0f, 1f) }
     val windingDown = model.remainingMillis.let { it != null && it in 1..TimeBudget.WIND_DOWN_MILLIS }
     val focus = model.focus
-    val extraTop = (if (app.checkInDue) 44.dp else 0.dp) + (if (focus != null) 40.dp else 0.dp)
+    // One note for a grown-up at a time, under the header: the age check-in first, as it
+    // changes what the child sees; then a voice the reels need and the phone lacks.
+    val missingVoice = app.missingVoice
+    val banner: Pair<String, () -> Unit>? = when {
+        app.checkInDue -> "👋  " + S.checkInBanner[settings.main] to { app.requestGate { app.checkInOpen = true } }
+        missingVoice != null -> "🔇  " + S.voiceBanner(missingVoice)[settings.main] to { app.requestGate { app.voiceOpen = missingVoice } }
+        else -> null
+    }
+    val extraTop = (if (banner != null) 44.dp else 0.dp) + (if (focus != null) 40.dp else 0.dp)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         CompositionLocalProvider(LocalReelColors provides colors) {
@@ -192,19 +200,19 @@ fun FeedScreen(app: AppState) {
                 }
                 Gear(app, colors.dark)
             }
-            if (app.checkInDue) {
+            if (banner != null) {
                 Box(
                     Modifier.align(Alignment.TopCenter).padding(top = 58.dp).clip(RoundedCornerShape(50))
                         .background(Color(0xEE2B2440))
-                        .pressable({ app.requestGate { app.checkInOpen = true } })
+                        .pressable(banner.second)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) { T("👋  " + S.checkInBanner[settings.main], color = Color.White, size = 13.sp, weight = FontWeight.SemiBold) }
+                ) { T(banner.first, color = Color.White, size = 13.sp, weight = FontWeight.SemiBold) }
             }
             // For the grown-up: a reminder that the feed is showing one topic only. Its own
             // line, under the header and any check-in banner: a long topic name would run
             // into the channel pill beside the gear.
             if (focus != null) {
-                Box(Modifier.align(Alignment.TopCenter).padding(top = if (app.checkInDue) 102.dp else 60.dp)) {
+                Box(Modifier.align(Alignment.TopCenter).padding(top = if (banner != null) 102.dp else 60.dp)) {
                     Chip(focus.channel.emoji + " " + S.onlyTopic(focus.title)[settings.main], colors.dark)
                 }
             }

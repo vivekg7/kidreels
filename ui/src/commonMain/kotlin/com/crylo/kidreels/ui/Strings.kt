@@ -1,5 +1,6 @@
 package com.crylo.kidreels.ui
 
+import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Look
 import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.core.txt
@@ -144,6 +145,23 @@ object S {
     val voiceMissing = txt("Voice not installed: reels in it will be silent", "आवाज़ इंस्टॉल नहीं है: इसकी रील्स चुप रहेंगी")
     val noEngine = txt("This phone has no text-to-speech engine, so reels will be silent.", "इस फ़ोन में बोलने वाला इंजन नहीं है, इसलिए रील्स चुप रहेंगी।")
     val installVoice = txt("Install voice", "आवाज़ इंस्टॉल करें")
+
+    fun langName(lang: Lang): Txt = when (lang) {
+        Lang.EN -> txt("English", "अंग्रेज़ी")
+        Lang.HI -> txt("Hindi", "हिन्दी")
+    }
+
+    fun voiceBanner(lang: Lang): Txt =
+        txt("For grown-ups: no ${langName(lang)[Lang.EN]} voice", "बड़ों के लिए: ${langName(lang)[Lang.HI]} की आवाज़ नहीं है")
+
+    fun voiceTitle(lang: Lang): Txt = txt("${langName(lang)[Lang.EN]} reels are silent", "${langName(lang)[Lang.HI]} रील्स चुप हैं")
+
+    fun voiceBody(lang: Lang): Txt = txt(
+        "This phone has no ${langName(lang)[Lang.EN]} voice, so reels in ${langName(lang)[Lang.EN]} say nothing. Installing one is free and takes a minute on Wi-Fi.",
+        "इस फ़ोन में ${langName(lang)[Lang.HI]} की आवाज़ नहीं है, इसलिए ${langName(lang)[Lang.HI]} की रील्स कुछ नहीं बोलतीं। आवाज़ इंस्टॉल करना मुफ़्त है और Wi-Fi पर एक मिनट लगता है।",
+    )
+
+    val notNow = txt("Not now (ask again in a week)", "अभी नहीं (एक हफ़्ते बाद पूछें)")
 
     val progress = txt("Progress", "प्रगति")
     val noProgress = txt("No puzzles yet.", "अभी तक कोई पहेली नहीं।")

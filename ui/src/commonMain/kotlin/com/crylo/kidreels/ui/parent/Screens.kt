@@ -333,3 +333,23 @@ fun CheckInDialog(app: AppState) {
         CheckInContent(app) { app.checkInOpen = false }
     }
 }
+
+/** Why a language's reels are silent, and the way to fix it. From the feed's banner. */
+@Composable
+fun VoiceDialog(app: AppState, lang: Lang) {
+    val main = app.settings.main
+    Overlay({ app.voiceOpen = null }) {
+        T("🔇", size = 40.sp)
+        Title(S.voiceTitle(lang)[main])
+        Body(S.voiceBody(lang)[main])
+        PrimaryButton(
+            S.installVoice[main],
+            {
+                app.voiceOpen = null
+                app.host.openVoiceSettings()
+            },
+            Modifier.fillMaxWidth(),
+        )
+        SecondaryButton(S.notNow[main], { app.voiceLater(lang) }, Modifier.fillMaxWidth())
+    }
+}

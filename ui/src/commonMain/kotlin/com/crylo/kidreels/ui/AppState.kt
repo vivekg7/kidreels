@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.crylo.kidreels.core.CheckIn
 import com.crylo.kidreels.core.Feed
+import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Outcome
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Profile
@@ -82,6 +83,35 @@ class AppState(val host: Host) {
 
     var checkInOpen by mutableStateOf(false)
 
+    /** The "no voice for this language" card, opened past the gate from the feed's banner. */
+    var voiceOpen by mutableStateOf<Lang?>(null)
+
+    private var voiceSnoozes by mutableIntStateOf(0)
+
+    /**
+     * A language this child's reels speak that has no voice on the phone, for the feed to
+     * tell a grown-up about: otherwise those reels are silent and nobody knows why, as
+     * the same note in settings is only seen by a parent who goes looking. "Not now"
+     * keeps it quiet for a week, for a phone whose engine has no such voice at all.
+     */
+    val missingVoice: Lang?
+        get() {
+            voiceSnoozes
+            val speaker = host.speaker
+            if (!speaker.hasEngine) return null
+            val today = host.clock.today()
+            return settings.langs.firstOrNull { lang ->
+                val later = profiles.device.get(VOICE_LATER + lang.tag)?.toLongOrNull()
+                !speaker.ready(lang) && (later == null || today - later >= VOICE_SNOOZE_DAYS)
+            }
+        }
+
+    fun voiceLater(lang: Lang) {
+        profiles.device.put(VOICE_LATER + lang.tag, host.clock.today().toString())
+        voiceSnoozes++
+        voiceOpen = null
+    }
+
     private var visible by mutableStateOf(true)
     private var awaySince: Long? = null
 
@@ -104,6 +134,7 @@ class AppState(val host: Host) {
             awaySince = null
             if (now - away >= Profiles.ASK_AGAIN_MILLIS && profiles.count > 1 && screen == Screen.FEED && gateAction == null) {
                 checkInOpen = false
+                voiceOpen = null
                 pickerUnlocked = false
                 screen = Screen.PICKER
             }
@@ -194,6 +225,11 @@ class AppState(val host: Host) {
         all = profiles.all()
     }
 
+    private companion object {
+        const val VOICE_LATER = "voiceLater."
+        const val VOICE_SNOOZE_DAYS = 7
+    }
+
     fun requestGate(action: () -> Unit) {
         gateAction = action
     }
@@ -212,6 +248,7 @@ class AppState(val host: Host) {
     fun onBack(): Boolean = when {
         gateAction != null -> true.also { gateAction = null }
         checkInOpen -> true.also { checkInOpen = false }
+        voiceOpen != null -> true.also { voiceOpen = null }
         editing != null -> true.also { editing = null }
         screen == Screen.SETTINGS -> true.also {
             screen = Screen.FEED
