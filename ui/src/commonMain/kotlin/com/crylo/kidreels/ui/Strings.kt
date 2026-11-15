@@ -180,9 +180,25 @@ object S {
 
     val progress = txt("Progress", "प्रगति")
     val noProgress = txt("No puzzles yet.", "अभी तक कोई पहेली नहीं।")
+    val thisWeek = txt("The last 7 days", "पिछले 7 दिन")
+    val nothingThisWeek = txt("Nothing played yet.", "अभी तक कुछ नहीं खेला।")
+
+    fun weekTime(minutes: Int, days: Int): Txt = txt(
+        "$minutes min on the feed, on $days ${if (days == 1) "day" else "days"}",
+        "$minutes मिनट, $days ${if (days == 1) "दिन" else "दिनों"} में",
+    )
+
+    fun weekPuzzles(tried: Int, percent: Int): Txt = txt(
+        "$tried ${if (tried == 1) "puzzle" else "puzzles"}, $percent% right first time",
+        "$tried ${if (tried == 1) "पहेली" else "पहेलियाँ"}, $percent% पहली बार में सही",
+    )
+
+    val doingWell = txt("Doing well at:", "इनमें अच्छा कर रहे हैं:")
+    val findsHard = txt("Finds hard (try one together):", "इनमें मुश्किल हो रही है (साथ में करके देखें):")
+    val likesMost = txt("Likes most:", "सबसे ज़्यादा पसंद:")
 
     fun levelLine(level: Int, tried: Int, percent: Int): Txt =
-        txt("Age $level reels: $tried puzzles, $percent% right first time", "$level साल की रील्स: $tried पहेलियाँ, $percent% पहली बार में सही")
+        txt("Age $level reels: $tried ${if (tried == 1) "puzzle" else "puzzles"}, $percent% right first time", "$level साल की रील्स: $tried ${if (tried == 1) "पहेली" else "पहेलियाँ"}, $percent% पहली बार में सही")
 
     val about = txt("About", "जानकारी")
 

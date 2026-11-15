@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.crylo.kidreels.core.CheckIn
 import com.crylo.kidreels.core.Feed
+import com.crylo.kidreels.core.History
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Outcome
 import com.crylo.kidreels.core.Phrases
@@ -33,6 +34,7 @@ class Child(app: AppState, val id: Int) {
     val settingsStore = SettingsStore(store)
     val progress = Progress(store)
     val budget = TimeBudget(store, app.host.clock)
+    val history = History(store, app.host.clock)
 
     var settings by mutableStateOf(settingsStore.load())
     var profile by mutableStateOf(app.profiles.profile(id))
@@ -358,6 +360,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
         if (!reel.needsSolving || s.solved) return
         if (forward) {
             engine.record(reel, Outcome.SKIPPED)
+            child.history.record(reel.topic, Outcome.SKIPPED)
             skippedPuzzle++
             app.host.play(Sfx.SAD)
         }
@@ -368,7 +371,9 @@ class FeedModel(private val app: AppState, private val child: Child) {
         if (s.solved) return
         s.solved = true
         s.celebrate++
-        engine.record(reel, if (s.wrongTries == 0) Outcome.SOLVED_FIRST_TRY else Outcome.SOLVED)
+        val outcome = if (s.wrongTries == 0) Outcome.SOLVED_FIRST_TRY else Outcome.SOLVED
+        engine.record(reel, outcome)
+        child.history.record(reel.topic, outcome)
     }
 
     fun like(reel: Reel) {
@@ -377,6 +382,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
         if (s.liked) {
             s.hearts++
             child.progress.like(reel.topic)
+            child.history.like(reel.topic)
             app.host.play(Sfx.POP)
         }
     }
@@ -385,6 +391,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
     fun tick(millis: Long, current: Int): Boolean {
         if (timeUp) return false
         child.budget.add(millis)
+        child.history.addTime(millis)
         refreshBudget()
         if (timeUp) {
             goodbyeAfter(current)

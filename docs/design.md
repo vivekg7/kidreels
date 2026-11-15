@@ -245,6 +245,14 @@ parent passes the gate to see "Is your child ready for harder reels?" with how o
 child answered first time at the current age, and can move up, stay, or be asked again in
 a week. At age 10 there is nothing to move up to, so it never appears.
 
+Settings also opens on a note about the last 7 days: minutes, days played, puzzles and
+the share right first time, then topics the child does well at (80% or more right first
+time), finds hard (under 50%) and likes most. A topic needs 4 tries before it is called
+either, so one unlucky puzzle is not a verdict. The running totals in `Progress` cannot
+say how this week went, so `History` keeps the last 14 days separately, one key per day
+and topic, and sweeps older days once a day. "Finds hard" says "try one together"
+because the point is a parent sitting with the child, not a score.
+
 ## Parent gate
 
 Press and hold for three seconds. Toddlers tap and swipe; they rarely hold one spot that

@@ -234,6 +234,7 @@ fun SettingsScreen(app: AppState) {
                 Voices(app)
 
                 SectionTitle(S.progress[main])
+                WeekNote(app)
                 val levels = (s.age - 1..s.age + 1).filter { it in Settings.AGES }.map { it to app.progress.stats(it) }.filter { it.second.tried > 0 }
                 if (levels.isEmpty()) Body(S.noProgress[main])
                 levels.forEach { (level, st) -> Body(S.levelLine(level, st.tried, st.firstTryPercent)[main]) }
@@ -355,5 +356,30 @@ fun VoiceDialog(app: AppState, lang: Lang) {
             Modifier.fillMaxWidth(),
         )
         SecondaryButton(S.notNow[main], { app.voiceLater(lang) }, Modifier.fillMaxWidth())
+    }
+}
+
+/** The last seven days in a few lines: how long, how well, and which topics stood out. */
+@Composable
+private fun WeekNote(app: AppState) {
+    val c = LocalParent.current
+    val main = app.settings.main
+    // Read afresh each time settings open: the feed underneath keeps adding to it.
+    val week = remember(app.child.id) { app.child.history.week() }
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        T(S.thisWeek[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+        if (week.minutes == 0 && week.tried == 0) {
+            Body(S.nothingThisWeek[main])
+            return@Column
+        }
+        Body(S.weekTime(week.minutes, week.days)[main])
+        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent)[main])
+        val names = { topics: List<com.crylo.kidreels.core.Topic> -> topics.joinToString(", ") { it.title[main] } }
+        if (week.strong.isNotEmpty()) Body(S.doingWell[main] + " " + names(week.strong))
+        if (week.hard.isNotEmpty()) Body(S.findsHard[main] + " " + names(week.hard))
+        if (week.liked.isNotEmpty()) Body(S.likesMost[main] + " " + names(week.liked))
     }
 }
