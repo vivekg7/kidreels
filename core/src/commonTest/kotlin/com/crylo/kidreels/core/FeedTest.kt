@@ -154,6 +154,12 @@ class FeedTest {
     }
 
     @Test
+    fun firstLetterAnswerIsSpokenInParts() {
+        val quiz = feed(5).take(400).filterIsInstance<Quiz>().first { it.topic == Topic.FIRST_LETTER }
+        assertEquals(3, quiz.revealSaid?.size, "the answer is said as letter, link, word")
+    }
+
+    @Test
     fun timeBudgetCountsPerDay() {
         val store = MapStore()
         var day = 100L

@@ -72,7 +72,7 @@ data class Quiz(
     val stage: Stage,
     val choices: List<Choice>,
     val answer: Int,
-    /** Spoken after the right answer, e.g. "2 plus 3 is 5!". */
+    /** Shown and spoken after the right answer, e.g. "2 plus 3 is 5!". */
     val reveal: Txt? = null,
     /**
      * Spoken on arrival: the [prompt] said in full, naming what is on screen and what to
@@ -81,6 +81,11 @@ data class Quiz(
      */
     val say: Txt? = null,
     override val voice: Lang? = null,
+    /**
+     * Spoken in place of [reveal] when it needs gaps inside it: "S" … "for" … "Sun", as on
+     * the alphabet card.
+     */
+    val revealSaid: List<Say>? = null,
 ) : Reel {
     override val needsSolving: Boolean get() = true
 

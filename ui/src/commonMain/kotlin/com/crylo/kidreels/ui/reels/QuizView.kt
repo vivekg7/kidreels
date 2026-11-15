@@ -74,7 +74,7 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
         if (state.solved || i in state.wrong) return
         if (i == quiz.answer) {
             env.sfx(Sfx.CORRECT)
-            env.praise(quiz.reveal, quiz.voice)
+            env.praise(quiz.reveal, quiz.voice, quiz.revealSaid)
             onSolved()
         } else {
             state.wrong += i

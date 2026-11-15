@@ -130,6 +130,7 @@ object Templates {
                 Stage.Picture((target.picture as Picture.Emoji).text),
                 glyphs.map { Choice.Token(it) }, answer,
                 reveal = Txt.same(target.phrase), say = Phrases.startsWithSay(target), voice = lang,
+                revealSaid = target.spoken(),
             )
         },
 

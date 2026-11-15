@@ -44,9 +44,10 @@ class ReelEnv(
         if (active) play(s)
     }
 
-    fun praise(reveal: Txt?, voice: Lang?) {
+    /** A cheer, then the [reveal], or [said] when the reveal is spoken in parts. */
+    fun praise(reveal: Txt?, voice: Lang?, said: List<Say>? = null) {
         val lines = mutableListOf(Say(Phrases.pick(Phrases.praise, Random)[main], main, Tone.CHEER))
-        reveal?.let { lines += Say(it[voice ?: main], voice ?: main) }
+        lines += said ?: reveal?.let { listOf(Say(it[voice ?: main], voice ?: main)) }.orEmpty()
         say(lines)
     }
 }
