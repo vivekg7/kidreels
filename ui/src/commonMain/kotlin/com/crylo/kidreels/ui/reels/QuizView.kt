@@ -59,6 +59,7 @@ import com.crylo.kidreels.ui.common.pressable
 import com.crylo.kidreels.ui.common.shakeOn
 import com.crylo.kidreels.ui.common.tap
 import com.crylo.kidreels.ui.draw.Dots
+import com.crylo.kidreels.ui.draw.Paper
 import com.crylo.kidreels.ui.draw.ShapeIcon
 import com.crylo.kidreels.ui.draw.Sticks
 import com.crylo.kidreels.ui.draw.drawClock
@@ -378,13 +379,22 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
     val env = LocalReelEnv.current
     val alpha by animateFloatAsState(if (faded) 0.35f else 1f)
     val shape = RoundedCornerShape(22.dp)
+    // A figure is drawn on paper whatever the look, so its whole card is paper: a paper
+    // square inside a coloured card showed as a tile within a tile on Classic.
+    val paper = choice is Choice.Fig || choice is Choice.Cut || choice is Choice.Shapes || choice is Choice.Holes
     Box(
         modifier
             .shakeOn(shakeKey)
             .popOn(if (right) 1 else 0)
             .graphicsLayer { this.alpha = alpha }
             .clip(shape)
-            .background(if (right) colors.good else colors.card)
+            .background(
+                when {
+                    paper -> Paper
+                    right -> colors.good
+                    else -> colors.card
+                },
+            )
             .border(if (right) 3.dp else 1.5.dp, if (right) colors.good else colors.cardLine, shape)
             .pressable(onClick),
         contentAlignment = Alignment.Center,
@@ -412,6 +422,15 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             is Choice.Time -> T("${choice.hour}:${choice.minute.toString().padStart(2, '0')}", color = ink, size = 32.sp, weight = FontWeight.ExtraBold)
             is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice, if (big) 134.dp else 86.dp)
         }
-        if (right) T("✓", Modifier.align(Alignment.TopEnd).padding(8.dp), color = Color.White, size = 20.sp, weight = FontWeight.Black)
+        if (right) {
+            val tick = Modifier.align(Alignment.TopEnd).padding(8.dp)
+            if (paper) {
+                Box(tick.size(26.dp).clip(CircleShape).background(colors.good), contentAlignment = Alignment.Center) {
+                    T("✓", color = Color.White, size = 16.sp, weight = FontWeight.Black)
+                }
+            } else {
+                T("✓", tick, color = Color.White, size = 20.sp, weight = FontWeight.Black)
+            }
+        }
     }
 }

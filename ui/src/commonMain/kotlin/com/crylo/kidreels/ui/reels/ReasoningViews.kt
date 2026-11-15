@@ -193,10 +193,10 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.arrow(from: Offset,
     drawLine(Accent, to, to - d * head - n * head * 0.6f, w)
 }
 
-/** A reasoning choice inside its answer card: always on paper, so it reads the same on any look. */
+/** A reasoning choice, drawn square in the middle of its paper answer card. */
 @Composable
 fun ReasoningChoice(choice: Choice, size: Dp) {
-    Box(Modifier.size(size).clip(RoundedCornerShape(10.dp)).background(Paper), contentAlignment = Alignment.Center) {
+    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize().padding(4.dp)) {
             when (choice) {
                 is Choice.Fig -> drawFigure(choice.figure)

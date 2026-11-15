@@ -125,6 +125,8 @@ with easier versions earlier:
   original in a mirror question ("a mirror swaps left and right"), the slid holes in a
   paper fold ("mirrored across the fold, not slid along").
 - **Black on paper white in every look**, like the clock: the differences are small.
+  The answer cards are paper all over, not a paper square inside the look's card: on
+  Classic's dark cards that showed as a tile inside a tile.
 - Nine topics weigh half a reel each, so at 10 they are a good share of the mix without
   taking it over; a parent can pick one alone.
 
