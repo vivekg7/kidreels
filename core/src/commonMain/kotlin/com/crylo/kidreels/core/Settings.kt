@@ -43,7 +43,7 @@ data class Settings(
     val langs: List<Lang> = listOf(Lang.EN),
     val age: Int = 4,
     val look: Look = Look.CANDY,
-    /** 0 means no limit. */
+    /** 0 means no limit; otherwise up to [MAX_DAILY_MINUTES]. */
     val dailyMinutes: Int = 20,
     /** How often to ask whether the child is ready for the next age; 0 is never. */
     val checkInMonths: Int = 3,
@@ -58,9 +58,22 @@ data class Settings(
     companion object {
         const val MAX_LANGS = 3
         val AGES = 2..10
+        /** The usual limits, one tap each; any other is set by hand, in [STEP] minutes. */
         val DAILY_MINUTES = listOf(10, 15, 20, 30, 45, 60, 0)
         val CHECK_IN_MONTHS = listOf(1, 3, 6, 0)
         val BEDTIMES = listOf(0, 19 * 60, 19 * 60 + 30, 20 * 60, 20 * 60 + 30, 21 * 60, 21 * 60 + 30)
+
+        /** A custom limit or bedtime moves in 5 minutes, or an hour at a time. */
+        const val STEP = 5
+
+        /** Six hours: past that a limit no longer limits anything, and "no limit" says so honestly. */
+        const val MAX_DAILY_MINUTES = 6 * 60
+
+        /**
+         * A custom bedtime is from 4 pm, for "no screens after school", to 11:55 pm. Earlier
+         * than 4 is not a bedtime, and after midnight would end the night it starts.
+         */
+        val BEDTIME_RANGE = 16 * 60..24 * 60 - STEP
     }
 }
 
@@ -73,11 +86,11 @@ class SettingsStore(private val kv: KeyValueStore) {
             langs = langs?.takeIf { it.isNotEmpty() }?.take(Settings.MAX_LANGS) ?: d.langs,
             age = kv.get("age")?.toIntOrNull()?.coerceIn(Settings.AGES) ?: d.age,
             look = kv.get("look")?.let { name -> Look.entries.firstOrNull { it.name == name } } ?: d.look,
-            dailyMinutes = kv.get("dailyMinutes")?.toIntOrNull()?.coerceAtLeast(0) ?: d.dailyMinutes,
+            dailyMinutes = kv.get("dailyMinutes")?.toIntOrNull()?.coerceIn(0, Settings.MAX_DAILY_MINUTES) ?: d.dailyMinutes,
             checkInMonths = kv.get("checkInMonths")?.toIntOrNull()?.coerceAtLeast(0) ?: d.checkInMonths,
             ageSetDay = kv.get("ageSetDay")?.toLongOrNull() ?: d.ageSetDay,
             slowSpeech = kv.get("slowSpeech") == "true",
-            bedtime = kv.get("bedtime")?.toIntOrNull()?.takeIf { it == 0 || it in Bedtime.MORNING until 24 * 60 } ?: d.bedtime,
+            bedtime = kv.get("bedtime")?.toIntOrNull()?.takeIf { it == 0 || it in Settings.BEDTIME_RANGE } ?: d.bedtime,
         )
     }
 

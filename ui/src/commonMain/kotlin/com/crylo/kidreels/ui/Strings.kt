@@ -67,7 +67,7 @@ object S {
     val look = txt("Look", "रूप")
 
     fun childLine(age: Int, minutes: Int): Txt =
-        if (minutes == 0) txt("Age $age · no limit", "$age साल · कोई सीमा नहीं") else txt("Age $age · $minutes min a day", "$age साल · रोज़ $minutes मिनट")
+        if (minutes == 0) txt("Age $age · no limit", "$age साल · कोई सीमा नहीं") else perDay(minutes).let { txt("Age $age · ${it[Lang.EN]}", "$age साल · ${it[Lang.HI]}") }
 
     fun newChildBody(name: String): Txt = txt(
         "Languages, look and time limit start the same as $name's. You can change them on the next page.",
@@ -126,9 +126,27 @@ object S {
         return txt("$h12:$m ${if (h < 12) "am" else "pm"}", "${if (h < 20) "शाम" else "रात"} $h12:$m")
     }
 
-    fun minutes(n: Int): Txt = txt("$n min", "$n मिनट")
+    /** "45 min", "1 h", "1 h 30 min" / "45 मिनट", "1 घंटा", "2 घंटे 30 मिनट". */
+    fun duration(minutes: Int): Txt {
+        val h = minutes / 60
+        val m = minutes % 60
+        val en = listOfNotNull(if (h > 0) "$h h" else null, if (m > 0 || h == 0) "$m min" else null)
+        val hi = listOfNotNull(if (h > 0) "$h ${if (h == 1) "घंटा" else "घंटे"}" else null, if (m > 0 || h == 0) "$m मिनट" else null)
+        return txt(en.joinToString(" "), hi.joinToString(" "))
+    }
 
-    fun leftToday(minutes: Long): Txt = txt("$minutes min left today", "आज $minutes मिनट बाकी")
+    fun perDay(minutes: Int): Txt = duration(minutes).let { txt("${it[Lang.EN]} a day", "रोज़ ${it[Lang.HI]}") }
+
+    fun leftToday(minutes: Long): Txt = duration(minutes.toInt()).let { txt("${it[Lang.EN]} left today", "आज ${it[Lang.HI]} बाकी") }
+
+    val custom = txt("Custom", "अपना चुनें")
+    val hours = txt("Hours", "घंटे")
+    val hour = txt("Hour", "घंटा")
+    val minutesLabel = txt("Minutes", "मिनट")
+    val limitUpTo = txt("Up to 6 hours a day.", "दिन में ज़्यादा से ज़्यादा 6 घंटे।")
+    val bedtimeRange = txt("Any time from 4 pm to 11:55 pm.", "शाम 4 बजे से रात 11:55 तक कोई भी समय।")
+
+    fun from(time: Txt): Txt = txt("From ${time[Lang.EN]}", "${time[Lang.HI]} से")
 
     val settings = txt("Settings", "सेटिंग्स")
 

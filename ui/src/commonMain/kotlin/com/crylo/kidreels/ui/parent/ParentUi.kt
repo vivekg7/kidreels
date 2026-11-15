@@ -231,20 +231,116 @@ fun LookPicker(look: Look, main: Lang, onChange: (Look) -> Unit) {
     }
 }
 
+/**
+ * The usual limits, one tap each, "No limit", and "Custom" for any other: up to six hours,
+ * in hours and 5 minutes. Custom shows its own steppers, so the usual case stays one tap.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Settings.DAILY_MINUTES.forEach { m -> Pill(if (m == 0) S.noLimit[main] else S.minutes(m)[main], m == minutes, { onChange(m) }) }
+    var custom by remember { mutableStateOf(minutes !in Settings.DAILY_MINUTES) }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Settings.DAILY_MINUTES.forEach { m ->
+                Pill(if (m == 0) S.noLimit[main] else S.duration(m)[main], !custom && m == minutes, {
+                    custom = false
+                    onChange(m)
+                })
+            }
+            Pill(S.custom[main], custom, {
+                custom = true
+                // From what is set, or an hour when there was no limit to start from.
+                if (minutes == 0) onChange(60)
+            })
+        }
+        if (custom) {
+            val range = Settings.STEP..Settings.MAX_DAILY_MINUTES
+            TimeSteppers(
+                S.perDay(minutes)[main],
+                S.hours[main], (minutes / 60).toString(),
+                (minutes % 60).toString(),
+                minutes, range, main, onChange,
+            )
+            Body(S.limitUpTo[main])
+        }
     }
 }
 
+/** Off, the usual evening times, and "Custom" for any time from 4 pm, in 5 minutes. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BedtimePicker(bedtime: Int, main: Lang, onChange: (Int) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Settings.BEDTIMES.forEach { m -> Pill(if (m == 0) S.off[main] else S.clock(m)[main], m == bedtime, { onChange(m) }) }
+    var custom by remember { mutableStateOf(bedtime !in Settings.BEDTIMES) }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Settings.BEDTIMES.forEach { m ->
+                Pill(if (m == 0) S.off[main] else S.clock(m)[main], !custom && m == bedtime, {
+                    custom = false
+                    onChange(m)
+                })
+            }
+            Pill(S.custom[main], custom, {
+                custom = true
+                if (bedtime == 0) onChange(20 * 60)
+            })
+        }
+        if (custom) {
+            TimeSteppers(
+                S.from(S.clock(bedtime))[main],
+                S.hour[main], ((bedtime / 60 + 11) % 12 + 1).toString(),
+                (bedtime % 60).toString().padStart(2, '0'),
+                bedtime, Settings.BEDTIME_RANGE, main, onChange,
+            )
+            Body(S.bedtimeRange[main])
+        }
     }
+}
+
+/**
+ * A time set by hand: what it comes to, then hours and minutes, each with − and +. No
+ * keyboard and no dial, which are fiddly one-handed with a child on the other arm. A step
+ * up past the end stops at the end; a step down that would pass it is not offered, so the
+ * minutes are never lost by surprise.
+ */
+@Composable
+private fun TimeSteppers(
+    total: String,
+    hoursLabel: String,
+    hoursValue: String,
+    minutesValue: String,
+    value: Int,
+    range: IntRange,
+    main: Lang,
+    onChange: (Int) -> Unit,
+) {
+    val c = LocalParent.current
+    Rows {
+        T(total, Modifier.padding(16.dp), color = c.accent, size = 20.sp, weight = FontWeight.ExtraBold)
+        RowLine()
+        Stepper(hoursLabel, hoursValue, value - 60 >= range.first, value < range.last, { onChange(value - 60) }, { onChange((value + 60).coerceAtMost(range.last)) })
+        RowLine()
+        Stepper(S.minutesLabel[main], minutesValue, value - Settings.STEP >= range.first, value < range.last, { onChange(value - Settings.STEP) }, { onChange((value + Settings.STEP).coerceAtMost(range.last)) })
+    }
+}
+
+@Composable
+private fun Stepper(label: String, value: String, canDown: Boolean, canUp: Boolean, onDown: () -> Unit, onUp: () -> Unit) {
+    val c = LocalParent.current
+    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        T(label, Modifier.weight(1f), color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+        StepButton("−", canDown, onDown)
+        T(value, Modifier.width(56.dp), color = c.ink, size = 18.sp, weight = FontWeight.Bold, align = TextAlign.Center)
+        StepButton("+", canUp, onUp)
+    }
+}
+
+@Composable
+private fun StepButton(sign: String, enabled: Boolean, onClick: () -> Unit) {
+    val c = LocalParent.current
+    Box(
+        Modifier.size(44.dp).clip(CircleShape).border(1.5.dp, c.line, CircleShape).pressable(onClick, enabled),
+        contentAlignment = Alignment.Center,
+    ) { T(sign, color = if (enabled) c.accent else c.line, size = 22.sp, weight = FontWeight.Bold) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

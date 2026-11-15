@@ -157,7 +157,7 @@ private fun ChildPage(app: AppState, child: Child) {
         SectionTitle(S.timeGroup[main])
         Rows {
             val left = child.budget.remainingMillis(s.dailyMinutes)
-            val limit = if (s.dailyMinutes == 0) S.noLimit[main] else S.minutes(s.dailyMinutes)[main]
+            val limit = if (s.dailyMinutes == 0) S.noLimit[main] else S.duration(s.dailyMinutes)[main]
             NavRow(S.limitTitle[main], limit + (left?.let { " · " + S.leftToday(it / 60_000)[main] } ?: ""), { open(ChildPart.LIMIT) })
             RowLine()
             NavRow(S.bedtimeTitle[main], if (s.bedtime == 0) S.off[main] else S.clock(s.bedtime)[main], { open(ChildPart.BEDTIME) })

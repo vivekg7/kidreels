@@ -69,12 +69,14 @@ choice below, and each row opens that choice:
   ("त्रिभुज", "minus").
 - **Look**: Classic (dark, laid out like the reels apps children know), Candy (bright
   gradients and bubbles) or Calm (soft colours, nothing extra).
-- **Daily time limit**: 10 to 60 minutes, or none. In the last two minutes only easy reels
-  appear and an "Almost done" chip shows; then a goodbye reel says it is time to eat and
-  play, and the feed stops. A grown-up can hold a button there for 10 more minutes.
-- **Bedtime**: off, or 7 pm to 9:30 pm. From then until 6 in the morning a good-night reel
-  takes the feed's place, however many minutes are left, with the same wind-down before
-  it and the same 10 more minutes for a grown-up.
+- **Daily time limit**: 10 minutes to an hour in a tap, any other up to 6 hours under
+  Custom, or none. In the last two minutes only easy reels appear and an "Almost done"
+  chip shows; then a goodbye reel says it is time to eat and play, and the feed stops. A
+  grown-up can hold a button there for 10 more minutes.
+- **Bedtime**: off, 7 pm to 9:30 pm in a tap, or any time from 4 pm to 11:55 pm under
+  Custom. From then until 6 in the morning a good-night reel takes the feed's place,
+  however many minutes are left, with the same wind-down before it and the same 10 more
+  minutes for a grown-up.
 - **Show only**: one topic for now, picked from topics folded by channel, such as just
   the alphabet or just vehicles. It goes in order (the alphabet from A, counting from 1,
   shapes from the simplest) and puzzles get harder as they are solved. A chip on the feed says which topic is on. It is not saved:

@@ -351,6 +351,12 @@ the feed, and picking another child once the last one's time is up.
   release. Topics are folded by channel and list the child's age unless asked for more.
   Age sits with the name and animal: it is who the child is, not a preference. The
   gear always opens on the first page.
+- **The usual limits and bedtimes are one tap; any other is "Custom".** Custom sets
+  hours and minutes with − and + buttons, in 5 minutes or an hour at a time: no keyboard
+  or dial, which are fiddly one-handed. The limit goes up to 6 hours, past which a limit
+  limits nothing and "No limit" says so honestly; a stored value past it is read as 6
+  hours. A custom bedtime is from 4 pm ("no screens after school") to 11:55 pm, since
+  after midnight would end the night it starts; one outside that is read as off.
 - **Settings open over the feed**, not instead of it, so the child returns to the same
   reel mid-puzzle. Changing the age or languages is the exception: the reel on screen and
   the ones made ahead are made again, since they no longer fit the child, and the new reel
