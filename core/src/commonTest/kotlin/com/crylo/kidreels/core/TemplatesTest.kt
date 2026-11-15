@@ -176,6 +176,24 @@ class TemplatesTest {
         }
     }
 
+    /** A perfect maze: every cell reachable, no loops, walls that agree from both sides. */
+    @Test
+    fun mazesHaveOneWayThrough() {
+        for ((_, reel) in everyReel(seeds = 20)) {
+            if (reel !is MazeGame) continue
+            val m = reel.maze
+            val d = m.distances(reel.start)
+            assertTrue(d.all { it >= 0 }, "unreachable cells: $reel")
+            val passages = m.open.sumOf { it.countOneBits() } / 2
+            assertEquals(m.rows * m.cols - 1, passages, "a loop or a gap")
+            for (cell in m.open.indices) for (side in Maze.SIDES) m.step(cell, side)?.let { next ->
+                assertTrue(next in m.open.indices, "a door out of the maze at $cell")
+                assertTrue(Maze.SIDES.any { m.step(next, it) == cell }, "a one-way wall at $cell")
+            }
+            assertEquals(d.max(), d[reel.goal], "the goal is not the far end")
+        }
+    }
+
     @Test
     fun numberCardsSpellTheirNumber() {
         assertEquals(listOf("O", "N", "E"), Numbers.spelling(1))

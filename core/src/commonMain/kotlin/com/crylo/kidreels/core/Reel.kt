@@ -40,6 +40,7 @@ enum class Topic(val channel: Channel, val title: Txt) {
     SUDOKU(Channel.PUZZLES, txt("Sudoku", "सुडोकू")),
     MISSING_PIECE(Channel.PUZZLES, txt("Missing piece", "छूटा टुकड़ा")),
     SORTING(Channel.PUZZLES, txt("Sort it out", "छाँटो")),
+    MAZE(Channel.PUZZLES, txt("Mazes", "भूलभुलैया")),
     SIZES(Channel.WORLD, txt("Big and small", "बड़ा और छोटा")),
     COLOURS(Channel.WORLD, txt("Colours", "रंग")),
     ANIMAL_SOUNDS(Channel.WORLD, txt("Animal sounds", "जानवरों की आवाज़")),
@@ -391,6 +392,7 @@ fun Reel.intro(main: Lang): List<Say> {
         is CupGame -> listOf(line(Memory.cupsSay(prize)))
         is PairsGame -> listOf(line(Memory.pairsSay))
         is OrderGame -> listOf(line(Memory.orderSay))
+        is MazeGame -> listOf(line(Mazes.say(runner)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

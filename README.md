@@ -43,6 +43,8 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 - **Memory games**: follow the ball as the cups swap, turn cards to find the pairs, copy
   the order the coloured pads light up in, and spot what went missing from a group of
   pictures. Harder with age: more cups and faster swaps, more cards, longer orders.
+- **Mazes** from age 3: drag the mouse to the cheese (or tap the next square), from 3 × 3
+  up to 11 × 8 by age 12.
 - **Reasoning with figures**, in the style of the Jawahar Navodaya Vidyalaya entrance
   test: the same figure and the odd one out from age 4, then pattern completion, figure
   series, mirror images, analogies, completing a square, hidden figures and paper

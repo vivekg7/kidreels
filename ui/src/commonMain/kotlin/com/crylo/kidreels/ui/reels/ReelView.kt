@@ -21,6 +21,7 @@ import com.crylo.kidreels.core.CurveLab
 import com.crylo.kidreels.core.DragGame
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.LetterCard
+import com.crylo.kidreels.core.MazeGame
 import com.crylo.kidreels.core.NumberCard
 import com.crylo.kidreels.core.SieveLab
 import com.crylo.kidreels.core.SquareCard
@@ -113,6 +114,7 @@ fun ReelView(
         is CupGame -> CupView(reel, state, padding, onSolved)
         is PairsGame -> PairsView(reel, state, padding, onSolved)
         is OrderGame -> OrderView(reel, state, padding, onSolved)
+        is MazeGame -> MazeView(reel, state, padding, onSolved)
         is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }

@@ -216,6 +216,7 @@ object Templates {
         Template(Topic.SHAPE_SORTER, 2..5, solving = true) { g -> DragGames.shapeSorter(g) },
         Template(Topic.BASKET, 3..6, solving = true) { g -> DragGames.basket(g) },
         Template(Topic.SORTING, 4..8, solving = true) { g -> DragGames.sort(g) },
+        Template(Topic.MAZE, 3..12, solving = true) { g -> Mazes.make(g) },
         Template(Topic.MISSING_PIECE, 3..8, solving = true) { g -> DragGames.missingPiece(g) },
 
         // Reasoning with figures: nine small topics, so each weighs half a reel in the mix.

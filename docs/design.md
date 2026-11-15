@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-54 templates, and why the tests can check every template at every age and difficulty.
+55 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -196,6 +196,22 @@ Each game has a part to watch that runs by itself and a part to answer that wait
   gap.
 - Each weighs 0.75 in the mix: four new topics at once would otherwise crowd out the
   rest.
+
+### Mazes
+
+`core/Maze.kt` makes a maze by a random depth-first walk, so there is exactly one way
+between any two squares: no loops to go round in, every square reachable. The goal is
+the square furthest from the start along the paths, so the whole maze is used. From
+3 × 3 at age 3 to 11 × 8 at 12 (a row more at the hard end).
+
+- **Drag the runner, or tap the square next to it.** A drag must start on the runner,
+  as with the drag games, so a drag anywhere else still turns the page. Tapping is for
+  hands too small to drag along a path. The runner steps once the finger is half a
+  square ahead towards an open side, and stops at a wall however far the finger goes.
+- **Going back rubs out the trail**, so the line always shows the way from the start to
+  where the runner is, not every wrong turn.
+- **A dead end is not a wrong try.** Exploring is what a maze is, so a maze is always
+  "right first time" to the feed's skill score.
 
 ### Adding a reel type
 
