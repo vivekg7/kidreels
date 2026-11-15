@@ -156,6 +156,7 @@ object S {
         "सिर्फ़ एक विषय का अभ्यास कराने के लिए उसे चुनें। वह क्रम से चलेगा: वर्णमाला शुरू से, गिनती 1 से, पहेलियाँ आसान से कठिन तक। यह ऐप बंद होने तक रहेगा, फिर सभी विषय वापस आ जाएँगे।",
     )
     val allTopics = txt("All topics", "सभी विषय")
+    val goToReels = txt("Go to reels", "रील्स पर जाएँ")
     val otherAges = txt("Also show topics for other ages", "दूसरी उम्र के विषय भी दिखाएँ")
 
     fun forAges(ages: IntRange): Txt = txt("ages ${ages.first}–${ages.last}", "${ages.first}–${ages.last} साल")

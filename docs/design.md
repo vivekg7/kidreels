@@ -197,6 +197,12 @@ none of the rules above apply:
   otherwise leave a child on one topic for days. Android may also end the app in the
   background, which then counts as a new start; for a session-long choice that is fine.
   A chip on the feed says it is on. The time limit and wind-down still apply.
+- **"Go to reels" once a topic is picked.** A parent picking a topic usually wants it
+  now, and the feed was three Backs away. A button held under the topic list goes
+  straight there. Not a dialog after each pick: that interrupts a parent comparing
+  topics or undoing a mis-tap, and its "Cancel" would read as undoing the pick. Not
+  closing on the pick either: a mis-tap would mean the grown-up gate again. Only for
+  the child playing; on another child's page the pick waits for them.
 
 ## Children
 

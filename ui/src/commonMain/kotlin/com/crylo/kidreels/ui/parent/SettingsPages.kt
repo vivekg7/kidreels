@@ -70,9 +70,14 @@ fun SettingsScreen(app: AppState) {
     }
 }
 
-/** A settings page: the back arrow and title, then [content] scrolling under them. */
+/** A settings page: the back arrow and title, then [content] scrolling under them, and [bottom] held below. */
 @Composable
-private fun PageScaffold(app: AppState, title: String, content: @Composable ColumnScope.() -> Unit) {
+private fun PageScaffold(
+    app: AppState,
+    title: String,
+    bottom: (@Composable () -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     ParentPage { c ->
         LaunchedEffect(c.dark) { app.host.darkSystemIcons(!c.dark) }
         Column(Modifier.fillMaxSize()) {
@@ -89,6 +94,7 @@ private fun PageScaffold(app: AppState, title: String, content: @Composable Colu
                 content()
                 Spacer(Modifier.height(24.dp))
             }
+            if (bottom != null) Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) { bottom() }
         }
     }
 }
@@ -220,7 +226,16 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
         ChildPart.LANGUAGES -> S.languages
         ChildPart.LOOK -> S.look
     }
-    PageScaffold(app, title[main]) {
+    // A new topic is usually wanted now: one tap to it, rather than Back up three pages.
+    // Only for the child playing; for another, the pick waits for them. Held below the
+    // list, so it is there however far down the topic was.
+    var picked by remember { mutableStateOf(false) }
+    val toReels: (@Composable () -> Unit)? = if (part == ChildPart.TOPICS && picked && child.id == app.child.id) {
+        { PrimaryButton(S.goToReels[main], app::closeSettings, Modifier.fillMaxWidth()) }
+    } else {
+        null
+    }
+    PageScaffold(app, title[main], toReels) {
         // Whose this is, when a phone has several children to mix up.
         if (app.all.size > 1 && part != ChildPart.PROFILE) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -251,7 +266,10 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
             }
             ChildPart.TOPICS -> {
                 Body(S.showOnlyBody[main])
-                TopicPicker(child.feed.focus, s.age, main) { child.feed.pick(it) }
+                TopicPicker(child.feed.focus, s.age, main) {
+                    child.feed.pick(it)
+                    picked = true
+                }
             }
             ChildPart.LANGUAGES -> {
                 Body(S.langsBody[main])
