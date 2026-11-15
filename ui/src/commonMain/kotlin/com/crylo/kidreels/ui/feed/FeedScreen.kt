@@ -122,7 +122,8 @@ fun FeedScreen(app: AppState) {
     val limitMillis = settings.dailyMinutes * TimeBudget.MINUTE
     val timeFraction = model.remainingMillis?.let { (1f - it.toFloat() / limitMillis).coerceIn(0f, 1f) }
     val windingDown = model.remainingMillis.let { it != null && it in 1..TimeBudget.WIND_DOWN_MILLIS }
-    val extraTop = if (app.checkInDue) 44.dp else 0.dp
+    val focus = model.focus
+    val extraTop = (if (app.checkInDue) 44.dp else 0.dp) + (if (focus != null) 40.dp else 0.dp)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         CompositionLocalProvider(LocalReelColors provides colors) {
@@ -174,8 +175,6 @@ fun FeedScreen(app: AppState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                // For the grown-up: a reminder that the feed is showing one topic only.
-                model.focus?.let { Chip(it.channel.emoji + " " + S.onlyTopic(it.title)[settings.main], colors.dark) }
                 if (windingDown) Chip("🌙 " + Phrases.almostDone[settings.main], colors.dark)
                 Gear(app, colors.dark)
             }
@@ -186,6 +185,14 @@ fun FeedScreen(app: AppState) {
                         .pressable({ app.requestGate { app.checkInOpen = true } })
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) { T("👋  " + S.checkInBanner[settings.main], color = Color.White, size = 13.sp, weight = FontWeight.SemiBold) }
+            }
+            // For the grown-up: a reminder that the feed is showing one topic only. Its own
+            // line, under the header and any check-in banner: a long topic name would run
+            // into the channel pill beside the gear.
+            if (focus != null) {
+                Box(Modifier.align(Alignment.TopCenter).padding(top = if (app.checkInDue) 102.dp else 60.dp)) {
+                    Chip(focus.channel.emoji + " " + S.onlyTopic(focus.title)[settings.main], colors.dark)
+                }
             }
             SadBubble(model.skippedPuzzle, Phrases.skipped[settings.main], Modifier.align(BiasAlignment(0f, -0.45f)))
         }
