@@ -57,6 +57,7 @@ import com.crylo.kidreels.ui.skin.ReelFrame
 import com.crylo.kidreels.ui.skin.colorsFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** The swipe feed: one reel per page, the look's frame around it, and the parent's limits. */
@@ -82,16 +83,19 @@ fun FeedScreen(app: AppState) {
     LaunchedEffect(onScreen) { if (!onScreen) speaker.stop() }
 
     // Moving between reels: score the one left behind, top up the queue, say the new one.
+    // Keyed on the reel too, not only the page: a new age or language replaces the reel on
+    // screen without a swipe, and that one should be said once settings close.
     LaunchedEffect(pager) {
         var previous = pager.settledPage
-        snapshotFlow { pager.settledPage }.collectLatest { page ->
+        snapshotFlow { pager.settledPage to model.reels.getOrNull(pager.settledPage)?.id }.collectLatest { (page, _) ->
             if (page != previous) model.reels.getOrNull(previous)?.let { model.left(it, forward = page > previous) }
             previous = page
             model.current = page
             model.fill(page)
             val reel = model.reels.getOrNull(page) ?: return@collectLatest
             delay(300)
-            if (onScreenNow) speaker.speak(reel.intro(app.settings.main))
+            snapshotFlow { onScreenNow }.first { it }
+            speaker.speak(reel.intro(app.settings.main))
         }
     }
     LaunchedEffect(pager) {

@@ -57,8 +57,9 @@ class AppState(val host: Host) {
         settings = s
         settingsStore.save(s)
         host.speaker.setSlow(s.slowSpeech)
-        // Reels already made for the old age or languages would be wrong now.
-        if (s.age != before.age || s.langs != before.langs) feed.dropAhead()
+        // Reels already made for the old age or languages would be wrong now, including the
+        // one on screen: a 2-year-old should not come back from settings to a times table.
+        if (s.age != before.age || s.langs != before.langs) feed.remake()
     }
 
     fun finishOnboarding(s: Settings) {
@@ -132,10 +133,15 @@ class FeedModel(private val app: AppState) {
     /** The page on screen, kept by the feed screen. */
     var current by mutableIntStateOf(0)
 
-    /** Throws away the reels made ahead of [current]: they were made for old settings. */
-    fun dropAhead() {
-        if (reels.size > current + 1) reels.removeRange(current + 1, reels.size)
-        if (reels.isNotEmpty()) fill(current)
+    /**
+     * Replaces the reel on screen and the ones made ahead of it: they were made for old
+     * settings. Reels behind stay, so swiping back still finds what the child saw.
+     */
+    fun remake() {
+        if (reels.isEmpty()) return
+        val at = current.coerceAtMost(reels.lastIndex)
+        reels.removeRange(at, reels.size)
+        fill(at)
     }
 
     /** Called when the child moves off [reel]. */

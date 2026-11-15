@@ -139,7 +139,9 @@ long. It guards settings, the check-in and the "10 more minutes" button.
 - **Swipe threshold is a quarter page**, not the default half: small hands drag short
   and slow.
 - **Settings open over the feed**, not instead of it, so the child returns to the same
-  reel mid-puzzle.
+  reel mid-puzzle. Changing the age or languages is the exception: the reel on screen and
+  the ones made ahead are made again, since they no longer fit the child, and the new reel
+  is spoken when settings close.
 - **Only on-screen feed time counts** toward the limit: not settings, not the gate, not
   the app in the background.
 - **Hindi words for numbers in speech are left to the TTS engine** (it reads "3" as
