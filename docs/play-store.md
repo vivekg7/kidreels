@@ -47,8 +47,12 @@ takes by copy and upload and F-Droid reads as is:
   emoji in them: the system emoji font on a Mac is Apple's artwork.
 - `images/phoneScreenshots/`: from the emulator at 1080 × 1920 (Play refuses a long
   side more than twice the short one, and the emulator's own 1080 × 2424 is), with a
-  demo-mode status bar. They show the Classic look at age 6 and Candy at age 5, English
-  first with Hindi under it, and the parent settings last. The emoji in them are
+  demo-mode status bar. They show the Classic look at ages 6 and 8 and Candy at ages 4
+  and 5, English first with Hindi under it: a 3D cube, "Who's playing?" with two
+  children (Aarav and Meera, made-up names), a Hindi letter, the missing-piece drag game,
+  counting, a mirror-image puzzle, the clock, and the parent settings with both
+  children last. The two "Only: …" chips are from "Show only", used to get those reels
+  on screen. The emoji in them are
   Android's Noto Color Emoji, under the Apache licence.
 
 AI-generated assets: none.
