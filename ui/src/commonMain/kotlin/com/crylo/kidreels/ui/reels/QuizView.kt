@@ -59,6 +59,7 @@ import com.crylo.kidreels.ui.common.pressable
 import com.crylo.kidreels.ui.common.shakeOn
 import com.crylo.kidreels.ui.common.tap
 import com.crylo.kidreels.ui.draw.Dots
+import com.crylo.kidreels.ui.draw.Ink
 import com.crylo.kidreels.ui.draw.Paper
 import com.crylo.kidreels.ui.draw.ShapeIcon
 import com.crylo.kidreels.ui.draw.Sticks
@@ -347,27 +348,30 @@ private fun Choices(quiz: Quiz, state: ReelState, shake: Int, shaking: Int, big:
     val count = quiz.choices.size
     val columns = if (count == 3) 3 else 2
     val tall = quiz.choices.any { it is Choice.Group || (it is Choice.Number && it.sticks) }
+    val height = when {
+        big -> 150.dp
+        tall -> 120.dp
+        else -> 96.dp
+    }
+    // A figure puzzle asks about a square tile (a figure card, a quarter of the pattern, the
+    // folded paper), so its answers are square tiles too, not wide cards: an answer shaped
+    // unlike the gap it fills is one more thing to puzzle over.
+    val square = quiz.choices.all { it.onPaper }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         quiz.choices.indices.chunked(columns).forEach { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)) {
                 row.forEach { i ->
                     ChoiceCard(
                         quiz.choices[i],
                         right = state.solved && i == quiz.answer,
                         faded = i in state.wrong || (state.solved && i != quiz.answer),
                         shakeKey = if (shaking == i) shake else 0,
-                        modifier = Modifier.weight(1f).height(
-                            when {
-                                big -> 150.dp
-                                tall -> 120.dp
-                                else -> 96.dp
-                            },
-                        ),
+                        modifier = if (square) Modifier.size(height) else Modifier.weight(1f).height(height),
                         big = big,
                         onClick = { choose(i) },
                     )
                 }
-                if (row.size < columns) Spacer(Modifier.weight((columns - row.size).toFloat()))
+                if (row.size < columns && !square) Spacer(Modifier.weight((columns - row.size).toFloat()))
             }
         }
     }
@@ -378,10 +382,10 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
     val alpha by animateFloatAsState(if (faded) 0.35f else 1f)
-    val shape = RoundedCornerShape(22.dp)
-    // A figure is drawn on paper whatever the look, so its whole card is paper: a paper
-    // square inside a coloured card showed as a tile within a tile on Classic.
-    val paper = choice is Choice.Fig || choice is Choice.Cut || choice is Choice.Shapes || choice is Choice.Holes
+    // A figure answer is a paper tile like the figure cards it is compared with, whatever
+    // the look; a paper square inside a coloured card showed as a tile within a tile.
+    val paper = choice.onPaper
+    val shape = RoundedCornerShape(if (paper) 14.dp else 22.dp)
     Box(
         modifier
             .shakeOn(shakeKey)
@@ -395,7 +399,15 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
                     else -> colors.card
                 },
             )
-            .border(if (right) 3.dp else 1.5.dp, if (right) colors.good else colors.cardLine, shape)
+            .border(
+                if (right) 3.dp else 1.5.dp,
+                when {
+                    right -> colors.good
+                    paper -> Ink.copy(alpha = 0.35f)
+                    else -> colors.cardLine
+                },
+                shape,
+            )
             .pressable(onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -420,7 +432,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             )
             is Choice.Sized -> T(choice.emoji, size = (72 * choice.scale).sp)
             is Choice.Time -> T("${choice.hour}:${choice.minute.toString().padStart(2, '0')}", color = ink, size = 32.sp, weight = FontWeight.ExtraBold)
-            is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice, if (big) 134.dp else 86.dp)
+            is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice)
         }
         if (right) {
             val tick = Modifier.align(Alignment.TopEnd).padding(8.dp)
@@ -434,3 +446,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
         }
     }
 }
+
+/** The figure puzzles' answers, drawn black on paper in every look. */
+private val Choice.onPaper: Boolean
+    get() = this is Choice.Fig || this is Choice.Cut || this is Choice.Shapes || this is Choice.Holes

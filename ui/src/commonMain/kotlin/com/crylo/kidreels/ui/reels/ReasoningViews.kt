@@ -193,11 +193,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.arrow(from: Offset,
     drawLine(Accent, to, to - d * head - n * head * 0.6f, w)
 }
 
-/** A reasoning choice, drawn square in the middle of its paper answer card. */
+/** A reasoning choice, filling its square paper answer tile as a figure fills its card. */
 @Composable
-fun ReasoningChoice(choice: Choice, size: Dp) {
-    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize().padding(4.dp)) {
+fun ReasoningChoice(choice: Choice) {
+    BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize().padding(maxWidth * 0.06f)) {
             when (choice) {
                 is Choice.Fig -> drawFigure(choice.figure)
                 is Choice.Cut -> drawPiece(choice.piece, this.size.minDimension / 4.2f, Board)
