@@ -88,7 +88,7 @@ fun CountAlongView(reel: CountAlong, padding: PaddingValues) {
                                             counted += i
                                             if (counted.size == reel.n) {
                                                 env.sfx(Sfx.CORRECT)
-                                                env.say(Phrases.counted(reel.n), tone = Tone.CHEER)
+                                                env.say(Phrases.counted(reel.n, reel.thing), tone = Tone.CHEER)
                                             } else {
                                                 env.sfx(Sfx.TICK)
                                                 env.say(NumberWords.of(counted.size))

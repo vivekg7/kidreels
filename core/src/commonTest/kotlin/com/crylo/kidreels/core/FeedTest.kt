@@ -107,7 +107,7 @@ class FeedTest {
 
     @Test
     fun littleChildrenHearHomeWordsNotSchoolWords() {
-        val schoolWords = listOf("वृत्त", "त्रिभुज", "आयत", "भुजा", "संख्या", "पक्षी", "ध्रुवीय", "पंचभुज", "घन ", "शंकु", "लगभग")
+        val schoolWords = listOf("वृत्त", "त्रिभुज", "आयत", "भुजा", "संख्या", "पक्षी", "ध्रुवीय", "पंचभुज", "घन ", "घनाभ", "फलक", "शंकु", "लगभग")
         for (age in 2..5) for (seed in 1..3) {
             for (reel in feed(age, seed, listOf(Lang.HI, Lang.EN)).take(300)) {
                 val said = reel.hindi()
@@ -119,13 +119,27 @@ class FeedTest {
     }
 
     @Test
-    fun hearingAReelAgainRepeatsItWithoutTheOpener() {
-        for (reel in feed(5).take(200)) {
-            val first = reel.intro(Lang.EN)
-            assertEquals(first, reel.intro(Lang.EN), "the opener should not change between calls")
-            val again = reel.intro(Lang.EN, greet = false)
-            if (reel is TimeUp) assertEquals(first, again) else assertEquals(first.drop(1), again)
+    fun theVoiceSaysWhatIsOnScreenAndWhatToDo() {
+        for (reel in feed(4).take(300)) {
+            if (reel is Quiz) assertTrue(reel.say != null, "${reel.topic} has nothing to say beyond its prompt")
+            val said = reel.intro(Lang.EN).joinToString(" ") { it.text }
+            assertFalse("help me" in said, "a filler line instead of the reel: $said")
+            if (reel is Quiz && reel.stage is Stage.Count) {
+                val emoji = (reel.stage as Stage.Count).emoji
+                val thing = Countables.first { it.emoji == emoji }
+                assertTrue(thing.many[Lang.EN] in said && "Count them" in said, said)
+            }
         }
+    }
+
+    @Test
+    fun hindiQuestionsAgreeWithWhatIsCounted() {
+        val butterfly = Countables.first { it.emoji == "🦋" }
+        val apple = Countables.first { it.emoji == "🍎" }
+        assertEquals("फ़ोन पर कितनी तितलियाँ हैं? गिनकर बताओ!", Phrases.howManyOnPhone(butterfly)[Lang.HI])
+        assertEquals("कितने सेब हैं?", Phrases.howMany(apple)[Lang.HI])
+        assertEquals("कौन सी तितली बड़ी है?", Phrases.whichSize(butterfly, big = true, ofThree = false)[Lang.HI])
+        assertEquals("1 तितली है!", Phrases.thereAre(1, butterfly)[Lang.HI])
     }
 
     @Test

@@ -65,12 +65,12 @@ data class SolidInfo(
 
 object Solids {
     val all: List<SolidInfo> = listOf(
-        SolidInfo(SolidKind.CUBE, txt("Cube", "घन").simpler("Cube", "डिब्बा"), txt("6 square faces, 12 edges, 8 corners", "6 वर्गाकार फलक, 12 किनारे, 8 कोने"), listOf("🎲", "🧊"), 5),
+        SolidInfo(SolidKind.CUBE, txt("Cube", "घन").simpler("Cube", "डिब्बा"), txt("6 square faces, 12 edges, 8 corners", "6 वर्गाकार फलक, 12 किनारे, 8 कोने").simpler("6 flat squares, 8 corners", "6 चौकोर तरफ़, 8 कोने"), listOf("🎲", "🧊"), 5),
         SolidInfo(SolidKind.SPHERE, txt("Sphere", "गोला"), txt("Round all over, with no edges", "चारों ओर से गोल, कोई किनारा नहीं"), listOf("⚽", "🌍", "🏀"), 5),
-        SolidInfo(SolidKind.CYLINDER, txt("Cylinder", "बेलन"), txt("2 flat circles and 1 curved side", "2 सपाट वृत्त और 1 घुमावदार सतह"), listOf("🥫", "🔋"), 5),
-        SolidInfo(SolidKind.CONE, txt("Cone", "शंकु").simpler("Cone", "कोन"), txt("1 flat circle and a pointy top", "1 सपाट वृत्त और एक नुकीली चोटी"), listOf("🍦", "🎉"), 5),
-        SolidInfo(SolidKind.CUBOID, txt("Cuboid", "घनाभ"), txt("6 rectangle faces, 12 edges, 8 corners", "6 आयताकार फलक, 12 किनारे, 8 कोने"), listOf("📦", "🧱"), 6),
-        SolidInfo(SolidKind.PYRAMID, txt("Pyramid", "पिरामिड"), txt("A square base and 4 triangle faces", "वर्गाकार आधार और 4 त्रिभुजाकार फलक"), emptyList(), 6),
+        SolidInfo(SolidKind.CYLINDER, txt("Cylinder", "बेलन"), txt("2 flat circles and 1 curved side", "2 सपाट वृत्त और 1 घुमावदार सतह").simpler("Round and flat at both ends", "गोल, और दोनों सिरे सपाट"), listOf("🥫", "🔋"), 5),
+        SolidInfo(SolidKind.CONE, txt("Cone", "शंकु").simpler("Cone", "कोन"), txt("1 flat circle and a pointy top", "1 सपाट वृत्त और एक नुकीली चोटी").simpler("Round at the bottom, pointy at the top", "नीचे से गोल, ऊपर से नुकीला"), listOf("🍦", "🎉"), 5),
+        SolidInfo(SolidKind.CUBOID, txt("Cuboid", "घनाभ").simpler("Cuboid", "लंबा डिब्बा"), txt("6 rectangle faces, 12 edges, 8 corners", "6 आयताकार फलक, 12 किनारे, 8 कोने").simpler("Like a box, with 8 corners", "डिब्बे जैसा, 8 कोने"), listOf("📦", "🧱"), 6),
+        SolidInfo(SolidKind.PYRAMID, txt("Pyramid", "पिरामिड"), txt("A square base and 4 triangle faces", "वर्गाकार आधार और 4 त्रिभुजाकार फलक").simpler("Square at the bottom, pointy at the top", "नीचे से चौकोर, ऊपर से नुकीला"), emptyList(), 6),
     )
 
     fun upTo(age: Int): List<SolidInfo> = all.filter { it.fromAge <= age }
@@ -229,16 +229,52 @@ object Categories {
     fun byKey(key: String): Category = all.first { it.key == key }
 }
 
+/**
+ * Something the voice can name: "How many butterflies?". Hindi needs the plural and the
+ * gender too, since the question agrees with the thing: कितने सेब, but कितनी तितलियाँ.
+ */
+data class Thing(val emoji: String, val one: Txt, val many: Txt, val feminine: Boolean = false) {
+    /** The Hindi word that agrees with this thing: `agree("कितने", "कितनी")`. */
+    fun agree(masculine: String, feminine: String): String = if (this.feminine) feminine else masculine
+
+    /** "1 butterfly", "3 butterflies" / "1 तितली", "3 तितलियाँ". */
+    fun of(n: Int): Txt = (if (n == 1) one else many).let { txt("$n ${it[Lang.EN]}", "$n ${it[Lang.HI]}") }
+}
+
+private fun thing(emoji: String, en: String, enMany: String, hi: String, hiMany: String, feminine: Boolean = false) =
+    Thing(emoji, txt(en, hi), txt(enMany, hiMany), feminine)
+
+/** A pattern piece needs only its name: "red, blue, red, blue…". */
+private fun piece(emoji: String, en: String, hi: String) = thing(emoji, en, en, hi, hi)
+
 /** Things that are fun to count and easy to tell apart. */
-val Countables: List<String> = listOf("🍎", "🍌", "⭐", "🎈", "🐥", "🚗", "🐟", "🌸", "🍓", "⚽", "🦋", "🐞", "🧁", "🐸")
+val Countables: List<Thing> = listOf(
+    thing("🍎", "apple", "apples", "सेब", "सेब"),
+    thing("🍌", "banana", "bananas", "केला", "केले"),
+    thing("⭐", "star", "stars", "तारा", "तारे"),
+    thing("🎈", "balloon", "balloons", "गुब्बारा", "गुब्बारे"),
+    thing("🐥", "chick", "chicks", "चूज़ा", "चूज़े"),
+    thing("🚗", "car", "cars", "गाड़ी", "गाड़ियाँ", feminine = true),
+    thing("🐟", "fish", "fish", "मछली", "मछलियाँ", feminine = true),
+    thing("🌸", "flower", "flowers", "फूल", "फूल"),
+    thing("🍓", "strawberry", "strawberries", "स्ट्रॉबेरी", "स्ट्रॉबेरी", feminine = true),
+    thing("⚽", "ball", "balls", "गेंद", "गेंदें", feminine = true),
+    thing("🦋", "butterfly", "butterflies", "तितली", "तितलियाँ", feminine = true),
+    thing("🐞", "ladybird", "ladybirds", "लाल कीड़ा", "लाल कीड़े"),
+    thing("🧁", "cupcake", "cupcakes", "केक", "केक"),
+    thing("🐸", "frog", "frogs", "मेंढक", "मेंढक"),
+)
+
+/** The matchsticks drawn under small numbers in sums. Drawn in code, so no emoji. */
+val Stick = thing("", "stick", "sticks", "तीली", "तीलियाँ", feminine = true)
 
 /** Pattern pieces: each set is clearly different by colour or kind. */
-val PatternSets: List<List<String>> = listOf(
-    listOf("🔴", "🔵", "🟡", "🟢"),
-    listOf("🍎", "🍌", "🍇", "🍊"),
-    listOf("🐶", "🐱", "🐰", "🐸"),
-    listOf("⭐", "🌙", "☀️", "☁️"),
-    listOf("🟥", "🟦", "🟨", "🟩"),
+val PatternSets: List<List<Thing>> = listOf(
+    listOf(piece("🔴", "red", "लाल"), piece("🔵", "blue", "नीला"), piece("🟡", "yellow", "पीला"), piece("🟢", "green", "हरा")),
+    listOf(piece("🍎", "apple", "सेब"), piece("🍌", "banana", "केला"), piece("🍇", "grapes", "अंगूर"), piece("🍊", "orange", "संतरा")),
+    listOf(piece("🐶", "dog", "कुत्ता"), piece("🐱", "cat", "बिल्ली"), piece("🐰", "rabbit", "खरगोश"), piece("🐸", "frog", "मेंढक")),
+    listOf(piece("⭐", "star", "तारा"), piece("🌙", "moon", "चाँद"), piece("☀️", "sun", "सूरज"), piece("☁️", "cloud", "बादल")),
+    listOf(piece("🟥", "red", "लाल"), piece("🟦", "blue", "नीला"), piece("🟨", "yellow", "पीला"), piece("🟩", "green", "हरा")),
 )
 
 object NumberWords {

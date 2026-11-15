@@ -77,7 +77,8 @@ Speech uses Android's built-in `TextToSpeech`: Indian English (`en-IN`, falling 
 `en-GB`/`en-US`) and Hindi (`hi-IN`). No audio files are bundled. If a voice is not
 installed, reels in that language stay silent rather than being read by the wrong voice,
 and settings shows an **Install voice** button. The voice is slower and a little higher
-than the engine's default, introduces each reel ("Ooh, look!"), and sounds brighter for
+than the engine's default, says what is on the screen and what to do ("How many
+butterflies are there on the phone? Count them and tell me!"), and sounds brighter for
 praise and softer for "try again". Sound effects are synthesised on the device at
 start-up.
 

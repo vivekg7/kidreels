@@ -32,6 +32,16 @@ class Txt(private val byLang: Map<Lang, String>, private val simple: Txt? = null
     /** The text for a child of [age]: the simpler words, if there are any, up to [SIMPLE_UNTIL]. */
     fun forAge(age: Int): Txt = if (age <= SIMPLE_UNTIL && simple != null) simple else this
 
+    /**
+     * Two sentences said as one line, in each language: "Which one is red?" + "Find red and
+     * tap it!". Simpler words on either side are kept for little children.
+     */
+    operator fun plus(other: Txt): Txt {
+        val joined = (byLang.keys intersect other.byLang.keys).associateWith { "${this[it]} ${other[it]}" }
+        val simpleJoined = if (simple == null && other.simple == null) null else (simple ?: this) + (other.simple ?: other)
+        return Txt(joined, simpleJoined)
+    }
+
     override fun equals(other: Any?): Boolean = other is Txt && other.byLang == byLang
 
     override fun hashCode(): Int = byLang.hashCode()

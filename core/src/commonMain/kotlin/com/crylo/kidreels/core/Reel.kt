@@ -1,7 +1,5 @@
 package com.crylo.kidreels.core
 
-import kotlin.random.Random
-
 /** The "channel" a reel appears to come from in the familiar-looking skins. */
 enum class Channel(val handle: Txt, val emoji: String) {
     MATHS(txt("Maths", "गणित"), "🔢"),
@@ -76,7 +74,11 @@ data class Quiz(
     val answer: Int,
     /** Spoken after the right answer, e.g. "2 plus 3 is 5!". */
     val reveal: Txt? = null,
-    /** Spoken on arrival when it should differ from the [prompt] on screen. */
+    /**
+     * Spoken on arrival: the [prompt] said in full, naming what is on screen and what to
+     * do ("How many butterflies are there on the phone? Count them and tell me!"). The
+     * screen keeps the short [prompt]: the youngest cannot read it anyway.
+     */
     val say: Txt? = null,
     override val voice: Lang? = null,
 ) : Reel {
@@ -142,12 +144,13 @@ data class CountAlong(
     override val id: Long,
     override val level: Int,
     override val difficulty: Int,
-    val emoji: String,
+    val thing: Thing,
     val n: Int,
 ) : Reel {
+    val emoji: String get() = thing.emoji
     override val topic get() = Topic.COUNT_ALONG
     override val needsSolving get() = false
-    override val prompt get() = Phrases.letsCount
+    override val prompt get() = Phrases.letsCount(thing)
     override val voice: Lang? get() = null
 }
 
@@ -236,34 +239,24 @@ data class TimeUp(override val id: Long) : Reel {
 }
 
 /**
- * Whatever is spoken when a reel comes on screen, in the right voice: a friendly opener,
- * the reel's own line, then what to do with it. With [greet] false (the child asked to
- * hear it again) the opener is left out and the rest is repeated.
+ * What the voice says when a reel comes on screen, in the right voice: what is on the
+ * screen and what to do with it, the way a grown-up beside the child would say it. The
+ * speaker button says the same again.
  */
-fun Reel.intro(main: Lang, greet: Boolean = true): List<Say> {
+fun Reel.intro(main: Lang): List<Say> {
     val lang = voice ?: main
     fun line(t: Txt, tone: Tone = Tone.TALK) = Say(t[lang], lang, tone)
-    if (this is TimeUp) return listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
-    val openers = when (this) {
-        is Quiz -> Phrases.askOpeners
-        is CountAlong, is AngleLab -> Phrases.playOpeners
-        else -> Phrases.lookOpeners
+    return when (this) {
+        is TimeUp -> listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
+        // Said, then said again with the child: toddlers learn a letter by repeating it.
+        is LetterCard -> listOf(Say(letter.phrase, lang), line(Phrases.sayWithMe), Say(letter.phrase, lang))
+        is Quiz -> listOf(line(say ?: prompt))
+        is CountAlong -> listOf(line(Phrases.countAlong(thing)))
+        is ShapeCard -> listOf(line(Phrases.thisShape(shape)))
+        is SolidCard -> listOf(line(Phrases.thisSolid(solid, showFact)))
+        is AngleLab -> listOf(line(target?.let(Phrases::makeAngleSay) ?: Phrases.dragAngle))
+        is CurveLab -> listOf(line(Phrases.thisCurve(curve)))
     }
-    val own = when (this) {
-        is LetterCard -> Say(letter.phrase, lang)
-        is Quiz -> line(say ?: prompt)
-        else -> prompt?.let { line(it) }
-    }
-    val hint = when (this) {
-        // From age 4 children know to tap an answer; younger ones are told.
-        is Quiz -> Phrases.tapTheAnswer.takeIf { level <= 3 }
-        is ShapeCard -> Phrases.tapAndSee
-        is SolidCard -> Phrases.spinIt
-        is CurveLab -> Phrases.stretchIt
-        else -> null
-    }
-    val opener = if (greet) line(Phrases.pick(openers, Random(id))) else null
-    return listOfNotNull(opener, own, hint?.let { line(it) })
 }
 
 /** Hard reels are followed by an easy one: see Feed. */

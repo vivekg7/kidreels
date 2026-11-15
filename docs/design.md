@@ -59,7 +59,8 @@ clock with its hands read the wrong way round, the vegetable among fruits at the
 
 1. Add a `Topic` (and, if it needs new data, a list in `World.kt`).
 2. Add a `Template` in `Templates.all` with its age range. If it is a quiz, it can reuse
-   the existing `Stage`/`Choice` kinds and needs no UI work at all.
+   the existing `Stage`/`Choice` kinds and needs no UI work at all. Give it a `say`:
+   the question in full, naming what is on screen, and what to do.
 3. A new explore reel needs a `Reel` class and a view in `ui/reels/`, plus a branch in
    `ReelView`.
 4. `TemplatesTest` picks it up automatically; add a check that the answer is right.
@@ -132,12 +133,15 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   solid is convex.
 - Speech is the phone's TTS engine, so no voice recordings ship. A missing voice means
   silence for that language, never Devanagari read by an English voice.
-- **The voice talks to the child, not at them.** Read out flat and at adult pace, the
-  screen text sounded curt. So each reel opens with a line a grown-up would say ("Ooh,
-  look!", "Hmm, can you help me?"), then its own line, then what to do ("Tap the right
-  one!" up to age 3, "Spin it with your finger!"). The opener is picked from the reel's
-  id, so a reel swiped back to sounds the same; the speaker button repeats the reel
-  without it.
+- **The voice talks to the child, not at them.** Read out flat, the screen text ("कितने
+  हैं?") sounded curt, and a generic opener in front of it ("Can you help me?") only
+  added words. So each reel says what a parent beside the child would: what is on the
+  screen and what to do with it. "How many butterflies are there on the phone? Count
+  them and tell me!", "3 sticks and 2 sticks: how many sticks in all?", "Look: red,
+  blue, red, blue. What comes next?". A quiz carries this as `say`, next to the short
+  `prompt` shown on screen; explore reels build it from their data in `Reel.intro`.
+  Things to count are `Thing`s with a Hindi plural and gender, because the sentence
+  agrees with them: कितने सेब, but कितनी तितलियाँ. The speaker button repeats the same.
 - **Tone is pitch and pace.** Engines have no emotion setting, so each spoken line
   carries a `Tone` that the platform turns into the way adults talk to toddlers. Speech
   is a little slower (0.85, or 0.7 with slow speech) and higher than the engine default.
@@ -153,7 +157,7 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   From 6 they hear the school word their class uses. A `Txt` can carry a simpler
   version (`txt(...).simpler(...)`), and the template picks one for the child's age
   (`Gen.words`, or `forAge` on a shape, solid, category or animal home). Lines every
-  reel can say (praise, "try again", openers) are kept simple for all ages; easy words
+  reel can say (praise, "try again") are kept simple for all ages; easy words
   suit a nine-year-old too. `littleChildrenHearHomeWordsNotSchoolWords` fails if a
   school word reaches a child of 5 or under.
 - **Option count follows age:** 2 choices at age 2, 3 at age 3, 4 from age 4. More is
