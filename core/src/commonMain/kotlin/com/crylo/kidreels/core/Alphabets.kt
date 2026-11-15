@@ -20,9 +20,6 @@ data class Letter(
     val meaning: Txt,
     val like: Boolean = false,
 ) {
-    /** "A a" for English; Devanagari has no case. */
-    val display: String get() = if (lang == Lang.EN) "$glyph ${glyph.lowercase()}" else glyph
-
     val phrase: String
         get() = when (lang) {
             Lang.EN -> "$glyph for $word"

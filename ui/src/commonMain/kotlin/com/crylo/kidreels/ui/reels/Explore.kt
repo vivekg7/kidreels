@@ -143,7 +143,8 @@ fun LetterView(reel: LetterCard, padding: PaddingValues) {
                 .padding(horizontal = 34.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center,
         ) {
-            T(letter.display, Modifier.popOn(bounce), color = Color(0xFFE5484D), size = 104.sp, weight = FontWeight.Black)
+            // The capital only: "A a" side by side reads as two letters to a new learner.
+            T(letter.glyph, Modifier.popOn(bounce), color = Color(0xFFE5484D), size = 104.sp, weight = FontWeight.Black)
         }
         Box(Modifier.tap { env.say(Say(letter.phrase, lang)); bounce++ }) {
             when (val p = letter.picture) {

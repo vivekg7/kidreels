@@ -160,6 +160,9 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   reel can say (praise, "try again") are kept simple for all ages; easy words
   suit a nine-year-old too. `littleChildrenHearHomeWordsNotSchoolWords` fails if a
   school word reaches a child of 5 or under.
+- **Capital letters only.** The alphabet card shows "A", not "A a": two shapes side by
+  side read as two different letters to a child just starting. The first-letter quiz uses
+  capitals too.
 - **Option count follows age:** 2 choices at age 2, 3 at age 3, 4 from age 4. More is
   noise for a toddler.
 - **Swipe threshold is a quarter page**, not the default half: small hands drag short
