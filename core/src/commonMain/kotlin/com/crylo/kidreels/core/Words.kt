@@ -216,6 +216,7 @@ object Words {
 n("🦴", "bone", "हड्डी"), n("🥛", "milk", "दूध", article = ""), n("🧀", "cheese", "चीज़", article = ""),
         n("🍯", "honey", "शहद", article = ""), n("🌿", "grass", "घास", article = ""), n("🎋", "bamboo", "बाँस", article = ""),
         n("🧺", "basket", "टोकरी"), n("🐨", "koala", "कोआला"),
+        n("🦄", "unicorn", "यूनिकॉर्न", article = "a"), n("🐹", "hamster", "हैम्स्टर"), n("👸", "queen", "रानी"),
                 n("🎈", "balloon", "गुब्बारा"), n("🧁", "cupcake", "केक"), n("🍪", "biscuit", "बिस्कुट"), n("🍩", "doughnut", "डोनट"),
         n("🧇", "waffle", "वफ़ल"), n("🍕", "slice of pizza", "पिज़्ज़ा"), n("🥐", "croissant", "क्रोसाँ"), n("🍦", "ice cream", "आइसक्रीम", article = "an"),
         n("🥚", "egg", "अंडा", article = "an"), n("🥫", "tin", "डिब्बा"), n("🍏", "green apple", "हरा सेब"),

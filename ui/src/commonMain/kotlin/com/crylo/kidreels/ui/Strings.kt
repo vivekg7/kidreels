@@ -44,12 +44,12 @@ object S {
 
     val childTitle = txt("Who is this for?", "यह किसके लिए है?")
     val childBody = txt(
-        "A name and an animal. If more children use this phone, each finds their own reels by their animal. The name can be left out.",
-        "एक नाम और एक जानवर। अगर इस फ़ोन पर और बच्चे भी खेलें, तो हर बच्चा अपने जानवर से अपनी रील्स ढूँढ लेगा। नाम छोड़ भी सकते हैं।",
+        "A name and a picture. If more children use this phone, each finds their own reels by their picture. The name can be left out.",
+        "एक नाम और एक चित्र। अगर इस फ़ोन पर और बच्चे भी खेलें, तो हर बच्चा अपने चित्र से अपनी रील्स ढूँढ लेगा। नाम छोड़ भी सकते हैं।",
     )
     val name = txt("Name", "नाम")
     val nameHint = txt("Optional", "ज़रूरी नहीं")
-    val animal = txt("Animal", "जानवर")
+    val picture = txt("Picture", "चित्र")
     val colour = txt("Colour", "रंग")
 
     val children = txt("Children", "बच्चे")
@@ -60,7 +60,7 @@ object S {
     val addChild = txt("Add a child", "बच्चा जोड़ें")
     val playingNow = txt("Playing now", "अभी इनकी बारी")
     val checkInDue = txt("Age check-in waiting", "उम्र की जाँच बाकी है")
-    val profile = txt("Name, animal and age", "नाम, जानवर और उम्र")
+    val profile = txt("Name, picture and age", "नाम, चित्र और उम्र")
     val timeGroup = txt("Time", "समय")
     val reelsGroup = txt("Reels", "रील्स")
     val languages = txt("Languages", "भाषाएँ")

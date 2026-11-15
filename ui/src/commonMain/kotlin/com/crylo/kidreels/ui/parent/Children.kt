@@ -37,9 +37,9 @@ import com.crylo.kidreels.ui.common.AvatarColours
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.pressable
 
-private const val ANIMALS_PER_ROW = 6
+private const val PICTURES_PER_ROW = 6
 
-/** Name, animal and colour: the same in first-run setup, adding a child and on a child's page. */
+/** Name, picture and colour: the same in first-run setup, adding a child and on a child's page. */
 @Composable
 fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
     val c = LocalParent.current
@@ -68,9 +68,9 @@ fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
         // Both grids share out the full width, so their edges line up with the name field
         // above on any phone. Flowing at a fixed size left a gap on the right, and the last
         // colour alone on a second line.
-        T(S.animal[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
+        T(S.picture[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Avatar.entries.chunked(ANIMALS_PER_ROW).forEach { row ->
+            Avatar.entries.chunked(PICTURES_PER_ROW).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     row.forEach { a ->
                         BoxWithConstraints(Modifier.weight(1f)) {
@@ -81,7 +81,7 @@ fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
                             )
                         }
                     }
-                    repeat(ANIMALS_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(PICTURES_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }

@@ -220,6 +220,11 @@ before: age, languages, look, limit, check-in, slow speech, progress, today's ti
   name, and nothing needs the camera. The name is optional; a child without one is called
   by their animal ("Tiger", "बाघ"). A new child starts on an animal and colour nobody
   else has.
+- **24 pictures, four rows of six.** The unicorn, peacock, swan, flamingo, ladybird,
+  hamster, chick and queen came after the first 16, so girls (and anyone) have more
+  they would pick as their own. The queen is not an animal, so the picker says
+  "Picture". New ones go at the end: a choice is saved by its name, so order does not
+  matter to storage, and a full last row keeps the grid even.
 - **One child: no question.** The app opens straight to the feed, as before profiles.
 - **More than one: "Who's playing?"** at start, and again after 15 minutes in the
   background (`Profiles.ASK_AGAIN_MILLIS`). Android keeps the app alive for hours, so "at

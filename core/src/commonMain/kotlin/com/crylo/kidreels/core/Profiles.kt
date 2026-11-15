@@ -23,6 +23,7 @@ class PrefixedStore(private val kv: KeyValueStore, private val prefix: String) :
 enum class Avatar(val emoji: String) {
     TIGER("🐯"), PANDA("🐼"), FOX("🦊"), RABBIT("🐰"), FROG("🐸"), LION("🦁"), KOALA("🐨"), MONKEY("🐵"),
     DOG("🐶"), CAT("🐱"), BEAR("🐻"), PENGUIN("🐧"), OWL("🦉"), ELEPHANT("🐘"), BUTTERFLY("🦋"), DOLPHIN("🐬"),
+    UNICORN("🦄"), PEACOCK("🦚"), SWAN("🦢"), FLAMINGO("🦩"), LADYBIRD("🐞"), HAMSTER("🐹"), CHICK("🐥"), QUEEN("👸"),
     ;
 
     val word: Word get() = Words.of(emoji) ?: error("$emoji has no name")
