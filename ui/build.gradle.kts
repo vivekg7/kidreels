@@ -26,5 +26,10 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
         }
+        // AppState is plain Kotlin over Compose state, so its flows (who is playing, the
+        // gate, bedtime) are tested on the JVM with a fake host, no device or rendering.
+        jvmTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }

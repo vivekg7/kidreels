@@ -47,6 +47,9 @@ logo. The progress line along the bottom shows today's time used.
   storage, child profiles, the time budget and the check-in rule. Unit-tested on the JVM.
 - `ui/`: Compose Multiplatform, foundation only. No Material: the kid-facing look is
   entirely custom anyway, and one fewer library means one fewer version to keep in step.
+  `AppState` (screens, children, the gate, bedtime, the feed's limits) is plain Kotlin
+  over Compose state, so `AppStateTest` drives it on the JVM with a fake `Host` whose
+  clock the test moves: the profile flows are checked without an emulator or rendering.
 - `androidApp/`: implements `Host` (storage, clock, speech, sound, keep-screen-on).
 
 Both shared modules also compile for desktop JVM. That target is not shipped; it is there

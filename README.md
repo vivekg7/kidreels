@@ -123,7 +123,7 @@ This Mac has no system JDK; Android Studio's bundled JBR works:
 
 ```sh
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-./gradlew :core:jvmTest assembleDebug
+./gradlew :core:jvmTest :ui:jvmTest assembleDebug
 ./gradlew assembleRelease   # signed if the key is set up, else unsigned
 ./scripts/archive-apk.sh    # build, verify, keep the APK and AAB in local/releases/
 ```
