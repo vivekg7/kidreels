@@ -6,17 +6,19 @@ the Console, change it here too.
 
 ## Identity
 
-| Field            | Value                                                    |
-| ---------------- | -------------------------------------------------------- |
-| Account          | Crylo (personal, apps in production since 2020)          |
-| Store name       | Kid Reels: Learning Games                                |
-| Package          | `com.crylo.kidreels` (can never change)                  |
-| Type, price      | App, free (free can never become paid)                   |
-| Default language | English (United Kingdom)                                 |
-| Category         | Education                                                |
-| Contact email    | thecrylocompany@gmail.com                                |
-| Website          | https://github.com/vivekg7/kidreels                      |
-| Privacy policy   | https://github.com/vivekg7/kidreels/blob/main/PRIVACY.md |
+| Field            | Value                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| Account          | Crylo (personal, apps in production since 2020)                                          |
+| Store name       | Kid Reels: Learning Games                                                                |
+| Package          | `com.crylo.kidreels` (can never change)                                                  |
+| Type, price      | App, free (free can never become paid)                                                   |
+| Default language | English (United Kingdom)                                                                 |
+| Category         | Education                                                                                |
+| Tags             | Early childhood education, Education, Language education, Mathematics, Primary education |
+| Countries        | All 178 that Play offers                                                                 |
+| Contact email    | thecrylocompany@gmail.com                                                                |
+| Website          | https://github.com/vivekg7/kidreels                                                      |
+| Privacy policy   | https://github.com/vivekg7/kidreels/blob/main/PRIVACY.md                                 |
 
 The store name follows the account's "Name: Tagline" pattern; the name under the icon
 stays "Kid Reels". The listing is British English (colours, licence), which is also
@@ -59,19 +61,23 @@ AI-generated assets: none.
 - **Ads:** none.
 - **App access:** everything works without an account or a login. The parent gate is a
   three-second hold, not credentials, so no instructions are needed.
-- **Content rating (IARC):** category "Reference, News, or Educational". No violence,
-  fear, sexual content, profanity, drugs, gambling, user-generated content, chat,
-  location sharing or purchases. Expected result: Everyone / PEGI 3 / 3+.
-- **Target audience: 5 and under, 6–8, 9–12.** Kid Reels is made for children, so
-  saying "13 and over" would be false and is exactly what Play's review removes apps
-  for. Choosing children brings the **Families policy**, which the app already meets:
-  no ads or ad SDKs, no third-party SDKs at all, no data collected, no device
-  identifiers, no internet permission, and the only link out (the privacy policy) sits
-  behind the parent gate. The store listing makes no claim of being "certified" or
-  "approved" by anyone.
-- **Appeals to children:** yes (it follows from the target audience).
-- **Teacher Approved:** Play considers apps in the Families programme on its own; there
-  is nothing to apply for.
+- **Content rating (IARC):** category "All other app types". No ratings-relevant
+  content, no users talking to each other, no content from outside the app, nothing
+  age-restricted, no location sharing, no purchases, no cash rewards, not a browser; "primarily
+  a news or educational product": yes. Result: Everyone (ESRB), PEGI 3, USK all ages,
+  ClassInd all ages, 3+ elsewhere. Play will not offer age groups under 13 until the
+  rating is done.
+- **Target audience: every age group, 5 and under to 18 and over.** Kid Reels is made
+  for children, but in India a child mostly uses a parent's phone, so the person
+  installing it is usually a grown-up; leaving the adult groups out would describe the
+  app's users wrongly. Including children brings the **Families policy**, and Play offers
+  either a neutral age screen or making the whole app comply. The whole app complies, so
+  there is no age screen: no ads or ad SDKs, no third-party SDKs at all, no data
+  collected, no device identifiers, no internet permission, and the only link out (the
+  privacy policy) sits behind the parent gate. The listing claims no certification. The
+  account holder ticks the COPPA/GDPR certification.
+- **Expert Approved:** opted in. Teachers and specialists review the app; if approved it
+  gets the badge and can appear in the Kids tab. It does not hold up publishing.
 - **Data safety:** no data collected, no data shared. "Encrypted in transit" does not
   apply, since nothing is transmitted. Deletion: uninstalling removes everything.
 - **Advertising ID:** not used. **Government, financial, health, news features:** none.
@@ -85,6 +91,8 @@ AI-generated assets: none.
 2. Add `fastlane/metadata/android/en-GB/changelogs/<versionCode>.txt` (500 characters at
    most).
 3. Commit, then `./scripts/archive-apk.sh` on the clean tree.
-4. Upload `local/releases/v<version>/kidreels-v<version>.aab` to the production track,
-   with `kidreels-v<version>.apk.mapping.txt` as its deobfuscation file, and paste the
-   changelog.
+4. Upload `local/releases/v<version>/kidreels-v<version>.aab` to the production track
+   and paste the changelog. The R8 mapping travels inside the bundle, so Play shows it
+   under the bundle's Downloads without a separate upload; the archived `mapping.txt` is
+   the copy that outlives Play. Play warns that native debug symbols are missing: the
+   native code is AndroidX's, not ours, so there is nothing to upload.
