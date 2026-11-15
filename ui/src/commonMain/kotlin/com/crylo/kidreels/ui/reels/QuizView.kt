@@ -153,6 +153,10 @@ private fun StageView(quiz: Quiz, state: ReelState) {
             }
         }
         is Stage.Grid -> GridStage(stage, state.solved) { env.say(quiz.say ?: quiz.prompt, quiz.voice) }
+        is Stage.Figures -> FiguresStage(stage, (quiz.choices[quiz.answer] as? Choice.Fig)?.figure?.takeIf { state.solved })
+        is Stage.Cutout -> CutoutStage(stage, state.solved)
+        is Stage.Hidden -> HiddenStage(stage, state.solved)
+        is Stage.Fold -> FoldStage(stage)
     }
 }
 
@@ -358,6 +362,7 @@ private fun Choices(quiz: Quiz, state: ReelState, shake: Int, shaking: Int, big:
                                 else -> 96.dp
                             },
                         ),
+                        big = big,
                         onClick = { choose(i) },
                     )
                 }
@@ -368,7 +373,7 @@ private fun Choices(quiz: Quiz, state: ReelState, shake: Int, shaking: Int, big:
 }
 
 @Composable
-private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey: Int, modifier: Modifier, onClick: () -> Unit) {
+private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey: Int, modifier: Modifier, big: Boolean, onClick: () -> Unit) {
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
     val alpha by animateFloatAsState(if (faded) 0.35f else 1f)
@@ -405,6 +410,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             )
             is Choice.Sized -> T(choice.emoji, size = (72 * choice.scale).sp)
             is Choice.Time -> T("${choice.hour}:${choice.minute.toString().padStart(2, '0')}", color = ink, size = 32.sp, weight = FontWeight.ExtraBold)
+            is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice, if (big) 134.dp else 86.dp)
         }
         if (right) T("✓", Modifier.align(Alignment.TopEnd).padding(8.dp), color = Color.White, size = 20.sp, weight = FontWeight.Black)
     }

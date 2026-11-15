@@ -3,6 +3,7 @@ package com.crylo.kidreels.core
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -134,5 +135,53 @@ class TemplatesTest {
             }
             if (reel.kind == DragKind.BASKET) assertTrue(reel.pieces.size > reel.targets[0].capacity, "nothing to count out")
         }
+    }
+
+    /** The right answer really is right, and no wrong option looks the same as it. */
+    @Test
+    fun reasoningAnswersAreRightAndOptionsDiffer() {
+        for ((_, reel) in everyReel(seeds = 30)) {
+            if (reel !is Quiz) continue
+            val right = reel.choices[reel.answer]
+            when (val stage = reel.stage) {
+                is Stage.Figures -> if (stage.layout == Layout.MIRROR) {
+                    assertTrue((right as Choice.Fig).figure.same(stage.figures[0]!!.mirrored()), "mirror")
+                }
+                is Stage.Hidden -> {
+                    assertTrue(stage.lines.hides((right as Choice.Shapes).lines, stage.size), "the answer is not hidden")
+                    reel.choices.forEachIndexed { i, c -> if (i != reel.answer) assertFalse(stage.lines.hides((c as Choice.Shapes).lines, stage.size), "a wrong shape is hidden too") }
+                }
+                is Stage.Cutout -> {
+                    val turns = (0..3).map { stage.piece.turned(it, stage.board).shape }
+                    assertTrue((right as Choice.Cut).piece.shape in turns, "the answer does not fit")
+                }
+                is Stage.Fold -> {
+                    val holes = (right as Choice.Holes).holes
+                    assertTrue(holes.containsAll(stage.holes))
+                    if (stage.vertical) assertTrue(holes.all { Hole(3 - it.col, it.row) in holes }, "not mirrored across the fold")
+                    if (stage.twice || !stage.vertical) assertTrue(holes.all { Hole(it.col, 3 - it.row) in holes }, "not mirrored across the fold")
+                }
+                else -> Unit
+            }
+            val figs = reel.choices.filterIsInstance<Choice.Fig>()
+            if (figs.isNotEmpty() && reel.topic != Topic.ODD_FIGURE) assertTrue(allDifferent(figs.map { it.figure }), "${reel.topic}: two options look the same")
+            if (reel.topic == Topic.ODD_FIGURE) {
+                val odd = (right as Choice.Fig).figure
+                assertTrue(figs.filter { it != right }.none { it.figure.same(odd) }, "the odd one is not different")
+            }
+            val cuts = reel.choices.filterIsInstance<Choice.Cut>()
+            assertEquals(cuts.size, cuts.map { it.piece.shape }.toSet().size, "two pieces look the same")
+        }
+    }
+
+    @Test
+    fun figuresTurnAndFlipExactly() {
+        val f = Figure(listOf(Mark(MarkKind.ARROW, 1, -1, 0), Mark(MarkKind.DOT, -1, 0)))
+        assertTrue(f.turned(4).same(f))
+        assertTrue(f.mirrored().mirrored().same(f))
+        assertTrue(f.mirrored().flipped().same(f.turned(2)), "a mirror and a flip make a half turn")
+        // An arrow pointing right at the top right, turned a quarter, points down at the bottom right.
+        assertEquals(setOf(Mark(MarkKind.ARROW, 1, 1, 90), Mark(MarkKind.DOT, 0, -1)), f.turned(1).look)
+        assertTrue(f.stepped(8).same(f), "eight steps go all the way round")
     }
 }

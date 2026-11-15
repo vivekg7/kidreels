@@ -57,7 +57,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–10) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-35 templates, and why the tests can check every template at every age and difficulty.
+44 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -86,6 +86,38 @@ One model, five games, drawn by `DragView` according to the `DragKind`:
   page as usual, so the feed never feels stuck. A placed piece leaves its slot empty, so
   the others stay under the child's finger.
 - **Tapping a piece names it**, like every other picture.
+
+### Reasoning puzzles
+
+The Navodaya entrance test (JNVST, taken at about 10) is mostly figure reasoning, and an
+Indian parent knows it. `core/Reasoning.kt` makes its question types as ordinary quizzes,
+with easier versions earlier:
+
+| Puzzle               | Ages | Easy end → hard end                                                          |
+| -------------------- | ---- | ---------------------------------------------------------------------------- |
+| Same figure          | 4–8  | a mark changed, moved or missing → the mirror image and turned copies too    |
+| Odd figure out       | 4–10 | one copy changed → three turns of a figure and its mirror image, turned      |
+| Complete the pattern | 5–10 | four equal quarters → quarters that mirror each other                        |
+| Figure series        | 6–10 | marks moving round the edge → turning as they go (from 8), at two speeds     |
+| Mirror image         | 6–10 | always against the original, upside down and half-turned copies              |
+| Analogy              | 7–10 | a quarter turn, half turn, mirror or flip, done to a second figure           |
+| Complete the square  | 7–10 | the piece the same way round → shown turned, with its mirror image as a trap |
+| Hidden figure        | 8–10 | small shapes in few lines → bigger shapes in more lines                      |
+| Fold and punch       | 9–10 | one fold → two folds                                                         |
+
+- **Figures live on a grid** (`core/Figures.kt`): marks on a 3 × 3 grid with a direction
+  in steps of 45°, pieces and lines on a small lattice, holes in a 4 × 4 square. Turning,
+  mirroring and comparing are exact, so the tests can prove that the answer is right and
+  that no wrong option looks the same as it (`reasoningAnswersAreRightAndOptionsDiffer`).
+  Two marks that look alike are equal (a square turned 90° is the same square), and a
+  figure is only used if every turn and flip of it looks different, so a "mirror image"
+  option never happens to match the original.
+- **Every wrong option is a trap a child really falls into**, and its line names it: the
+  original in a mirror question ("a mirror swaps left and right"), the slid holes in a
+  paper fold ("mirrored across the fold, not slid along").
+- **Black on paper white in every look**, like the clock: the differences are small.
+- Nine topics weigh half a reel each, so at 10 they are a good share of the mix without
+  taking it over; a parent can pick one alone.
 
 ### Adding a reel type
 

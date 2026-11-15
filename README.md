@@ -35,6 +35,11 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   feed each animal its food, put 4 mangoes in the basket, sort fruits from vegetables. A
   piece dropped in the wrong place slides back with a reason ("That is not the dog's
   food. Whose food is the banana?").
+- **Reasoning with figures**, in the style of the Jawahar Navodaya Vidyalaya entrance
+  test: the same figure and the odd one out from age 4, then pattern completion, figure
+  series, mirror images, analogies, completing a square, hidden figures and paper
+  folding up to age 10. Wrong options are the classic traps (turned instead of flipped,
+  upside down instead of mirrored), and each says why it is wrong.
 - **Every picture talks.** Tapping any picture on any reel says what it is ("This is a
   fish", "This is the colour red"); tapping a number in a row reads it out.
 - Numbers under 20 come with matchsticks (तीलियाँ) under them, in fives, with tied
@@ -75,7 +80,7 @@ than a rewrite:
 
 | Module        | What                                                                                                                                    | Depends on |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `core/`       | Reel model, content (alphabets, shapes, animals…), the 35 reel templates, the feed rules, settings, time limit, check-in. Plain Kotlin. | nothing    |
+| `core/`       | Reel model, content (alphabets, shapes, animals…), the 44 reel templates, the feed rules, settings, time limit, check-in. Plain Kotlin. | nothing    |
 | `ui/`         | Every screen and reel, the three looks, the parent screens. Compose Multiplatform, foundation only (no Material).                       | `core`     |
 | `androidApp/` | The Android shell: text-to-speech, sound effects, storage, clock.                                                                       | `ui`       |
 

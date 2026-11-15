@@ -189,6 +189,17 @@ object Templates {
         Template(Topic.SORTING, 4..8, solving = true) { g -> DragGames.sort(g) },
         Template(Topic.MISSING_PIECE, 3..8, solving = true) { g -> DragGames.missingPiece(g) },
 
+        // Reasoning with figures: nine small topics, so each weighs half a reel in the mix.
+        Template(Topic.SAME_FIGURE, 4..8, solving = true, weight = 0.5) { g -> Reasoning.sameFigure(g) },
+        Template(Topic.ODD_FIGURE, 4..10, solving = true, weight = 0.5) { g -> Reasoning.oddFigure(g) },
+        Template(Topic.COMPLETE_PATTERN, 5..10, solving = true, weight = 0.5) { g -> Reasoning.completePattern(g) },
+        Template(Topic.FIGURE_SERIES, 6..10, solving = true, weight = 0.5) { g -> Reasoning.figureSeries(g) },
+        Template(Topic.MIRROR, 6..10, solving = true, weight = 0.5) { g -> Reasoning.mirror(g) },
+        Template(Topic.ANALOGY, 7..10, solving = true, weight = 0.5) { g -> Reasoning.analogy(g) },
+        Template(Topic.FIT_PIECE, 7..10, solving = true, weight = 0.5) { g -> Reasoning.fitPiece(g) },
+        Template(Topic.HIDDEN_FIGURE, 8..10, solving = true, weight = 0.5) { g -> Reasoning.hidden(g) },
+        Template(Topic.PAPER_FOLD, 9..10, solving = true, weight = 0.5) { g -> Reasoning.paperFold(g) },
+
         Template(Topic.SIZES, 2..3, solving = true) { g ->
             val thing = g.pick(Countables)
             val scales = if (g.level == 2) listOf(0.45f, 1f) else listOf(0.4f, 0.7f, 1f)

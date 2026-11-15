@@ -7,6 +7,7 @@ enum class Channel(val handle: Txt, val emoji: String) {
     SHAPES(txt("Shapes", "आकार"), "🔷"),
     PUZZLES(txt("Puzzles", "पहेली"), "🧩"),
     WORLD(txt("Our world", "हमारी दुनिया"), "🌍"),
+    THINKING(txt("Thinking", "सोचो"), "🧠"),
 }
 
 enum class Topic(val channel: Channel, val title: Txt) {
@@ -45,6 +46,15 @@ enum class Topic(val channel: Channel, val title: Txt) {
     VEGETABLES(Channel.WORLD, txt("Vegetables", "सब्ज़ियाँ")),
     HOME_THINGS(Channel.WORLD, txt("At home", "घर की चीज़ें")),
     CLOTHES(Channel.WORLD, txt("Clothes", "कपड़े")),
+    SAME_FIGURE(Channel.THINKING, txt("Same figure", "एक जैसी आकृति")),
+    ODD_FIGURE(Channel.THINKING, txt("Odd figure out", "अलग आकृति")),
+    COMPLETE_PATTERN(Channel.THINKING, txt("Complete the pattern", "पैटर्न पूरा करो")),
+    FIGURE_SERIES(Channel.THINKING, txt("Figure series", "आकृति शृंखला")),
+    MIRROR(Channel.THINKING, txt("Mirror image", "दर्पण प्रतिबिंब")),
+    ANALOGY(Channel.THINKING, txt("Analogy", "सादृश्यता")),
+    FIT_PIECE(Channel.THINKING, txt("Complete the square", "वर्ग पूरा करो")),
+    HIDDEN_FIGURE(Channel.THINKING, txt("Hidden figure", "छिपी आकृति")),
+    PAPER_FOLD(Channel.THINKING, txt("Fold and punch", "मोड़ो और छेद करो")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
 
@@ -141,6 +151,35 @@ sealed interface Stage {
         val symbols: List<String>,
         val hint: Boolean,
     ) : Stage
+
+    data class Figures(val figures: List<Figure?>, val layout: Layout) : Stage
+
+    /** A square board of [board] × [board] with [piece] cut out of it. */
+    data class Cutout(val board: Int, val piece: Polygon) : Stage
+
+    /** Busy [lines] on a [size] × [size] lattice; [answer] is where the hidden shape is, shown once solved. */
+    data class Hidden(val lines: Lines, val size: Int, val answer: Lines) : Stage
+
+    /** A square of paper folded in half (left over right, or top over bottom; [twice]: both), with [holes] punched. */
+    data class Fold(val vertical: Boolean, val twice: Boolean, val holes: Set<Hole>) : Stage
+}
+
+/** How the figures of a reasoning puzzle are laid out; a null figure is the "?". */
+enum class Layout {
+    /** One figure: "which is the same?". */
+    ONE,
+
+    /** One figure with a mirror stood on its right. */
+    MIRROR,
+
+    /** A series, left to right. */
+    ROW,
+
+    /** Four quarters of one square pattern, row by row. */
+    GRID,
+
+    /** A → B, C → ?. */
+    ANALOGY,
 }
 
 enum class Op(val sign: String) { ADD("+"), SUB("−"), MUL("×") }
@@ -162,6 +201,16 @@ sealed interface Choice {
     data class Sized(val emoji: String, val scale: Float) : Choice
 
     data class Time(val hour: Int, val minute: Int) : Choice
+
+    /** [copy] tells apart choices that show the same figure ("which one is different?"). */
+    data class Fig(val figure: Figure, val copy: Int = 0) : Choice
+
+    data class Cut(val piece: Polygon) : Choice
+
+    data class Shapes(val lines: Lines) : Choice
+
+    /** An unfolded square of paper with these holes. */
+    data class Holes(val holes: Set<Hole>) : Choice
 }
 
 /** Count along: tap each thing and hear the running count. Nothing to get wrong. */
