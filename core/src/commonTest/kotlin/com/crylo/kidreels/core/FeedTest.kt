@@ -101,7 +101,8 @@ class FeedTest {
     private fun Reel.hindi(): String = buildString {
         intro(Lang.HI).forEach { append(it.text).append(' ') }
         prompt?.let { append(it[Lang.HI]).append(' ') }
-        if (this@hindi is Quiz) reveal?.let { append(it[Lang.HI]) }
+        if (this@hindi is Quiz) reveal?.let { append(it[Lang.HI]).append(' ') }
+        if (this@hindi is Quiz) whyNot.filterNotNull().forEach { append(it[Lang.HI]).append(' ') }
         if (this@hindi is ShapeCard) append(shape.name[Lang.HI]).append(' ').append(shape.fact[Lang.HI])
         if (this@hindi is SolidCard) append(solid.name[Lang.HI])
     }
@@ -157,6 +158,32 @@ class FeedTest {
     fun firstLetterAnswerIsSpokenInParts() {
         val quiz = feed(5).take(400).filterIsInstance<Quiz>().first { it.topic == Topic.FIRST_LETTER }
         assertEquals(3, quiz.revealSaid?.size, "the answer is said as letter, link, word")
+    }
+
+    @Test
+    fun aWrongTapSaysWhyItIsNotTheAnswer() {
+        for (age in Settings.AGES) for (reel in feed(age).take(200)) {
+            if (reel !is Quiz) continue
+            assertEquals(reel.choices.size, reel.whyNot.size, "${reel.topic} at $age says nothing about wrong taps")
+            reel.whyNot.forEachIndexed { i, why -> assertEquals(i == reel.answer, why == null, "${reel.topic} choice $i: $why") }
+        }
+        val blue = Colours.all.first { it.name[Lang.EN] == "blue" }
+        val green = Colours.all.first { it.name[Lang.EN] == "green" }
+        assertEquals("That is green, not blue. Find blue and tap it!", Phrases.notColour(green, blue)[Lang.EN])
+        assertEquals("यह हरा है, नीला नहीं। नीला वाला ढूँढकर छुओ!", Phrases.notColour(green, blue)[Lang.HI])
+        val fish = Habitats.all.first { it.emoji == "🐟" }
+        val camel = Habitats.all.first { it.emoji == "🐫" }
+        assertEquals("मछली रेगिस्तान में नहीं रहती!", fish.notAt(Home.DESERT)[Lang.HI])
+        assertEquals("The camel does not live on the ice!", camel.notAt(Home.ICE)[Lang.EN])
+        assertEquals("ऊँट बर्फ़ पर नहीं रहता!", camel.notAt(Home.ICE)[Lang.HI])
+    }
+
+    @Test
+    fun aWrongCountGivesAHintNotTheAnswer() {
+        val apple = Countables.first { it.emoji == "🍎" }
+        val why = Phrases.notCount(4, 6, apple)
+        assertTrue("more" in why[Lang.EN] && "6" !in why[Lang.EN], why[Lang.EN])
+        assertEquals("4 कम है, सेब इससे ज़्यादा हैं। एक-एक करके फिर से गिनो!", why[Lang.HI])
     }
 
     @Test

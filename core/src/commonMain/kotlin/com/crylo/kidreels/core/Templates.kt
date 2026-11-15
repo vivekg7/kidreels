@@ -79,6 +79,12 @@ internal fun Gen.numberChoices(answer: Int, spread: List<Int>, sticks: Boolean, 
     return values.map { Choice.Number(it, sticks) } to index
 }
 
+/** For each of [values], why it is not the one at [answer]; see [Quiz.whyNot]. */
+internal fun <T> whyNot(values: List<T>, answer: Int, why: (T) -> Txt): List<Txt?> =
+    values.mapIndexed { i, v -> if (i == answer) null else why(v) }
+
+private val List<Choice>.numbers: List<Int> get() = map { (it as Choice.Number).n }
+
 object Templates {
     val all: List<Template> = listOf(
         Template(Topic.COUNT_ALONG, 2..4, solving = false) { g ->
@@ -103,6 +109,7 @@ object Templates {
                 g.id, Topic.COUNTING, g.level, g.difficulty, Phrases.howMany(thing),
                 Stage.Count(thing.emoji, n, scattered = g.level >= 4 && g.difficulty >= 3),
                 choices, answer, reveal = Phrases.thereAre(n, thing), say = Phrases.howManyOnPhone(thing),
+                whyNot = whyNot(choices.numbers, answer) { Phrases.notCount(it, n, thing) },
             )
         },
 
@@ -130,7 +137,7 @@ object Templates {
                 Stage.Picture((target.picture as Picture.Emoji).text),
                 glyphs.map { Choice.Token(it) }, answer,
                 reveal = Txt.same(target.phrase), say = Phrases.startsWithSay(target), voice = lang,
-                revealSaid = target.spoken(),
+                revealSaid = target.spoken(), whyNot = whyNot(glyphs, answer) { Phrases.notLetter(it, target) },
             )
         },
 
@@ -173,6 +180,7 @@ object Templates {
             Quiz(
                 g.id, Topic.SIZES, g.level, g.difficulty, prompt, Stage.None, shuffled.map { Choice.Sized(thing.emoji, it) }, answer,
                 say = prompt + Phrases.tapIt,
+                whyNot = whyNot(shuffled, answer) { Phrases.notSize(thing, big, scales.size == 3, scales.indexOf(it)) },
             )
         },
 
@@ -187,6 +195,7 @@ object Templates {
             Quiz(
                 g.id, Topic.COLOURS, g.level, g.difficulty, Phrases.whichColour(target), Stage.None,
                 colours.map { Choice.Colour(it.argb) }, answer, reveal = Phrases.yesColour(target), say = Phrases.whichColourSay(target),
+                whyNot = whyNot(colours, answer) { Phrases.notColour(it, target) },
             )
         },
 
@@ -196,6 +205,7 @@ object Templates {
             Quiz(
                 g.id, Topic.ANIMAL_SOUNDS, g.level, g.difficulty, Phrases.whoSays(target), Stage.None,
                 animals.map { Choice.Token(it.emoji) }, answer, reveal = target.reveal, say = Phrases.whoSaysSay(target),
+                whyNot = whyNot(animals, answer) { Phrases.notAnimal(it, target) },
             )
         },
 
@@ -205,6 +215,7 @@ object Templates {
             Quiz(
                 g.id, Topic.HABITATS, g.level, g.difficulty, dweller.question, Stage.Picture(dweller.emoji),
                 homes.map { Choice.Token(it.emoji, it.label) }, answer, reveal = dweller.reveal, say = dweller.question + Phrases.tapItsHome,
+                whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) },
             )
         },
     )
@@ -239,6 +250,7 @@ object Templates {
         return Quiz(
             g.id, Topic.ADDITION, g.level, g.difficulty, Phrases.addThem, Stage.Sum(a, Op.ADD, b, aids),
             choices, answer, reveal = g.words(Phrases.sumAnswer(a, Op.ADD, b, sum)), say = g.words(Phrases.sumSay(a, Op.ADD, b, aids)),
+            whyNot = whyNot(choices.numbers, answer) { Phrases.notSum(it, a, Op.ADD, b, sum, aids) },
         )
     }
 
@@ -262,6 +274,7 @@ object Templates {
         return Quiz(
             g.id, Topic.SUBTRACTION, g.level, g.difficulty, Phrases.takeAway, Stage.Sum(a, Op.SUB, b, aids),
             choices, answer, reveal = g.words(Phrases.sumAnswer(a, Op.SUB, b, diff)), say = g.words(Phrases.sumSay(a, Op.SUB, b, aids)),
+            whyNot = whyNot(choices.numbers, answer) { Phrases.notSum(it, a, Op.SUB, b, diff, aids) },
         )
     }
 
@@ -278,6 +291,7 @@ object Templates {
         return Quiz(
             g.id, Topic.MULTIPLICATION, g.level, g.difficulty, Phrases.multiply, Stage.Sum(a, Op.MUL, b, aids),
             choices, answer, reveal = Phrases.sumAnswer(a, Op.MUL, b, product), say = Phrases.sumSay(a, Op.MUL, b, aids),
+            whyNot = whyNot(choices.numbers, answer) { Phrases.notSum(it, a, Op.MUL, b, product, aids) },
         )
     }
 
@@ -299,9 +313,11 @@ object Templates {
             val thing = g.pick(Countables)
             val more = maxOf(x, y)
             val choices = listOf(Choice.Group(thing.emoji, x), Choice.Group(thing.emoji, y))
+            val answer = choices.indexOfFirst { it.n == more }
             return Quiz(
                 g.id, Topic.COMPARE, g.level, g.difficulty, Phrases.whichMore(thing), Stage.None, choices,
-                choices.indexOfFirst { it.n == more }, reveal = Phrases.more(more, minOf(x, y)), say = Phrases.whichMoreSay(thing),
+                answer, reveal = Phrases.more(more, minOf(x, y)), say = Phrases.whichMoreSay(thing),
+                whyNot = whyNot(choices, answer) { Phrases.notFewer(it.n, thing) },
             )
         }
         val range = when (g.level) {
@@ -326,11 +342,13 @@ object Templates {
         val other = if (smaller) maxOf(x, y) else minOf(x, y)
         val sticks = g.level == 5
         val choices = listOf(Choice.Number(x, sticks), Choice.Number(y, sticks))
+        val answer = choices.indexOfFirst { it.n == target }
         return Quiz(
             g.id, Topic.COMPARE, g.level, g.difficulty, g.words(if (smaller) Phrases.whichSmaller else Phrases.whichBigger),
-            Stage.None, choices, choices.indexOfFirst { it.n == target },
+            Stage.None, choices, answer,
             reveal = if (smaller) Phrases.less(target, other) else Phrases.more(target, other),
             say = g.words(if (smaller) Phrases.whichSmallerSay(x, y) else Phrases.whichBiggerSay(x, y)),
+            whyNot = whyNot(choices.numbers, answer) { g.words(if (smaller) Phrases.notSmaller(it, target) else Phrases.notBigger(it, target)) },
         )
     }
 
@@ -356,6 +374,7 @@ object Templates {
             g.id, Topic.SEQUENCE, g.level, g.difficulty, if (next) Phrases.whatNext else Phrases.whatMissing,
             Stage.Row(terms.map { it.toString() }, blank), choices, answer,
             say = if (next) Phrases.whatNextSay(terms.dropLast(1).map { Txt.same(it.toString()) }) else Phrases.whatMissingSay,
+            whyNot = whyNot(choices.numbers, answer) { Phrases.notInRow(it, terms.zipWithNext { p, q -> q - p }.distinct().singleOrNull()) },
         )
     }
 
@@ -391,6 +410,7 @@ object Templates {
         return Quiz(
             g.id, Topic.CLOCK, g.level, g.difficulty, Phrases.whatTime, Stage.Clock(hour, minute),
             choices, answer, reveal = Phrases.time(hour, minute), say = Phrases.clockSay,
+            whyNot = whyNot(choices, answer) { Phrases.notTime(it.hour, it.minute, hourWrong = it.hour != hour) },
         )
     }
 
@@ -408,6 +428,7 @@ object Templates {
                 shuffled.mapIndexed { i, s -> Choice.Shape(s.kind, colours[i]) }, shuffled.indexOf(target),
                 reveal = txt("${said.name[Lang.EN]}: ${said.fact[Lang.EN]}", "${said.name[Lang.HI]}: ${said.fact[Lang.HI]}"),
                 say = g.words(Phrases.whichSidesSay(target.sides)),
+                whyNot = whyNot(shuffled, shuffled.indexOf(target)) { g.words(Phrases.notSides(it, target.sides)) },
             )
         }
         val pool = Shapes.upTo(g.level)
@@ -419,6 +440,7 @@ object Templates {
             shapes.mapIndexed { i, s -> Choice.Shape(s.kind, colours[i]) }, answer,
             reveal = txt("That is the ${said.name[Lang.EN].lowercase()}!", "यह ${said.name[Lang.HI]} है!"),
             say = Phrases.whichShape(said) + Phrases.findAndTap,
+            whyNot = whyNot(shapes, answer) { Phrases.notShape(it.forAge(g.age), said) },
         )
     }
 
@@ -444,6 +466,7 @@ object Templates {
         return Quiz(
             g.id, Topic.PATTERN, g.level, g.difficulty, Phrases.whatNext, Stage.Row(tokens, shown),
             choices.map { Choice.Token(it) }, answer, say = Phrases.whatNextSay(names),
+            whyNot = whyNot(choices, answer) { e -> Phrases.notInPattern(symbols.first { it.emoji == e }, unit.map { symbols[it - 'A'] }) },
         )
     }
 
@@ -469,6 +492,7 @@ object Templates {
             return Quiz(
                 g.id, Topic.ODD_ONE_OUT, g.level, g.difficulty, Phrases.oddOneOut, Stage.None,
                 numbers.map { Choice.Number(it, sticks = false) }, answer, reveal = Phrases.oddNumber(odd, rule.name), say = Phrases.oddOneOutSay,
+                whyNot = whyNot(numbers, answer) { Phrases.notOddNumber(it, rule.name) },
             )
         }
         val main = g.pick(Categories.all)
@@ -484,6 +508,7 @@ object Templates {
         return Quiz(
             g.id, Topic.ODD_ONE_OUT, g.level, g.difficulty, Phrases.oddOneOut, Stage.None,
             items.map { Choice.Token(it) }, answer, reveal = Phrases.notInGroup(main.forAge(g.age)), say = Phrases.oddOneOutSay,
+            whyNot = whyNot(items, answer) { Phrases.notOddItem(main.forAge(g.age)) },
         )
     }
 
@@ -496,7 +521,9 @@ object Templates {
             else -> 9
         }
         // Five-year-olds get fruit or colours: the rule is the same, reading digits is not needed.
-        val symbols = if (g.level == 5) g.pick(listOf(PatternSets[0], PatternSets[1])).map { it.emoji } else (1..size).map { it.toString() }
+        val pictures = if (g.level == 5) g.pick(listOf(PatternSets[0], PatternSets[1])) else null
+        val symbols = pictures?.map { it.emoji } ?: (1..size).map { it.toString() }
+        val names = pictures?.map { it.one } ?: symbols.map { Txt.same(it) }
         val cells = Sudoku.solved(size, g.random)
         val blank = g.random.nextInt(cells.size)
         val value = cells[blank]
@@ -507,6 +534,7 @@ object Templates {
             Stage.Grid(size, boxRows, boxCols, cells, blank, symbols, hint = g.level <= 6 || g.difficulty <= 2),
             values.map { Choice.Token(symbols[it]) }, values.indexOf(value),
             say = g.words(if (g.level == 5) Phrases.sudokuPictureSay else Phrases.sudokuNumberSay),
+            whyNot = whyNot(values, values.indexOf(value)) { g.words(Phrases.alreadyInRow(names[it])) },
         )
     }
 }

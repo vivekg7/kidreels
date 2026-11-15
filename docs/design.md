@@ -16,8 +16,15 @@ apps hard to put down:
 - **No streaks, badges, points or "just one more".** A right answer is celebrated on the
   spot and then it is over. Nothing accumulates that a child would be afraid to lose.
 - **Nothing to watch passively.** Every reel needs a tap, a drag or a count.
-- **No feeling of failure.** Wrong answers shake and fade with "try again"; the word
-  "wrong" never appears. Skipping a puzzle shows a short sad face, not a penalty.
+- **No feeling of failure.** Wrong answers shake and fade; the word "wrong" never
+  appears. Skipping a puzzle shows a short sad face, not a penalty.
+- **A miss is explained.** "Try again" alone teaches nothing, so a wrong tap says why
+  it is not the answer (`Quiz.whyNot`, one line per choice). Where the question already
+  names the answer, the line names it too: "That is green, not blue. Find blue and tap
+  it!", "The cat says meow! Who says moo?". Where finding the answer is the puzzle
+  (counting, sums, number rows, patterns, the clock, sudoku) it gives the reason and a
+  hint but not the answer: "4 is too few: there are more apples than that", "Each
+  number is 2 more than the one before", "There is already a 3 in this line".
 
 ### Familiar, not a copy
 
@@ -60,7 +67,8 @@ clock with its hands read the wrong way round, the vegetable among fruits at the
 1. Add a `Topic` (and, if it needs new data, a list in `World.kt`).
 2. Add a `Template` in `Templates.all` with its age range. If it is a quiz, it can reuse
    the existing `Stage`/`Choice` kinds and needs no UI work at all. Give it a `say`:
-   the question in full, naming what is on screen, and what to do.
+   the question in full, naming what is on screen, and what to do; and a `whyNot` for
+   each wrong choice.
 3. A new explore reel needs a `Reel` class and a view in `ui/reels/`, plus a branch in
    `ReelView`.
 4. `TemplatesTest` picks it up automatically; add a check that the answer is right.

@@ -21,8 +21,10 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 - **Puzzles** to answer by tapping: how many, add, take away, times tables, which is
   more, what comes next, odd one out, what time is it, which colour, which shape, who
   says "moo", where does the fish live, big and small, first letter, one-cell sudoku.
-  A right answer gets a chime, confetti and a spoken "well done"; a wrong one gets a
-  gentle shake and "try again", never "wrong".
+  A right answer gets a chime, confetti and a spoken "well done". A wrong one gets a
+  gentle shake and a reason, never "wrong": "That is green, not blue. Find blue and tap
+  it!", or a hint where working it out is the puzzle ("4 is too few: there are more
+  apples than that").
 - **Explore reels** with nothing to get wrong: "A for Apple" / "अ से अनानास", shapes
   whose corners count themselves when tapped, 3D solids to spin with a finger, an angle
   to open and see named, curves that draw themselves, and count-along.

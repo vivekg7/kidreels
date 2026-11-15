@@ -82,7 +82,8 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
             shaking = i
             shake++
             env.sfx(Sfx.WRONG)
-            env.say(Phrases.pick(Phrases.tryAgain, Random), tone = Tone.GENTLE)
+            // Why that one is not it ("That is green, not blue"), not just "try again".
+            env.say(quiz.whyNot.getOrNull(i) ?: Phrases.pick(Phrases.tryAgain, Random), quiz.voice, Tone.GENTLE)
         }
     }
 

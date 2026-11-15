@@ -202,6 +202,139 @@ object Phrases {
         if (minute == 0) txt("It is $hour o'clock!", "$hour बजे हैं!")
         else txt("It is $hour:${minute.toString().padStart(2, '0')}!", "$hour बजकर $minute मिनट हुए हैं!")
 
+    /*
+     * Why a tapped choice is not the answer, said instead of a bare "try again": what the
+     * child tapped, and what tells it apart. Where the question already names the answer
+     * (a colour, a shape, a letter) the line names it too: "That is green, not blue. Find
+     * blue!". Where finding it is the puzzle (counting, sums, patterns) it gives a hint,
+     * not the answer: "4 is too few: there are more apples than that."
+     */
+
+    fun notColour(tapped: Colour, wanted: Colour): Txt = txt(
+        "That is ${tapped.name.en}, not ${wanted.name.en}. Find ${wanted.name.en} and tap it!",
+        "यह ${tapped.name.hi} है, ${wanted.name.hi} नहीं। ${wanted.name.hi} वाला ढूँढकर छुओ!",
+    )
+
+    fun notShape(tapped: ShapeInfo, wanted: ShapeInfo): Txt = txt(
+        "That is ${a(tapped.name.en)}, not ${a(wanted.name.en)}. Find the ${wanted.name.en.lowercase()}!",
+        "यह ${tapped.name.hi} है, ${wanted.name.hi} नहीं। ${wanted.name.hi} ढूँढो!",
+    )
+
+    fun notSides(tapped: ShapeInfo, sides: Int): Txt = txt(
+        "That one has ${tapped.sides} sides. Find the one with $sides sides!",
+        "इसकी ${tapped.sides} भुजाएँ हैं। $sides भुजाओं वाला ढूँढो!",
+    ).simpler("That one has ${tapped.sides} corners. Find the one with $sides corners!", "इसके ${tapped.sides} कोने हैं। $sides कोनों वाला ढूँढो!")
+
+    fun notLetter(tapped: String, wanted: Letter): Txt {
+        val starts = "से शुरू ${if (wanted.feminine) "होती" else "होता"} है"
+        return txt(
+            "That is $tapped. ${wanted.word} starts with ${wanted.glyph}. Find ${wanted.glyph}!",
+            "यह $tapped है। ${wanted.word}, ${wanted.glyph} $starts। ${wanted.glyph} ढूँढो!",
+        )
+    }
+
+    fun notAnimal(tapped: Animal, wanted: Animal): Txt = tapped.reveal + whoSays(wanted)
+
+    fun notHome(dweller: Dweller, tapped: Home): Txt = dweller.notAt(tapped) + txt("Look again!", "फिर से देखो!")
+
+    /** [big]: the child was asked for the big one. [rank]: the tapped one's size, 0 smallest. */
+    fun notSize(t: Thing, big: Boolean, ofThree: Boolean, rank: Int): Txt {
+        val bigHi = t.agree("बड़ा", "बड़ी")
+        val smallHi = t.agree("छोटा", "छोटी")
+        val one = t.agree("वाला", "वाली")
+        val wantedEn = if (ofThree) (if (big) "the biggest" else "the smallest") else (if (big) "the big one" else "the small one")
+        val wantedHi = (if (ofThree) "सबसे " else "") + (if (big) bigHi else smallHi) + " $one"
+        val isEn: String
+        val isHi: String
+        when {
+            ofThree && rank == 1 -> {
+                isEn = if (big) "big, but not the biggest" else "small, but not the smallest"
+                isHi = if (big) "$bigHi है, पर सबसे $bigHi नहीं" else "$smallHi है, पर सबसे $smallHi नहीं"
+            }
+            ofThree -> {
+                isEn = if (rank == 0) "the smallest" else "the biggest"
+                isHi = "सबसे " + (if (rank == 0) smallHi else bigHi) + " है"
+            }
+            else -> {
+                isEn = if (rank == 0) "small" else "big"
+                isHi = (if (rank == 0) smallHi else bigHi) + " है"
+            }
+        }
+        return txt("That ${t.one.en} is $isEn. Find $wantedEn!", "यह ${t.one.hi} $isHi। $wantedHi ढूँढो!")
+    }
+
+    /** A count that is off: [tapped] against the real [n]. */
+    fun notCount(tapped: Int, n: Int, t: Thing): Txt =
+        if (tapped < n) txt("$tapped is too few: there are more ${t.many.en} than that. Count them again, one by one!", "$tapped कम है, ${t.many.hi} इससे ज़्यादा हैं। एक-एक करके फिर से गिनो!")
+        else txt("$tapped is too many: there are fewer ${t.many.en} than that. Count them again, one by one!", "$tapped ज़्यादा है, ${t.many.hi} इससे कम हैं। एक-एक करके फिर से गिनो!")
+
+    fun notFewer(tapped: Int, t: Thing): Txt = txt(
+        "This one has ${t.of(tapped).en}. The other one has more! Tap it.",
+        "इसमें ${t.of(tapped).hi} ${if (tapped == 1) "है" else "हैं"}। दूसरे में ज़्यादा हैं! उसे छुओ।",
+    )
+
+    fun notBigger(tapped: Int, other: Int): Txt = less(tapped, other) +
+        txt("Tap the bigger number!", "बड़ी संख्या वाली को छुओ!").simpler("Tap the bigger number!", "बड़े नंबर वाले को छुओ!")
+
+    fun notSmaller(tapped: Int, other: Int): Txt = more(tapped, other) +
+        txt("Tap the smaller number!", "छोटी संख्या वाली को छुओ!").simpler("Tap the smaller number!", "छोटे नंबर वाले को छुओ!")
+
+    /** "5 is too small: 3 and 4 make more than that." The sum's answer stays unsaid. */
+    fun notSum(tapped: Int, a: Int, op: Op, b: Int, c: Int, aids: Boolean): Txt {
+        val more = tapped < c
+        val lead = if (more) txt("$tapped is too small!", "$tapped कम है!") else txt("$tapped is too big!", "$tapped ज़्यादा है!")
+        val enCmp = if (more) "more" else "less"
+        val hiCmp = if (more) "ज़्यादा" else "कम"
+        val why = when (op) {
+            Op.ADD -> txt("$a and $b make $enCmp than that.", "$a और $b मिलकर इससे $hiCmp होते हैं।")
+            Op.SUB -> txt("$a take away $b leaves $enCmp than that.", "$a में से $b गए, तो इससे $hiCmp बचते हैं।")
+            Op.MUL -> txt("$a times $b is $enCmp than that.", "$a गुणा $b इससे $hiCmp होता है।")
+        }
+        val tail = if (aids) txt("Count again!", "फिर से गिनो!") else txt("Try again!", "फिर से सोचो!")
+        return lead + why + tail
+    }
+
+    /** [step]: the gap between numbers, when it is the same each time; null for 1, 2, 4, 8. */
+    fun notInRow(tapped: Int, step: Int?): Txt {
+        val lead = txt("$tapped does not fit.", "$tapped यहाँ ठीक नहीं बैठता।")
+        return lead + when {
+            step == null -> txt("Look at how the numbers grow!", "देखो, नंबर कैसे बढ़ रहे हैं!")
+            step > 0 -> txt("Each number is $step more than the one before!", "हर नंबर पिछले वाले से $step ज़्यादा है!")
+            else -> txt("Each number is ${-step} less than the one before!", "हर नंबर पिछले वाले से ${-step} कम है!")
+        }
+    }
+
+    /** [unit]: one repeat of the pattern, by name. */
+    fun notInPattern(tapped: Thing, unit: List<Thing>): Txt {
+        if (tapped !in unit) return txt("There is no ${tapped.one.en} in this pattern at all! Look again.", "इसमें तो ${tapped.one.hi} है ही नहीं! फिर से देखो।")
+        val en = unit.joinToString(", ") { it.one.en }
+        val hi = unit.joinToString(", ") { it.one.hi }
+        return txt("Not ${tapped.one.en}. Look: it goes $en, then $en again.", "${tapped.one.hi} नहीं। देखो: $hi, फिर से $hi।") + whatNext
+    }
+
+    /** [hourWrong]: the tapped time is a different hour, not just different minutes. */
+    fun notTime(hour: Int, minute: Int, hourWrong: Boolean): Txt = txt("That one says ${clockName(hour, minute).en}.", "उसमें ${clockName(hour, minute).hi} हैं।") +
+        if (hourWrong) txt("The short hand shows the hour: see where it points!", "छोटी सुई घंटा बताती है: देखो वो कहाँ है!")
+        else txt("The long hand shows the minutes: see where it points!", "बड़ी सुई मिनट बताती है: देखो वो कहाँ है!")
+
+    private fun clockName(hour: Int, minute: Int): Txt =
+        if (minute == 0) txt("$hour o'clock", "$hour बजे") else txt("$hour:${minute.toString().padStart(2, '0')}", "$hour बजकर $minute मिनट")
+
+    fun notOddNumber(tapped: Int, rule: Txt): Txt = txt(
+        "$tapped is like the others: they are all ${rule.en}. Find the one that is different!",
+        "$tapped भी बाकियों जैसा है: ये सब ${rule.hi} हैं। जो अलग है, उसे ढूँढो!",
+    )
+
+    fun notOddItem(group: Category): Txt = txt(
+        "That one is like the others: they are all ${group.name.en}. Find the one that is different!",
+        "यह भी बाकियों जैसा है: ये सब ${group.name.hi} हैं। जो अलग है, उसे ढूँढो!",
+    )
+
+    /** A wrong sudoku value is always already in the blank's row. */
+    fun alreadyInRow(symbol: Txt): Txt = txt("There is already ${a(symbol.en)} in this row!", "इस पंक्ति में ${symbol.hi} पहले से है!")
+        .simpler("There is already ${a(symbol.en)} in this line!", "इस लाइन में ${symbol.hi} पहले से है!") +
+        txt("Find the one that is not there yet!", "जो अभी नहीं है, वो ढूँढो!")
+
     val allDone = txt("All done for today!", "आज के लिए बस!")
     val allDoneBody = txt("Time to eat, play and rest. See you tomorrow!", "अब खाना, खेलना और आराम। कल मिलते हैं!")
     val almostDone = txt("Almost done", "बस थोड़ा और")

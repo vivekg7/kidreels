@@ -171,19 +171,35 @@ object AnimalSounds {
 }
 
 /** Labelled, because a three-year-old may not know that 🌾 means a farm. */
-enum class Home(val emoji: String, val label: Txt) {
-    WATER("🌊", txt("Water", "पानी")),
-    TREE("🌳", txt("Tree", "पेड़")),
-    DESERT("🏜️", txt("Desert", "रेगिस्तान")),
-    ICE("🧊", txt("Ice", "बर्फ़")),
-    JUNGLE("🌴", txt("Jungle", "जंगल")),
-    FARM("🌾", txt("Farm", "खेत")),
-    HOUSE("🏠", txt("House", "घर")),
+/** [at] is where, with its postposition: "in water" / "पानी में", "on the ice" / "बर्फ़ पर". */
+enum class Home(val emoji: String, val label: Txt, val at: Txt) {
+    WATER("🌊", txt("Water", "पानी"), txt("in water", "पानी में")),
+    TREE("🌳", txt("Tree", "पेड़"), txt("in a tree", "पेड़ पर")),
+    DESERT("🏜️", txt("Desert", "रेगिस्तान"), txt("in the desert", "रेगिस्तान में")),
+    ICE("🧊", txt("Ice", "बर्फ़"), txt("on the ice", "बर्फ़ पर")),
+    JUNGLE("🌴", txt("Jungle", "जंगल"), txt("in the jungle", "जंगल में")),
+    FARM("🌾", txt("Farm", "खेत"), txt("on a farm", "खेत में")),
+    HOUSE("🏠", txt("House", "घर"), txt("in a house", "घर में")),
 }
 
 /** [question] and [reveal] are whole sentences: the postposition depends on the home (पेड़ पर, पानी में). */
 data class Dweller(val emoji: String, val home: Home, val question: Txt, val reveal: Txt) {
+    init {
+        require(question[Lang.EN].startsWith("Where does the ") && question[Lang.EN].endsWith(" live?")) { question }
+        require(" कहाँ " in question[Lang.HI] && question[Lang.HI].endsWith(" है?")) { question }
+    }
+
     fun forAge(age: Int) = copy(question = question.forAge(age), reveal = reveal.forAge(age))
+
+    /**
+     * "The fish does not live in the desert!" / "मछली रेगिस्तान में नहीं रहती!", made from
+     * [question] so the Hindi verb keeps the animal's gender (रहता, रहती).
+     */
+    fun notAt(other: Home): Txt {
+        val en = question[Lang.EN].removePrefix("Where does the ").removeSuffix(" live?")
+        val hi = question[Lang.HI].removeSuffix(" है?").replace(" कहाँ ", " ${other.at[Lang.HI]} नहीं ")
+        return txt("The $en does not live ${other.at[Lang.EN]}!", "$hi!")
+    }
 }
 
 object Habitats {

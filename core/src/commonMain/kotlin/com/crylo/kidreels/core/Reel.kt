@@ -86,11 +86,17 @@ data class Quiz(
      * the alphabet card.
      */
     val revealSaid: List<Say>? = null,
+    /**
+     * For each choice, why it is not the answer, said when it is tapped: "That is green,
+     * not blue. Find blue!". Null at [answer]; empty for a quiz with nothing to explain.
+     */
+    val whyNot: List<Txt?> = emptyList(),
 ) : Reel {
     override val needsSolving: Boolean get() = true
 
     init {
         require(answer in choices.indices) { "Answer $answer out of ${choices.size} choices" }
+        require(whyNot.isEmpty() || whyNot.size == choices.size) { "whyNot for ${whyNot.size} of ${choices.size} choices in $topic" }
         require(choices.toSet().size == choices.size) { "Duplicate choices in $topic: $choices" }
     }
 }
