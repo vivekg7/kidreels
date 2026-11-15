@@ -4,13 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -37,8 +37,9 @@ import com.crylo.kidreels.ui.common.AvatarColours
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.pressable
 
+private const val ANIMALS_PER_ROW = 6
+
 /** Name, animal and colour: the same in first-run setup, adding a child and on a child's page. */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
     val c = LocalParent.current
@@ -64,21 +65,31 @@ fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
                 }
             }
         }
+        // Both grids share out the full width, so their edges line up with the name field
+        // above on any phone. Flowing at a fixed size left a gap on the right, and the last
+        // colour alone on a second line.
         T(S.animal[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Avatar.entries.forEach { a ->
-                AvatarCircle(
-                    a, p.colour, 52.dp,
-                    Modifier.clip(CircleShape).pressable({ onChange(p.copy(avatar = a)) }),
-                    ring = if (a == p.avatar) c.accent else null,
-                )
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Avatar.entries.chunked(ANIMALS_PER_ROW).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    row.forEach { a ->
+                        BoxWithConstraints(Modifier.weight(1f)) {
+                            AvatarCircle(
+                                a, p.colour, maxWidth,
+                                Modifier.clip(CircleShape).pressable({ onChange(p.copy(avatar = a)) }),
+                                ring = if (a == p.avatar) c.accent else null,
+                            )
+                        }
+                    }
+                    repeat(ANIMALS_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
+                }
             }
         }
         T(S.colour[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             AvatarColours.forEachIndexed { i, colour ->
                 Box(
-                    Modifier.size(40.dp).clip(CircleShape).background(colour)
+                    Modifier.weight(1f).aspectRatio(1f).clip(CircleShape).background(colour)
                         .border(if (i == p.colour) 3.dp else 0.dp, if (i == p.colour) c.ink else Color.Transparent, CircleShape)
                         .pressable({ onChange(p.copy(colour = i)) }),
                 )
