@@ -63,7 +63,7 @@ the answer, a spoken reveal) or an explore reel (`LetterCard`, `ShapeCard`, `Sol
 decides the frame.
 
 Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) knows
-which ages it serves and turns a _level_ (an age, 2–10) and a _difficulty_ (1–5 within
+which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
 47 templates, and why the tests can check every template at every age and difficulty.
@@ -282,7 +282,17 @@ a parent knows better than a calendar whether a child is ready. Every few months
 default) a "For grown-ups" banner appears on the feed. It does not block the child; a
 parent passes the gate to see "Is your child ready for harder reels?" with how often the
 child answered first time at the current age, and can move up, stay, or be asked again in
-a week. At age 10 there is nothing to move up to, so it never appears.
+a week. At age 12 there is nothing to move up to, so it never appears.
+
+**Ages go to 12, not 10.** Primes, square roots, grammar and photosynthesis are taught in
+classes 5 to 7, and a 10-year-old who outgrew the feed had nowhere to go. Past 12 the
+content would have to be a different app (algebra, essays) and the reels look would
+start to feel babyish, so 12 is the top. At 11 and 12 the number topics get harder
+(four-digit sums, two-digit times two-digit, cubes, primes and "each is the sum of the
+two before" in number patterns, primes as the odd one out); the figure puzzles and the
+explore reels carry on at their age-10 hardest, which the Navodaya test itself (taken
+at 10 or 11) does not go past. Play's target audience was already every age group, so
+nothing there changed.
 
 Each child's page also has a note about the last 7 days: minutes, days played, puzzles and
 the share right first time, then topics the child does well at (80% or more right first

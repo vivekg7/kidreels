@@ -111,6 +111,16 @@ class TemplatesTest {
         }
     }
 
+    /** Every age has enough topics for the feed's "a topic waits four reels" rule, and a mix of both kinds. */
+    @Test
+    fun everyAgeHasAFullMix() {
+        for (age in Settings.AGES) {
+            val here = Templates.all.filter { age in it.ages }
+            assertTrue(here.size >= 8, "Only ${here.size} topics at age $age")
+            assertTrue(here.any { it.solving } && here.any { !it.solving }, "Age $age lacks puzzles or explore reels")
+        }
+    }
+
     @Test
     fun numberCardsSpellTheirNumber() {
         assertEquals(listOf("O", "N", "E"), Numbers.spelling(1))

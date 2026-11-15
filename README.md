@@ -40,7 +40,7 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 - **Reasoning with figures**, in the style of the Jawahar Navodaya Vidyalaya entrance
   test: the same figure and the odd one out from age 4, then pattern completion, figure
   series, mirror images, analogies, completing a square, hidden figures and paper
-  folding up to age 10. Wrong options are the classic traps (turned instead of flipped,
+  folding up to age 12. Wrong options are the classic traps (turned instead of flipped,
   upside down instead of mirrored), and each says why it is wrong.
 - **Every picture talks.** Tapping any picture on any reel says what it is ("This is a
   fish", "This is the colour red"); tapping a number in a row reads it out.
@@ -66,7 +66,7 @@ choice below, and each row opens that choice:
   Once a child's time is up, picking a different child needs the gate, so a sibling's
   profile is not a way round the limit.
 - **Languages**: up to 3, in order; the first is the main one. English and Hindi for now.
-- **Age**, 2 to 10. Reels are made for that age, with an occasional one a level above or
+- **Age**, 2 to 12. Reels are made for that age, with an occasional one a level above or
   below, and an easy reel always follows a hard one. Up to age 5 the words are the ones
   children hear at home ("तिकोना", "take away"); from 6, the ones used at school
   ("त्रिभुज", "minus").

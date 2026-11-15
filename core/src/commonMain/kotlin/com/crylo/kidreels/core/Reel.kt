@@ -69,7 +69,7 @@ sealed interface Reel {
     val id: Long
     val topic: Topic
 
-    /** The age this reel was made for, 2 to 10. Not always the child's age: see Feed. */
+    /** The age this reel was made for, 2 to 12. Not always the child's age: see Feed. */
     val level: Int
 
     /** 1 (easiest) to 5 (hardest) among reels of the same [level]. */

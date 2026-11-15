@@ -35,6 +35,11 @@ object Numbers {
 
     val MAX = things.size
 
+    fun isPrime(n: Int): Boolean = n >= 2 && (2..n / 2).none { n % it == 0 }
+
+    /** The primes up to 200, more than any reel needs. */
+    val primes: List<Int> = (2..200).filter(::isPrime)
+
     /** The English word in capitals, letter by letter: "ONE" → O, N, E. */
     fun spelling(n: Int): List<String> = NumberWords.of(n)[Lang.EN].uppercase().map { it.toString() }
 

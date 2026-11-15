@@ -134,12 +134,12 @@ object Templates {
             )
         },
 
-        Template(Topic.ADDITION, 4..10, solving = true) { g -> addition(g) },
-        Template(Topic.SUBTRACTION, 5..10, solving = true) { g -> subtraction(g) },
-        Template(Topic.MULTIPLICATION, 7..10, solving = true) { g -> multiplication(g) },
+        Template(Topic.ADDITION, 4..12, solving = true) { g -> addition(g) },
+        Template(Topic.SUBTRACTION, 5..12, solving = true) { g -> subtraction(g) },
+        Template(Topic.MULTIPLICATION, 7..12, solving = true) { g -> multiplication(g) },
         Template(Topic.COMPARE, 3..7, solving = true) { g -> compare(g) },
         // The tables a class is on: 2, 5 and 10 first, then up to 10, then past it.
-        Template(Topic.TABLES, 6..10, solving = false) { g ->
+        Template(Topic.TABLES, 6..12, solving = false) { g ->
             val tables = when (g.level) {
                 6 -> listOf(2, 5, 10)
                 7 -> (2..10).toList()
@@ -150,13 +150,13 @@ object Templates {
             val table = if (g.ordered) tables[g.inOrder("tables", tables.size)] else tables[g.upTo(0, tables.lastIndex)]
             TableCard(g.id, g.level, g.difficulty, table)
         },
-        Template(Topic.SQUARES, 8..10, solving = false) { g ->
-            val top = when (g.level) { 8 -> 6; 9 -> 10; else -> 12 }
+        Template(Topic.SQUARES, 8..12, solving = false) { g ->
+            val top = when (g.level) { 8 -> 6; 9 -> 10; 10 -> 12; else -> 15 }
             val n = if (g.ordered) g.inOrder("squares", top - 1) + 2 else g.upTo(2, top)
             SquareCard(g.id, g.level, g.difficulty, n, showPower = g.level >= 9)
         },
 
-        Template(Topic.SEQUENCE, 6..10, solving = true) { g -> sequence(g) },
+        Template(Topic.SEQUENCE, 6..12, solving = true) { g -> sequence(g) },
         Template(Topic.CLOCK, 5..9, solving = true) { g -> clock(g) },
 
         Template(Topic.LETTERS, 2..6, solving = false, weight = 1.5) { g ->
@@ -187,12 +187,12 @@ object Templates {
 
         Template(Topic.SHAPE_QUIZ, 3..7, solving = true) { g -> shapeQuiz(g) },
 
-        Template(Topic.SOLIDS, 5..10, solving = false) { g ->
+        Template(Topic.SOLIDS, 5..12, solving = false) { g ->
             val solids = Solids.upTo(g.level)
             SolidCard(g.id, g.level, g.difficulty, solids[g.inOrder("solids", solids.size)].forAge(g.age), g.pick(Colours.bright), showFact = g.level >= 6)
         },
 
-        Template(Topic.ANGLES, 7..10, solving = false) { g ->
+        Template(Topic.ANGLES, 7..12, solving = false) { g ->
             val kinds = if (g.level >= 9) AngleKind.entries else listOf(AngleKind.ACUTE, AngleKind.RIGHT, AngleKind.OBTUSE)
             val target = if (g.level >= 8 && g.chance(0.6)) g.pick(kinds) else null
             var start: Int
@@ -200,14 +200,14 @@ object Templates {
             AngleLab(g.id, g.level, g.difficulty, start, target)
         },
 
-        Template(Topic.CURVES, 8..10, solving = false) { g ->
+        Template(Topic.CURVES, 8..12, solving = false) { g ->
             val curves = Curves.upTo(g.level)
             CurveLab(g.id, g.level, g.difficulty, curves[g.inOrder("curves", curves.size)], showEquation = g.level >= 10 || (g.level == 9 && g.difficulty >= 3))
         },
 
         Template(Topic.PATTERN, 3..6, solving = true) { g -> pattern(g) },
-        Template(Topic.ODD_ONE_OUT, 3..10, solving = true) { g -> oddOneOut(g) },
-        Template(Topic.SUDOKU, 5..10, solving = true) { g -> sudoku(g) },
+        Template(Topic.ODD_ONE_OUT, 3..12, solving = true) { g -> oddOneOut(g) },
+        Template(Topic.SUDOKU, 5..12, solving = true) { g -> sudoku(g) },
 
         Template(Topic.FEEDING, 2..4, solving = true) { g -> DragGames.feed(g) },
         Template(Topic.SHAPE_SORTER, 2..5, solving = true) { g -> DragGames.shapeSorter(g) },
@@ -217,14 +217,14 @@ object Templates {
 
         // Reasoning with figures: nine small topics, so each weighs half a reel in the mix.
         Template(Topic.SAME_FIGURE, 4..8, solving = true, weight = 0.5) { g -> Reasoning.sameFigure(g) },
-        Template(Topic.ODD_FIGURE, 4..10, solving = true, weight = 0.5) { g -> Reasoning.oddFigure(g) },
-        Template(Topic.COMPLETE_PATTERN, 5..10, solving = true, weight = 0.5) { g -> Reasoning.completePattern(g) },
-        Template(Topic.FIGURE_SERIES, 6..10, solving = true, weight = 0.5) { g -> Reasoning.figureSeries(g) },
-        Template(Topic.MIRROR, 6..10, solving = true, weight = 0.5) { g -> Reasoning.mirror(g) },
-        Template(Topic.ANALOGY, 7..10, solving = true, weight = 0.5) { g -> Reasoning.analogy(g) },
-        Template(Topic.FIT_PIECE, 7..10, solving = true, weight = 0.5) { g -> Reasoning.fitPiece(g) },
-        Template(Topic.HIDDEN_FIGURE, 8..10, solving = true, weight = 0.5) { g -> Reasoning.hidden(g) },
-        Template(Topic.PAPER_FOLD, 9..10, solving = true, weight = 0.5) { g -> Reasoning.paperFold(g) },
+        Template(Topic.ODD_FIGURE, 4..12, solving = true, weight = 0.5) { g -> Reasoning.oddFigure(g) },
+        Template(Topic.COMPLETE_PATTERN, 5..12, solving = true, weight = 0.5) { g -> Reasoning.completePattern(g) },
+        Template(Topic.FIGURE_SERIES, 6..12, solving = true, weight = 0.5) { g -> Reasoning.figureSeries(g) },
+        Template(Topic.MIRROR, 6..12, solving = true, weight = 0.5) { g -> Reasoning.mirror(g) },
+        Template(Topic.ANALOGY, 7..12, solving = true, weight = 0.5) { g -> Reasoning.analogy(g) },
+        Template(Topic.FIT_PIECE, 7..12, solving = true, weight = 0.5) { g -> Reasoning.fitPiece(g) },
+        Template(Topic.HIDDEN_FIGURE, 8..12, solving = true, weight = 0.5) { g -> Reasoning.hidden(g) },
+        Template(Topic.PAPER_FOLD, 9..12, solving = true, weight = 0.5) { g -> Reasoning.paperFold(g) },
 
         Template(Topic.SIZES, 2..3, solving = true) { g ->
             val thing = g.pick(Countables)
@@ -302,7 +302,9 @@ object Templates {
                 pair
             }
             9 -> g.between(100, 499) to g.between(10, 99)
-            else -> g.between(100, 499) to g.between(100, 499)
+            10 -> g.between(100, 499) to g.between(100, 499)
+            11 -> g.between(1000, 4999) to g.between(100, 999)
+            else -> g.between(1000, 5999) to g.between(1000, 3999)
         }
         val sum = a + b
         val aids = g.level <= 6
@@ -326,7 +328,9 @@ object Templates {
                 pair
             }
             9 -> g.between(100, 500) to g.between(10, 99)
-            else -> g.between(200, 999).let { it to g.between(100, it - 1) }
+            10 -> g.between(200, 999).let { it to g.between(100, it - 1) }
+            11 -> g.between(1000, 4999) to g.between(100, 999)
+            else -> g.between(2000, 9999).let { it to g.between(1000, it - 1) }
         }
         val diff = a - b
         val aids = g.level <= 7 && a <= 20
@@ -344,7 +348,9 @@ object Templates {
             7 -> g.pick(listOf(2, 5, 10)) to (if (g.difficulty >= 4) g.between(1, 10) else g.between(1, 5))
             8 -> (if (g.difficulty <= 2) g.between(2, 5) else g.between(2, 10)) to g.between(1, 10)
             9 -> g.between(2, 12) to g.between(2, 12)
-            else -> g.between(11, 25) to g.between(2, 9)
+            10 -> g.between(11, 25) to g.between(2, 9)
+            11 -> g.between(12, 25) to g.between(11, 19)
+            else -> g.between(20, 99) to g.between(11, 25)
         }
         val product = a * b
         val aids = a <= 6 && b <= 6
@@ -419,6 +425,13 @@ object Templates {
             7 -> arithmetic(g.between(1, 30), g.pick(listOf(2, 5, 10, -1, -2)))
             8 -> arithmetic(g.between(1, 50), g.pick(listOf(3, 4, 5, 10, -5, -10)))
             9 -> if (g.chance(0.4)) geometric(g.between(1, 5), 2) else arithmetic(g.between(1, 60), g.pick(listOf(3, 6, 7, -3)))
+            // Rules a top-of-primary class meets: each the sum of the two before, cubes, primes.
+            11, 12 -> when (g.between(0, if (g.level == 12) 3 else 2)) {
+                0 -> g.between(1, 5).let { a -> generateSequence(a to a + g.between(0, 3)) { (p, q) -> q to p + q }.map { it.first }.take(5).toList() }
+                1 -> arithmetic(g.between(10, 200), g.pick(listOf(11, 12, 15, 25, -12, -25)))
+                2 -> g.between(1, 4).let { s -> (s..s + 4).map { it * it * it } }
+                else -> Numbers.primes.takeWhile { it < 60 }.windowed(5).let(g::pick)
+            }
             else -> when (g.between(0, 3)) {
                 0 -> g.between(1, 4).let { s -> (s..s + 4).map { it * it } }
                 1 -> geometric(g.between(1, 3), 3)
@@ -540,13 +553,17 @@ object Templates {
         NumberRule(txt("multiples of 10", "10 के गुणज"), 7) { it % 10 == 0 },
         NumberRule(txt("multiples of 3", "3 के गुणज"), 8) { it % 3 == 0 },
         NumberRule(txt("multiples of 4", "4 के गुणज"), 9) { it % 4 == 0 },
-        NumberRule(txt("square numbers", "वर्ग संख्याएँ"), 10) { n -> (1..12).any { it * it == n } },
+        NumberRule(txt("square numbers", "वर्ग संख्याएँ"), 10) { n -> (1..15).any { it * it == n } },
+        NumberRule(txt("multiples of 6", "6 के गुणज"), 11) { it % 6 == 0 },
+        NumberRule(txt("multiples of 7", "7 के गुणज"), 11) { it % 7 == 0 },
+        NumberRule(txt("multiples of 9", "9 के गुणज"), 11) { it % 9 == 0 },
+        NumberRule(txt("prime numbers", "अभाज्य संख्याएँ"), 12) { Numbers.isPrime(it) },
     )
 
     private fun oddOneOut(g: Gen): Reel {
         if (g.level >= 7 && g.chance(0.6)) {
             val rule = g.pick(numberRules.filter { it.fromAge <= g.level })
-            val top = if (g.level >= 9) 100 else 50
+            val top = if (g.level >= 11) 150 else if (g.level >= 9) 100 else 50
             val members = (1..top).filter(rule.member).shuffled(g.random).take(g.optionCount - 1)
             val odd = g.pick((1..top).filter { !rule.member(it) })
             val (numbers, answer) = g.shuffleIn(odd, members)

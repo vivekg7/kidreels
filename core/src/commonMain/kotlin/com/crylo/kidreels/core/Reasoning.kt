@@ -282,7 +282,7 @@ internal object Reasoning {
     }
 
     fun paperFold(g: Gen): Reel = retry("paper fold") {
-        val twice = g.level >= 10 && g.difficulty >= 3
+        val twice = g.level >= 11 || (g.level == 10 && g.difficulty >= 3)
         val vertical = twice || g.chance(0.5)
         // Folding the left half over the right leaves the right half; the top over the bottom, the bottom.
         val visible = (0..3).flatMap { c -> (0..3).map { r -> Hole(c, r) } }.filter { h ->

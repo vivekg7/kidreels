@@ -217,7 +217,7 @@ class FeedTest {
         assertFalse(CheckIn.isDue(snoozed, 1106))
         assertTrue(CheckIn.isDue(snoozed, 1107))
         assertFalse(CheckIn.isDue(s.copy(checkInMonths = 0), 5000))
-        assertFalse(CheckIn.isDue(s.copy(age = 10), 5000))
+        assertFalse(CheckIn.isDue(s.copy(age = Settings.AGES.last), 5000))
     }
 
     @Test

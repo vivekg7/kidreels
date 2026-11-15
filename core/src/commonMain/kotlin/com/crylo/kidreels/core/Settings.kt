@@ -57,7 +57,7 @@ data class Settings(
 
     companion object {
         const val MAX_LANGS = 3
-        val AGES = 2..10
+        val AGES = 2..12
         /** The usual limits, one tap each; any other is set by hand, in [STEP] minutes. */
         val DAILY_MINUTES = listOf(10, 15, 20, 30, 45, 60, 0)
         val CHECK_IN_MONTHS = listOf(1, 3, 6, 0)
