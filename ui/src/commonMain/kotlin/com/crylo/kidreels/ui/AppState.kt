@@ -9,6 +9,9 @@ import androidx.compose.runtime.setValue
 import com.crylo.kidreels.core.CheckIn
 import com.crylo.kidreels.core.Feed
 import com.crylo.kidreels.core.Outcome
+import com.crylo.kidreels.core.Phrases
+import com.crylo.kidreels.core.Profile
+import com.crylo.kidreels.core.Profiles
 import com.crylo.kidreels.core.Progress
 import com.crylo.kidreels.core.Reel
 import com.crylo.kidreels.core.Settings
@@ -18,18 +21,60 @@ import com.crylo.kidreels.core.TimeUp
 import com.crylo.kidreels.core.Topic
 import com.crylo.kidreels.core.Txt
 
-enum class Screen { ONBOARDING, FEED, SETTINGS }
+enum class Screen { ONBOARDING, PICKER, FEED, SETTINGS }
+
+/**
+ * One child's settings, progress, time and feed. Kept while the app runs, so switching
+ * back to a child finds the reel they left, mid-puzzle.
+ */
+class Child(app: AppState, val id: Int) {
+    private val store = app.profiles.storeOf(id)
+    val settingsStore = SettingsStore(store)
+    val progress = Progress(store)
+    val budget = TimeBudget(store, app.host.clock)
+
+    var settings by mutableStateOf(settingsStore.load())
+    var profile by mutableStateOf(app.profiles.profile(id))
+    val feed = FeedModel(app, this)
+}
 
 /** Everything the app holds while it runs. Platform shells create one and pass it to [KidReelsApp]. */
 class AppState(val host: Host) {
-    private val settingsStore = SettingsStore(host.store)
-    val progress = Progress(host.store)
-    val budget = TimeBudget(host.store, host.clock)
+    val profiles = Profiles(host.store)
+    private val children = mutableMapOf<Int, Child>()
 
-    var settings by mutableStateOf(settingsStore.load())
+    private fun childOf(id: Int): Child = children.getOrPut(id) { Child(this, id) }
+
+    /** The child whose feed and settings are showing. */
+    var child by mutableStateOf(childOf(profiles.last))
         private set
 
-    var screen by mutableStateOf(if (settings.onboarded) Screen.FEED else Screen.ONBOARDING)
+    /** Every child on the phone, for "Who's playing?" and settings. */
+    var all by mutableStateOf(profiles.all())
+        private set
+
+    val settings: Settings get() = child.settings
+    val progress: Progress get() = child.progress
+    val budget: TimeBudget get() = child.budget
+    val feed: FeedModel get() = child.feed
+
+    var screen by mutableStateOf(
+        when {
+            !settings.onboarded -> Screen.ONBOARDING
+            profiles.count > 1 -> Screen.PICKER
+            else -> Screen.FEED
+        },
+    )
+
+    /** Whether a feed has been shown this run: back from "Who's playing?" then returns to it. */
+    private var played = screen == Screen.FEED
+
+    /** "Who's playing?" opened by a grown-up from the feed: any child may be picked. */
+    var pickerUnlocked by mutableStateOf(false)
+        private set
+
+    /** The child being added (0) or edited, over settings; null when neither. */
+    var editing by mutableStateOf<Int?>(null)
 
     /** Set while the parent gate is up; run once it is passed. */
     var gateAction by mutableStateOf<(() -> Unit)?>(null)
@@ -37,10 +82,32 @@ class AppState(val host: Host) {
 
     var checkInOpen by mutableStateOf(false)
 
-    /** Whether the app is on screen. Only on-screen time counts toward the daily limit. */
-    var foreground by mutableStateOf(true)
+    private var visible by mutableStateOf(true)
+    private var awaySince: Long? = null
 
-    val feed = FeedModel(this)
+    /**
+     * Whether the app is on screen. Only on-screen time counts toward the daily limit.
+     * Back after [Profiles.ASK_AGAIN_MILLIS] away, with more than one child, the app asks
+     * who is playing: the phone may have changed hands.
+     */
+    var foreground: Boolean
+        get() = visible
+        set(on) {
+            if (on == visible) return
+            visible = on
+            val now = host.clock.nowMillis()
+            if (!on) {
+                awaySince = now
+                return
+            }
+            val away = awaySince ?: return
+            awaySince = null
+            if (now - away >= Profiles.ASK_AGAIN_MILLIS && profiles.count > 1 && screen == Screen.FEED && gateAction == null) {
+                checkInOpen = false
+                pickerUnlocked = false
+                screen = Screen.PICKER
+            }
+        }
 
     init {
         host.speaker.setSlow(settings.slowSpeech)
@@ -51,21 +118,80 @@ class AppState(val host: Host) {
     val checkInDue: Boolean get() = CheckIn.isDue(settings, host.clock.today())
 
     fun update(next: Settings) {
-        val before = settings
+        val c = child
+        val before = c.settings
         val today = host.clock.today()
         val s = if (next.age != before.age) next.copy(ageSetDay = today) else next
-        if (s.age != before.age) progress.resetSkills()
-        settings = s
-        settingsStore.save(s)
+        if (s.age != before.age) c.progress.resetSkills()
+        c.settings = s
+        c.settingsStore.save(s)
         host.speaker.setSlow(s.slowSpeech)
         // Reels already made for the old age or languages would be wrong now, including the
         // one on screen: a 2-year-old should not come back from settings to a times table.
-        if (s.age != before.age || s.langs != before.langs) feed.remake()
+        if (s.age != before.age || s.langs != before.langs) c.feed.remake()
     }
 
-    fun finishOnboarding(s: Settings) {
+    fun finishOnboarding(s: Settings, p: Profile) {
+        saveProfile(p.copy(id = child.id))
         update(s.copy(onboarded = true, ageSetDay = host.clock.today()))
+        played = true
         screen = Screen.FEED
+    }
+
+    /** Makes [id] the child whose feed and settings show, without leaving the screen. */
+    fun select(id: Int) {
+        if (id !in profiles.ids()) return
+        profiles.last = id
+        val c = childOf(id)
+        if (c === child) return
+        child = c
+        host.speaker.setSlow(c.settings.slowSpeech)
+        // A new day may have started since this child last played.
+        c.feed.onSettingsClosed()
+    }
+
+    /** A child picked themselves at "Who's playing?". */
+    fun choose(id: Int) {
+        select(id)
+        child.feed.greet(Phrases.hi(child.profile.label(settings.main)))
+        pickerUnlocked = false
+        played = true
+        screen = Screen.FEED
+    }
+
+    /** From the feed, past the gate. */
+    fun openPicker() {
+        pickerUnlocked = true
+        screen = Screen.PICKER
+    }
+
+    fun needsGate(id: Int): Boolean = !pickerUnlocked && profiles.needsGate(id, host.clock)
+
+    fun timeUp(id: Int): Boolean = profiles.timeUp(id, host.clock)
+
+    fun saveProfile(p: Profile) {
+        profiles.save(p)
+        children[p.id]?.profile = profiles.profile(p.id)
+        all = profiles.all()
+    }
+
+    /**
+     * A new child, starting from the current child's languages, look and limit: siblings
+     * usually share them, and the parent can change them once the child is picked.
+     */
+    fun addChild(p: Profile, age: Int) {
+        val s = settings.copy(onboarded = true, age = age, ageSetDay = host.clock.today())
+        val id = profiles.add(p, s)
+        all = profiles.all()
+        select(id)
+    }
+
+    fun removeChild(id: Int) {
+        if (profiles.count <= 1) return
+        if (child.id == id) select(profiles.ids().first { it != id })
+        profiles.remove(id)
+        children.remove(id)
+        all = profiles.all()
     }
 
     fun requestGate(action: () -> Unit) {
@@ -86,7 +212,16 @@ class AppState(val host: Host) {
     fun onBack(): Boolean = when {
         gateAction != null -> true.also { gateAction = null }
         checkInOpen -> true.also { checkInOpen = false }
-        screen == Screen.SETTINGS -> true.also { screen = Screen.FEED }
+        editing != null -> true.also { editing = null }
+        screen == Screen.SETTINGS -> true.also {
+            screen = Screen.FEED
+            feed.onSettingsClosed()
+        }
+        // Back to the child who was playing: they are never the one the gate guards.
+        screen == Screen.PICKER && played -> true.also {
+            pickerUnlocked = false
+            screen = Screen.FEED
+        }
         else -> false
     }
 }
@@ -108,8 +243,8 @@ class ReelState {
     var celebrate by mutableIntStateOf(0)
 }
 
-class FeedModel(private val app: AppState) {
-    private val engine = Feed({ app.settings }, app.progress)
+class FeedModel(private val app: AppState, private val child: Child) {
+    private val engine = Feed({ child.settings }, child.progress)
     private val states = mutableStateMapOf<Long, ReelState>()
 
     val reels = mutableStateListOf<Reel>()
@@ -131,6 +266,15 @@ class FeedModel(private val app: AppState) {
         engine.focus = topic
         remake()
     }
+
+    private var greeting: Txt? = null
+
+    /** Said before the next reel: "Hi, Meera!" once a child has picked themselves. */
+    fun greet(hello: Txt) {
+        greeting = hello
+    }
+
+    fun takeGreeting(): Txt? = greeting.also { greeting = null }
 
     /** Bumped when a puzzle is swiped past unsolved, to show the sad face. */
     var skippedPuzzle by mutableIntStateOf(0)
@@ -186,7 +330,7 @@ class FeedModel(private val app: AppState) {
         s.liked = !s.liked
         if (s.liked) {
             s.hearts++
-            app.progress.like(reel.topic)
+            child.progress.like(reel.topic)
             app.host.play(Sfx.POP)
         }
     }
@@ -194,7 +338,7 @@ class FeedModel(private val app: AppState) {
     /** One second of feed time has passed. Returns true when the limit was just reached. */
     fun tick(millis: Long, current: Int): Boolean {
         if (timeUp) return false
-        app.budget.add(millis)
+        child.budget.add(millis)
         refreshBudget()
         if (timeUp) {
             // The child finishes the reel they are on; the goodbye reel is the next one.
@@ -207,14 +351,14 @@ class FeedModel(private val app: AppState) {
 
     /** A grown-up gave more time from the goodbye reel. */
     fun addTime(minutes: Int) {
-        app.budget.addBonus(minutes)
+        child.budget.addBonus(minutes)
         refreshBudget()
         reels.removeAll { it is TimeUp }
         fill(current)
     }
 
     private fun refreshBudget() {
-        val left = app.budget.remainingMillis(app.settings.dailyMinutes)
+        val left = child.budget.remainingMillis(child.settings.dailyMinutes)
         remainingMillis = left
         timeUp = left == 0L
         engine.windDown = left != null && left <= TimeBudget.WIND_DOWN_MILLIS

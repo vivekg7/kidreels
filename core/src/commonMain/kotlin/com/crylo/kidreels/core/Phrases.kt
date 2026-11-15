@@ -45,6 +45,12 @@ object Phrases {
 
     val swipeUp = txt("Swipe up", "ऊपर सरकाओ")
 
+    /** "Who's playing?", for a child who cannot read it yet. */
+    val whoIsPlaying = txt("Who's playing?", "कौन खेलेगा?")
+    val whoIsPlayingSay = whoIsPlaying + txt("Tap your picture!", "अपनी तस्वीर छुओ!")
+
+    fun hi(name: String): Txt = txt("Hi, $name!", "नमस्ते, $name!")
+
     /** Under the goodbye reel: what comes after the phone. */
     val goodbyeThings = listOf("🍽️", "⚽", "🧸", "📚", "🛏️")
 

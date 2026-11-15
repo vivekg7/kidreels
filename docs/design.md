@@ -38,7 +38,7 @@ logo. The progress line along the bottom shows today's time used.
 ## Modules
 
 - `core/`: plain Kotlin, no UI. Content, reel templates, the feed engine, settings
-  storage, the time budget and the check-in rule. Unit-tested on the JVM.
+  storage, child profiles, the time budget and the check-in rule. Unit-tested on the JVM.
 - `ui/`: Compose Multiplatform, foundation only. No Material: the kid-facing look is
   entirely custom anyway, and one fewer library means one fewer version to keep in step.
 - `androidApp/`: implements `Host` (storage, clock, speech, sound, keep-screen-on).
@@ -186,6 +186,40 @@ above apply:
   background, which then counts as a new start; for a session-long choice that is fine.
   A chip on the feed says it is on. The time limit and wind-down still apply.
 
+## Children
+
+One phone often serves two or three children of different ages, and a 3-year-old and an
+8-year-old want nothing in common from the feed. Each child is a profile: a name, an
+animal and a colour (`core/Profiles.kt`), plus everything that was the app's settings
+before: age, languages, look, limit, check-in, slow speech, progress, today's time.
+
+- **Storage.** Each child's keys sit under `p<id>.` and the phone's own under `device.`
+  (the list of children, who played last). `Settings`, `Progress` and `TimeBudget` did not
+  change: they are handed a `PrefixedStore` and read plain keys as before. On the first
+  start of a version with profiles, every top-level key moves under `p1.`, so an update
+  keeps all of 1.1's settings and progress. Removing a child removes their keys.
+- **An animal, not a photo.** A toddler finds their own animal without reading their
+  name, and nothing needs the camera. The name is optional; a child without one is called
+  by their animal ("Tiger", "बाघ"). A new child starts on an animal and colour nobody
+  else has.
+- **One child: no question.** The app opens straight to the feed, as before profiles.
+- **More than one: "Who's playing?"** at start, and again after 15 minutes in the
+  background (`Profiles.ASK_AGAIN_MILLIS`). Android keeps the app alive for hours, so "at
+  start" alone would hardly ever ask, while a shorter gap would ask a child who only
+  glanced away. The question is spoken, the faces are big, and the picked child is
+  greeted by name before their first reel. Back returns to whoever was playing.
+- **The limit is not a sibling away.** Picking needs no gate, except when the child who
+  played last has used up today's time and picks someone else: otherwise a child sent to
+  bed by the goodbye reel could carry on as their brother. A tile with time up shows a
+  moon. A grown-up opening the picker from the feed (the avatar beside the gear, behind
+  the gate) can pick anyone.
+- **Settings are the picked child's.** The Children section at the top lists every child;
+  tapping one makes them the child the settings below (and the feed) are for. A new child
+  copies the current child's languages, look and limit: siblings usually share them.
+- **Each child's feed is kept while the app runs**, so switching back finds the reel
+  they left, mid-puzzle, with their "Show only" topic still on. Voices are the phone's,
+  not a child's.
+
 ## Languages on screen and in the voice
 
 Every `Txt` holds all languages. A reel shows its text in each chosen language, main one
@@ -208,7 +242,8 @@ a week. At age 10 there is nothing to move up to, so it never appears.
 ## Parent gate
 
 Press and hold for three seconds. Toddlers tap and swipe; they rarely hold one spot that
-long. It guards settings, the check-in and the "10 more minutes" button.
+long. It guards settings, the check-in, the "10 more minutes" button, switching child from
+the feed, and picking another child once the last one's time is up.
 
 ## Pictures and sound
 

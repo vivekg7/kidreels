@@ -35,12 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.crylo.kidreels.core.Phrases
+import com.crylo.kidreels.core.Say
+import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.TimeBudget
 import com.crylo.kidreels.core.TimeUp
 import com.crylo.kidreels.core.intro
 import com.crylo.kidreels.ui.AppState
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Screen
+import com.crylo.kidreels.ui.common.AvatarBadge
 import com.crylo.kidreels.ui.common.Confetti
 import com.crylo.kidreels.ui.common.DrawnIcon
 import com.crylo.kidreels.ui.common.Icon
@@ -95,7 +98,9 @@ fun FeedScreen(app: AppState) {
             val reel = model.reels.getOrNull(page) ?: return@collectLatest
             delay(300)
             snapshotFlow { onScreenNow }.first { it }
-            speaker.speak(reel.intro(app.settings.main))
+            val main = app.settings.main
+            val hello = model.takeGreeting()?.let { listOf(Say(it[main], main, Tone.CHEER)) }.orEmpty()
+            speaker.speak(hello + reel.intro(main))
         }
     }
     LaunchedEffect(pager) {
@@ -176,6 +181,15 @@ fun FeedScreen(app: AppState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (windingDown) Chip("🌙 " + Phrases.almostDone[settings.main], colors.dark)
+                // Whose feed this is, for the grown-up; held past the gate, it switches child.
+                if (app.all.size > 1) {
+                    AvatarBadge(
+                        app.child.profile, 44.dp,
+                        Modifier.clip(CircleShape).pressable({ app.requestGate { app.openPicker() } }),
+                        // A ring, so a pink circle still shows on Candy's pink.
+                        ring = Color.White.copy(alpha = 0.85f),
+                    )
+                }
                 Gear(app, colors.dark)
             }
             if (app.checkInDue) {

@@ -55,6 +55,11 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 
 On first launch, and later in settings (behind a 3-second press-and-hold gate):
 
+- **Children**: a name (optional), an animal and a colour for each child, up to 6. Each
+  has their own age, languages, look, time limit and progress. With one child the app
+  opens straight to the feed; with more, it asks "Who's playing?" at start and after 15
+  minutes away, and each child taps their own animal. Once a child's time is up, picking
+  a different child needs the gate, so a sibling's profile is not a way round the limit.
 - **Languages**: up to 3, in order; the first is the main one. English and Hindi for now.
 - **Age**, 2 to 10. Reels are made for that age, with an occasional one a level above or
   below, and an easy reel always follows a hard one. Up to age 5 the words are the ones

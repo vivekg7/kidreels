@@ -90,4 +90,6 @@ private class PrefsStore(private val prefs: android.content.SharedPreferences) :
     override fun put(key: String, value: String?) {
         prefs.edit().apply { if (value == null) remove(key) else putString(key, value) }.apply()
     }
+
+    override fun keys(): Set<String> = prefs.all.keys.toSet()
 }

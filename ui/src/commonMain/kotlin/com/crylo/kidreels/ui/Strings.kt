@@ -41,6 +41,49 @@ object S {
 
     fun years(n: Int): Txt = txt(if (n == 1) "1 year" else "$n years", "$n साल")
 
+    val childTitle = txt("Who is this for?", "यह किसके लिए है?")
+    val childBody = txt(
+        "A name and an animal. If more children use this phone, each finds their own reels by their animal. The name can be left out.",
+        "एक नाम और एक जानवर। अगर इस फ़ोन पर और बच्चे भी खेलें, तो हर बच्चा अपने जानवर से अपनी रील्स ढूँढ लेगा। नाम छोड़ भी सकते हैं।",
+    )
+    val name = txt("Name", "नाम")
+    val nameHint = txt("Optional", "ज़रूरी नहीं")
+    val animal = txt("Animal", "जानवर")
+    val colour = txt("Colour", "रंग")
+
+    val children = txt("Children", "बच्चे")
+    val childrenBody = txt(
+        "Each child has their own age, languages, time limit and progress. With more than one, the app asks who is playing when it opens.",
+        "हर बच्चे की अपनी उम्र, भाषाएँ, समय और प्रगति होती है। एक से ज़्यादा बच्चे हों तो ऐप खुलते ही पूछता है कि कौन खेलेगा।",
+    )
+    val addChild = txt("Add a child", "बच्चा जोड़ें")
+    val edit = txt("Edit", "बदलें")
+    val playingNow = txt("Playing now", "अभी इनकी बारी")
+    val tapToSwitch = txt("Tap to switch", "बदलने के लिए छुएँ")
+
+    fun childLine(age: Int, minutes: Int): Txt =
+        if (minutes == 0) txt("Age $age · no limit", "$age साल · कोई सीमा नहीं") else txt("Age $age · $minutes min a day", "$age साल · रोज़ $minutes मिनट")
+
+    fun settingsFor(name: String): Txt = txt("Settings for $name", "$name की सेटिंग्स")
+
+    fun editChild(name: String): Txt = txt("Edit $name", "$name को बदलें")
+
+    fun newChildBody(name: String): Txt = txt(
+        "Languages, look and time limit start the same as $name's. Change them in settings once this child is picked.",
+        "भाषाएँ, रूप और समय $name जैसे ही रहेंगे। यह बच्चा चुनने के बाद इन्हें सेटिंग्स में बदल सकते हैं।",
+    )
+
+    val save = txt("Save", "सहेजें")
+
+    fun removeChild(name: String): Txt = txt("Remove $name", "$name को हटाएँ")
+
+    fun removeBody(name: String): Txt = txt(
+        "Everything $name has done on this phone will be gone: progress, likes and today's time.",
+        "इस फ़ोन पर $name का सब कुछ मिट जाएगा: प्रगति, पसंद और आज का समय।",
+    )
+
+    val remove = txt("Remove", "हटाएँ")
+
     val lookTitle = txt("Pick the look", "रूप चुनें")
     val lookBody = txt("You can change it any time in settings.", "इसे सेटिंग्स में कभी भी बदल सकते हैं।")
 

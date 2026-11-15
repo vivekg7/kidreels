@@ -44,6 +44,7 @@ import com.crylo.kidreels.core.Settings
 import com.crylo.kidreels.ui.AppState
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Screen
+import com.crylo.kidreels.ui.common.AvatarBadge
 import com.crylo.kidreels.ui.common.DrawnIcon
 import com.crylo.kidreels.ui.common.HoldButton
 import com.crylo.kidreels.ui.common.Icon
@@ -51,7 +52,7 @@ import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.pressable
 
 @Composable
-private fun ParentPage(content: @Composable (ParentColors) -> Unit) {
+internal fun ParentPage(content: @Composable (ParentColors) -> Unit) {
     val c = parentColors()
     CompositionLocalProvider(LocalParent provides c) {
         // Settings sit over the feed; the empty tap handler keeps touches from reaching it.
@@ -65,13 +66,14 @@ private fun ParentPage(content: @Composable (ParentColors) -> Unit) {
     }
 }
 
-/** First run: what this is, then languages, age, look and time limit. A parent is holding the phone. */
+/** First run: what this is, then languages, the child, age, look and time limit. A parent is holding the phone. */
 @Composable
 fun Onboarding(app: AppState) {
     var step by remember { mutableIntStateOf(0) }
     var draft by remember { mutableStateOf(app.settings) }
+    var profile by remember { mutableStateOf(app.child.profile) }
     val main = draft.main
-    val last = 4
+    val last = 5
     ParentPage { c ->
         LaunchedEffect(c.dark) { app.host.darkSystemIcons(!c.dark) }
         Column(Modifier.fillMaxSize().padding(horizontal = 22.dp)) {
@@ -87,11 +89,16 @@ fun Onboarding(app: AppState) {
                         LanguagePicker(draft.langs, main) { draft = draft.copy(langs = it) }
                     }
                     2 -> {
+                        Title(S.childTitle[main])
+                        Body(S.childBody[main])
+                        ProfileFields(profile, main) { profile = it }
+                    }
+                    3 -> {
                         Title(S.ageTitle[main])
                         Body(S.ageBody[main])
                         AgePicker(draft.age, main) { draft = draft.copy(age = it) }
                     }
-                    3 -> {
+                    4 -> {
                         Title(S.lookTitle[main])
                         Body(S.lookBody[main])
                         LookPicker(draft.look, main) { draft = draft.copy(look = it) }
@@ -113,7 +120,7 @@ fun Onboarding(app: AppState) {
                         last -> S.start[main]
                         else -> S.next[main]
                     },
-                    { if (step < last) step++ else app.finishOnboarding(draft) },
+                    { if (step < last) step++ else app.finishOnboarding(draft, profile) },
                     Modifier.weight(if (step > 0) 1.6f else 1f),
                 )
             }
@@ -187,8 +194,15 @@ fun SettingsScreen(app: AppState) {
                 Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
+                ChildrenSection(app)
+                // Everything below is the picked child's own.
+                if (app.all.size > 1) {
+                    Row(Modifier.fillMaxWidth().padding(top = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                        AvatarBadge(app.child.profile, 36.dp)
+                        T(S.settingsFor(app.child.profile.label(main))[main], Modifier.padding(start = 10.dp), color = LocalParent.current.ink, size = 20.sp, weight = FontWeight.ExtraBold)
+                    }
+                }
                 if (app.checkInDue) CheckInCard(app)
-
 
                 SectionTitle(S.limitTitle[main])
                 app.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[main]) }

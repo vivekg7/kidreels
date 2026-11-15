@@ -6,6 +6,9 @@ interface KeyValueStore {
 
     /** A null [value] removes the key. */
     fun put(key: String, value: String?)
+
+    /** Every key held: to move one child's data, or remove it. */
+    fun keys(): Set<String>
 }
 
 /** In memory only: for tests, previews and a platform that has nothing better yet. */
@@ -15,6 +18,8 @@ class MapStore(private val map: MutableMap<String, String> = mutableMapOf()) : K
     override fun put(key: String, value: String?) {
         if (value == null) map.remove(key) else map[key] = value
     }
+
+    override fun keys(): Set<String> = map.keys.toSet()
 }
 
 /** Wall-clock time from the platform. [today] is the local calendar day, as days since 1970-01-01. */
