@@ -13,7 +13,9 @@ class TemplatesTest {
     /** Every template, at every age and difficulty it claims, many times over. */
     private fun everyReel(langs: List<Lang> = Lang.entries, seeds: Int = 60): Sequence<Pair<Template, Reel>> = sequence {
         for (t in Templates.all) for (level in t.ages) for (d in 1..5) for (seed in 0 until seeds) {
-            val gen = Gen(level, d, Random(seed * 31 + level * 7 + d), langs, 1, cursor)
+            val usable = t.usable(langs)
+            if (usable.isEmpty()) continue
+            val gen = Gen(level, d, Random(seed * 31 + level * 7 + d), usable, 1, cursor)
             val reel = try {
                 t.make(gen)
             } catch (e: Exception) {
@@ -59,7 +61,7 @@ class TemplatesTest {
     @Test
     fun countingAnswerIsTheCount() {
         for ((_, reel) in everyReel()) {
-            if (reel !is Quiz || reel.stage !is Stage.Count) continue
+            if (reel !is Quiz || reel.topic != Topic.COUNTING || reel.stage !is Stage.Count) continue
             assertEquals(reel.stage.n, (reel.choices[reel.answer] as Choice.Number).n)
         }
     }
@@ -191,6 +193,47 @@ class TemplatesTest {
                 assertTrue(Maze.SIDES.any { m.step(next, it) == cell }, "a one-way wall at $cell")
             }
             assertEquals(d.max(), d[reel.goal], "the goal is not the far end")
+        }
+    }
+
+    @Test
+    fun grammarAnswersAreRight() {
+        for ((_, reel) in everyReel(seeds = 30)) {
+            if (reel !is Quiz) continue
+            val right = reel.choices[reel.answer]
+            when (reel.topic) {
+                Topic.OPPOSITES -> {
+                    val a = (reel.stage as Stage.Picture).name!!.name
+                    assertEquals(Choice.Word(Grammar.opposites.first { it.a == a }.b), right)
+                }
+                Topic.PLURALS -> {
+                    val lang = reel.voice!!
+                    val p = (if (lang == Lang.EN) Grammar.pluralsEn else Grammar.pluralsHi).first { it.emoji == (reel.stage as Stage.Count).emoji }
+                    assertEquals(p.many, (right as Choice.Word).text[lang])
+                }
+                Topic.GENDER -> {
+                    val lang = reel.voice!!
+                    val male = (reel.stage as Stage.Picture).name!!.name[lang]
+                    val list = if (lang == Lang.EN) Grammar.gendersEn else Grammar.gendersHi
+                    assertEquals(list.first { it.male == male }.female, (right as Choice.Word).text[lang])
+                }
+                Topic.RHYMES -> {
+                    val word = (reel.stage as Stage.Picture).name!!.name[Lang.EN]
+                    val group = Grammar.rhymes.first { g -> g.words.any { it.first == word } }.words.map { it.first }
+                    val labels = reel.choices.map { (it as Choice.Token).label!![Lang.EN] }
+                    assertEquals(listOf(labels[reel.answer]), labels.filter { it in group }, "only one option may rhyme with $word")
+                }
+                Topic.MATRAS -> {
+                    val row = reel.stage as Stage.Row
+                    assertEquals(row.tokens[row.blank], (right as Choice.Token).text)
+                }
+                else -> Unit
+            }
+        }
+        // Each plural quiz has enough wrong guesses that are not real words.
+        for (p in Grammar.pluralsEn + Grammar.pluralsHi) {
+            val gen = Gen(5, 1, Random(1), listOf(if (p in Grammar.pluralsEn) Lang.EN else Lang.HI), 1, cursor)
+            repeat(5) { Grammar.plural(gen) }
         }
     }
 

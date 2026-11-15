@@ -16,6 +16,23 @@ class FeedTest {
 
     private fun Feed.take(n: Int): List<Reel> = List(n) { next() }
 
+    /** A topic about a language the child does not have is never made, picked or not. */
+    @Test
+    fun languageTopicsNeedTheirLanguage() {
+        for (age in 4..7) {
+            val en = feed(age, langs = listOf(Lang.EN)).take(400).map { it.topic }
+            assertFalse(Topic.MATRAS in en, "Hindi मात्राएँ for an English-only child of $age")
+            val hi = feed(age, langs = listOf(Lang.HI)).take(400).map { it.topic }
+            assertFalse(Topic.RHYMES in hi, "English rhymes for a Hindi-only child of $age")
+        }
+        val f = feed(6, langs = listOf(Lang.EN))
+        f.focus = Topic.MATRAS
+        assertTrue(f.take(10).none { it.topic == Topic.MATRAS }, "a picked topic without its language is set aside")
+        val g = feed(6, langs = listOf(Lang.EN, Lang.HI))
+        g.focus = Topic.PLURALS
+        assertTrue(g.take(10).all { it.topic == Topic.PLURALS && it.voice in setOf(Lang.EN, Lang.HI) })
+    }
+
     @Test
     fun sameTopicNeverTwiceInARow() {
         for (age in Settings.AGES) {

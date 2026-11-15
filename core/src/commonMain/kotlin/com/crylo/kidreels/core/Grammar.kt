@@ -1,0 +1,319 @@
+package com.crylo.kidreels.core
+
+/*
+ * Words and grammar: opposites, one and many, male and female, rhymes, naming, doing and
+ * describing words, and Hindi मात्राएँ. A topic about one language (rhymes in English,
+ * मात्राएँ in Hindi, one-and-many in each) is spoken in that language, as an alphabet is,
+ * and only made when the child has it (Template.langs).
+ */
+
+/**
+ * A picture standing for a word that is not its usual name: 🔥 for "hot". [article] is
+ * "" for a describing word ("This is hot!"), null for a thing ("This is a cat!").
+ */
+private fun named(emoji: String, word: Txt, article: String? = "") = Word(emoji, word, article = article)
+
+/** One word in one language, shown once whatever languages are chosen. */
+private fun only(text: String) = Txt.same(text)
+
+/** [a] and its opposite [b]; [emoji] pictures [a]. */
+data class Opposite(val emoji: String, val a: Txt, val b: Txt)
+
+/** A word that is one thing, and what it is called when there are many. [emoji] pictures it. */
+data class Plural(val emoji: String, val one: String, val many: String)
+
+/** A male and the female: lion and lioness, शेर and शेरनी. [emoji] pictures the male. */
+data class Gendered(val emoji: String, val male: String, val female: String)
+
+/** Words that rhyme with each other, each with its picture. */
+data class RhymeGroup(val words: List<Pair<String, String>>)
+
+enum class WordKind(val title: Txt, val one: Txt) {
+    NAMING(
+        txt("Naming words", "संज्ञा").simpler("Naming words", "नाम बताने वाले शब्द"),
+        txt("a naming word", "संज्ञा").simpler("a naming word", "नाम बताने वाला शब्द"),
+    ),
+    DOING(
+        txt("Doing words", "क्रिया").simpler("Doing words", "काम बताने वाले शब्द"),
+        txt("a doing word", "क्रिया").simpler("a doing word", "काम बताने वाला शब्द"),
+    ),
+    DESCRIBING(
+        txt("Describing words", "विशेषण").simpler("Describing words", "कैसा है बताने वाले शब्द"),
+        txt("a describing word", "विशेषण").simpler("a describing word", "कैसा है बताने वाला शब्द"),
+    ),
+}
+
+/** A word of one [kind], its picture, and the word used in a sentence. */
+data class KindWord(val emoji: String, val word: Txt, val kind: WordKind, val sentence: Txt)
+
+/** "Run is a doing word. The boy can run fast.": a word, its kind, and a sentence with it. */
+data class WordUseCard(
+    override val id: Long,
+    override val level: Int,
+    override val difficulty: Int,
+    val word: KindWord,
+) : Reel {
+    override val topic get() = Topic.WORD_CARDS
+    override val needsSolving get() = false
+    override val prompt: Txt get() = word.word
+    override val voice: Lang? get() = null
+}
+
+object Grammar {
+    val opposites = listOf(
+        Opposite("🔥", txt("hot", "गरम"), txt("cold", "ठंडा")),
+        Opposite("🐘", txt("big", "बड़ा"), txt("small", "छोटा")),
+        Opposite("☀️", txt("day", "दिन"), txt("night", "रात")),
+        Opposite("😀", txt("happy", "ख़ुश"), txt("sad", "दुखी")),
+        Opposite("🐢", txt("slow", "धीमा"), txt("fast", "तेज़")),
+        Opposite("🔓", txt("open", "खुला"), txt("closed", "बंद")),
+        Opposite("🦒", txt("tall", "लंबा"), txt("short", "नाटा")),
+        Opposite("⬆️", txt("up", "ऊपर"), txt("down", "नीचे")),
+        Opposite("💦", txt("wet", "गीला"), txt("dry", "सूखा")),
+        Opposite("🪶", txt("light", "हल्का"), txt("heavy", "भारी")),
+        Opposite("🧼", txt("clean", "साफ़"), txt("dirty", "गंदा")),
+        Opposite("😂", txt("laugh", "हँसना"), txt("cry", "रोना")),
+        Opposite("👴", txt("old", "बूढ़ा"), txt("young", "जवान")),
+        Opposite("😴", txt("asleep", "सोया हुआ"), txt("awake", "जागा हुआ")),
+        Opposite("💪", txt("strong", "ताक़तवर"), txt("weak", "कमज़ोर")),
+        Opposite("🍬", txt("sweet", "मीठा"), txt("sour", "खट्टा")),
+        Opposite("❄️", txt("winter", "सर्दी"), txt("summer", "गर्मी")),
+        Opposite("🌑", txt("dark", "अँधेरा"), txt("bright", "उजाला")),
+        Opposite("⬅️", txt("left", "बायाँ"), txt("right", "दायाँ")),
+    )
+
+    val pluralsEn = listOf(
+        Plural("🐱", "cat", "cats"), Plural("🍎", "apple", "apples"), Plural("⭐", "star", "stars"),
+        Plural("📕", "book", "books"), Plural("📦", "box", "boxes"), Plural("🚌", "bus", "buses"),
+        Plural("⌚", "watch", "watches"), Plural("👗", "dress", "dresses"), Plural("🍅", "tomato", "tomatoes"),
+        Plural("🥔", "potato", "potatoes"), Plural("👶", "baby", "babies"), Plural("🍒", "cherry", "cherries"),
+        Plural("🦋", "butterfly", "butterflies"), Plural("🍓", "strawberry", "strawberries"), Plural("🍃", "leaf", "leaves"),
+        Plural("🐭", "mouse", "mice"), Plural("🦶", "foot", "feet"), Plural("🦷", "tooth", "teeth"),
+        Plural("🧒", "child", "children"), Plural("👨", "man", "men"), Plural("👩", "woman", "women"),
+        Plural("🐑", "sheep", "sheep"),
+    )
+
+    val pluralsHi = listOf(
+        Plural("👦", "लड़का", "लड़के"), Plural("🍌", "केला", "केले"), Plural("🐎", "घोड़ा", "घोड़े"),
+        Plural("🍃", "पत्ता", "पत्ते"), Plural("🍊", "संतरा", "संतरे"), Plural("👟", "जूता", "जूते"),
+        Plural("🪑", "कुर्सी", "कुर्सियाँ"), Plural("🐱", "बिल्ली", "बिल्लियाँ"), Plural("🦋", "तितली", "तितलियाँ"),
+        Plural("🐟", "मछली", "मछलियाँ"), Plural("🐐", "बकरी", "बकरियाँ"), Plural("👧", "लड़की", "लड़कियाँ"),
+        Plural("🧢", "टोपी", "टोपियाँ"), Plural("🐦", "चिड़िया", "चिड़ियाँ"), Plural("📕", "किताब", "किताबें"),
+        Plural("🐄", "गाय", "गायें"), Plural("⚽", "गेंद", "गेंदें"), Plural("🦆", "बतख", "बतखें"),
+        Plural("👁️", "आँख", "आँखें"),
+    )
+
+    val gendersEn = listOf(
+        Gendered("🦁", "lion", "lioness"), Gendered("🐅", "tiger", "tigress"), Gendered("🤴", "king", "queen"),
+        Gendered("👦", "boy", "girl"), Gendered("👨", "man", "woman"), Gendered("👴", "grandfather", "grandmother"),
+        Gendered("🐓", "rooster", "hen"), Gendered("🦚", "peacock", "peahen"), Gendered("🐎", "horse", "mare"),
+        Gendered("🐂", "bull", "cow"),
+    )
+
+    val gendersHi = listOf(
+        Gendered("🦁", "शेर", "शेरनी"), Gendered("🦚", "मोर", "मोरनी"), Gendered("🐎", "घोड़ा", "घोड़ी"),
+        Gendered("👦", "लड़का", "लड़की"), Gendered("🤴", "राजा", "रानी"), Gendered("🐓", "मुर्गा", "मुर्गी"),
+        Gendered("🐘", "हाथी", "हथिनी"), Gendered("🐐", "बकरा", "बकरी"), Gendered("🐒", "बंदर", "बंदरिया"),
+        Gendered("👴", "दादा", "दादी"), Gendered("🐂", "बैल", "गाय"), Gendered("🐪", "ऊँट", "ऊँटनी"),
+    )
+
+    val rhymes = listOf(
+        RhymeGroup(listOf("cat" to "🐱", "hat" to "🎩", "bat" to "🦇")),
+        RhymeGroup(listOf("dog" to "🐶", "frog" to "🐸", "log" to "🪵")),
+        RhymeGroup(listOf("bee" to "🐝", "tree" to "🌳", "key" to "🔑")),
+        RhymeGroup(listOf("car" to "🚗", "star" to "⭐")),
+        RhymeGroup(listOf("goat" to "🐐", "boat" to "⛵", "coat" to "🧥")),
+        RhymeGroup(listOf("mouse" to "🐭", "house" to "🏠")),
+        RhymeGroup(listOf("cake" to "🎂", "snake" to "🐍")),
+        RhymeGroup(listOf("moon" to "🌙", "spoon" to "🥄", "balloon" to "🎈")),
+        RhymeGroup(listOf("clock" to "⏰", "sock" to "🧦", "rock" to "🪨")),
+        RhymeGroup(listOf("bear" to "🐻", "pear" to "🍐", "chair" to "🪑")),
+        RhymeGroup(listOf("king" to "🤴", "ring" to "💍")),
+        RhymeGroup(listOf("fox" to "🦊", "box" to "📦")),
+        RhymeGroup(listOf("bell" to "🔔", "shell" to "🐚")),
+        RhymeGroup(listOf("nose" to "👃", "rose" to "🌹")),
+        RhymeGroup(listOf("hen" to "🐔", "ten" to "🔟", "pen" to "🖊️")),
+        RhymeGroup(listOf("whale" to "🐳", "snail" to "🐌")),
+        RhymeGroup(listOf("sheep" to "🐑", "jeep" to "🚙")),
+        RhymeGroup(listOf("train" to "🚆", "rain" to "🌧️", "chain" to "⛓️")),
+    )
+
+    val kindWords = listOf(
+        KindWord("🏃", txt("run", "दौड़ना"), WordKind.DOING, txt("The boy can run fast.", "लड़का तेज़ दौड़ सकता है।")),
+        KindWord("🏊", txt("swim", "तैरना"), WordKind.DOING, txt("Fish swim in water.", "मछलियाँ पानी में तैरती हैं।")),
+        KindWord("😋", txt("eat", "खाना"), WordKind.DOING, txt("We eat dal and rice.", "हम दाल-चावल खाते हैं।")),
+        KindWord("🦘", txt("jump", "कूदना"), WordKind.DOING, txt("The kangaroo can jump high.", "कंगारू ऊँचा कूद सकता है।")),
+        KindWord("✍️", txt("write", "लिखना"), WordKind.DOING, txt("We write our name.", "हम अपना नाम लिखते हैं।")),
+        KindWord("📖", txt("read", "पढ़ना"), WordKind.DOING, txt("We read a story book.", "हम कहानी की किताब पढ़ते हैं।")),
+        KindWord("💃", txt("dance", "नाचना"), WordKind.DOING, txt("The peacock dances in the rain.", "मोर बारिश में नाचता है।")),
+        KindWord("🥛", txt("drink", "पीना"), WordKind.DOING, txt("We drink milk.", "हम दूध पीते हैं।")),
+        KindWord("🐶", txt("dog", "कुत्ता"), WordKind.NAMING, txt("The dog barks.", "कुत्ता भौंकता है।")),
+        KindWord("🏫", txt("school", "स्कूल"), WordKind.NAMING, txt("We go to school.", "हम स्कूल जाते हैं।")),
+        KindWord("🌳", txt("tree", "पेड़"), WordKind.NAMING, txt("Birds live in the tree.", "चिड़ियाँ पेड़ पर रहती हैं।")),
+        KindWord("📕", txt("book", "किताब"), WordKind.NAMING, txt("This book has pictures.", "इस किताब में तस्वीरें हैं।")),
+        KindWord("👩", txt("mother", "माँ"), WordKind.NAMING, txt("Mother reads me a story.", "माँ मुझे कहानी सुनाती हैं।")),
+        KindWord("⚽", txt("ball", "गेंद"), WordKind.NAMING, txt("Throw the ball to me.", "गेंद मेरी तरफ़ फेंको।")),
+        KindWord("🚆", txt("train", "रेलगाड़ी"), WordKind.NAMING, txt("The train is very long.", "रेलगाड़ी बहुत लंबी है।")),
+        KindWord("🌹", txt("red", "लाल"), WordKind.DESCRIBING, txt("The rose is red.", "गुलाब लाल है।")),
+        KindWord("🐘", txt("big", "बड़ा"), WordKind.DESCRIBING, txt("The elephant is big.", "हाथी बड़ा है।")),
+        KindWord("🐭", txt("small", "छोटा"), WordKind.DESCRIBING, txt("The mouse is small.", "चूहा छोटा है।")),
+        KindWord("☕", txt("hot", "गरम"), WordKind.DESCRIBING, txt("The tea is hot.", "चाय गरम है।")),
+        KindWord("🥭", txt("sweet", "मीठा"), WordKind.DESCRIBING, txt("Mangoes are sweet.", "आम मीठे होते हैं।")),
+        KindWord("🦒", txt("tall", "लंबा"), WordKind.DESCRIBING, txt("The giraffe is tall.", "जिराफ़ लंबा है।")),
+        KindWord("😀", txt("happy", "ख़ुश"), WordKind.DESCRIBING, txt("The girl is happy.", "लड़की ख़ुश है।")),
+        KindWord("🧊", txt("cold", "ठंडा"), WordKind.DESCRIBING, txt("Ice is cold.", "बर्फ़ ठंडी होती है।")),
+    )
+
+    /** मात्राएँ, with the vowel each stands for, in the order a class learns them. */
+    val matras = listOf("ा" to "आ", "ि" to "इ", "ी" to "ई", "ु" to "उ", "ू" to "ऊ", "े" to "ए", "ै" to "ऐ", "ो" to "ओ", "ौ" to "औ", "ं" to "अं")
+    private val consonants = listOf("क", "ख", "ग", "च", "ज", "ट", "ड", "त", "द", "न", "प", "ब", "म", "र", "ल", "स", "ह")
+
+    // ── Opposites, in every language ──
+
+    fun opposite(g: Gen): Quiz {
+        val pair = g.pick(opposites)
+        val others = opposites.filter { it != pair }.shuffled(g.random).take(g.optionCount - 1)
+        val (choices, answer) = g.shuffleIn(pair, others)
+        fun oppositeOf(t: Txt) = g.words(txt("What is the opposite of ${t[Lang.EN]}?", "${t[Lang.HI]} का विलोम क्या है?").simpler("What is the opposite of ${t[Lang.EN]}?", "${t[Lang.HI]} का उल्टा क्या है?"))
+        return Quiz(
+            g.id, Topic.OPPOSITES, g.level, g.difficulty, oppositeOf(pair.a),
+            Stage.Picture(pair.emoji, named(pair.emoji, pair.a)), choices.map { Choice.Word(it.b) }, answer,
+            reveal = g.words(txt("The opposite of ${pair.a[Lang.EN]} is ${pair.b[Lang.EN]}!", "${pair.a[Lang.HI]} का विलोम ${pair.b[Lang.HI]} है!").simpler("The opposite of ${pair.a[Lang.EN]} is ${pair.b[Lang.EN]}!", "${pair.a[Lang.HI]} का उल्टा ${pair.b[Lang.HI]} है!")),
+            say = oppositeOf(pair.a) + Phrases.tapIt,
+            whyNot = whyNot(choices, answer) {
+                g.words(txt("${it.b[Lang.EN].replaceFirstChar(Char::uppercase)} is the opposite of ${it.a[Lang.EN]}.", "${it.b[Lang.HI]}, ${it.a[Lang.HI]} का विलोम है।").simpler("${it.b[Lang.EN].replaceFirstChar(Char::uppercase)} is the opposite of ${it.a[Lang.EN]}.", "${it.b[Lang.HI]}, ${it.a[Lang.HI]} का उल्टा है।")) + oppositeOf(pair.a)
+            },
+        )
+    }
+
+    // ── One and many, in the language picked ──
+
+    /**
+     * Wrong plurals a child might guess: an ending from another kind of word put on this
+     * one ("mouses", "कुर्सीयाँ"), or no change at all. Never a real word from the lists
+     * (लड़कियाँ is not a wrong लड़का, it is girls), and never one that cannot be written.
+     */
+    private fun wrongPlurals(lang: Lang, p: Plural): List<String> {
+        val one = p.one
+        val guesses = when (lang) {
+            // The mistakes children make: the usual ending ("strawberrys", "foots"), an ending
+            // on top of an irregular plural ("mices", "childrens"), or no change. Made-up
+            // spellings come last, only to make up the number.
+            Lang.EN -> listOfNotNull(one + "s", (p.many + "s").takeIf { !p.many.startsWith(one) }, one, one + "es", one.dropLast(1) + "ies", one + "en")
+            Lang.HI -> when {
+                one.endsWith("िया") -> listOf(one + "एँ", one.dropLast(1) + "े", one + "ओं", one)
+                one.endsWith("ा") -> listOf(one + "एँ", one.dropLast(1) + "ियाँ", one + "ओं", one)
+                one.endsWith("ी") -> listOf(one + "याँ", one + "एँ", one + "ओं", one)
+                else -> listOf(one + "े", one + "ियाँ", one + "एँ", one)
+            }
+        }
+        val real = (pluralsEn + pluralsHi).flatMap { listOf(it.one, it.many) }.toSet() - one
+        return guesses.distinct().filter { it != p.many && it !in real }.take(3)
+    }
+
+    fun plural(g: Gen): Quiz {
+        val lang = g.pick(g.langs)
+        val p = g.pick(if (lang == Lang.EN) pluralsEn else pluralsHi)
+        val wrong = wrongPlurals(lang, p).take(g.optionCount - 1)
+        val (forms, answer) = g.shuffleIn(p.many, wrong)
+        val ask = txt("One ${p.one}, many …?", "एक ${p.one}, कई …?")
+        return Quiz(
+            g.id, Topic.PLURALS, g.level, g.difficulty, only(ask[lang]),
+            Stage.Count(p.emoji, 3, scattered = false), forms.map { Choice.Word(only(it)) }, answer,
+            reveal = only(txt("One ${p.one}, many ${p.many}!", "एक ${p.one}, कई ${p.many}!")[lang]),
+            say = only(txt("Here are lots of them. One ${p.one}, many what?", "ये बहुत सारे हैं। एक ${p.one}, तो कई क्या?")[lang]),
+            voice = lang,
+            whyNot = whyNot(forms, answer) {
+                only(txt("We don't say $it. One ${p.one}, many what?", "हम $it नहीं कहते। एक ${p.one}, तो कई क्या?")[lang])
+            },
+        )
+    }
+
+    // ── Male and female, in the language picked ──
+
+    fun gender(g: Gen): Quiz {
+        val lang = g.pick(g.langs)
+        val list = if (lang == Lang.EN) gendersEn else gendersHi
+        val p = g.pick(list)
+        val others = list.filter { it != p }.shuffled(g.random).take(g.optionCount - 1)
+        val (choices, answer) = g.shuffleIn(p, others)
+        val ask = txt("The female of ${p.male}?", "${p.male} का स्त्रीलिंग?")
+        return Quiz(
+            g.id, Topic.GENDER, g.level, g.difficulty, only(ask[lang]),
+            Stage.Picture(p.emoji, named(p.emoji, only(p.male), article = null)), choices.map { Choice.Word(only(it.female)) }, answer,
+            reveal = only(txt("${p.male.replaceFirstChar(Char::uppercase)} and ${p.female}!", "${p.male} का स्त्रीलिंग ${p.female} है!")[lang]),
+            say = only(txt("This is a ${p.male}. What do we call the female?", "यह ${p.male} है। इसका स्त्रीलिंग क्या होगा?")[lang]),
+            voice = lang,
+            whyNot = whyNot(choices, answer) {
+                only(txt("${it.female.replaceFirstChar(Char::uppercase)} is the female of ${it.male}. What about ${p.male}?", "${it.female}, ${it.male} का स्त्रीलिंग है। ${p.male} का क्या होगा?")[lang])
+            },
+        )
+    }
+
+    // ── Rhymes, in English ──
+
+    fun rhyme(g: Gen): Quiz {
+        val group = g.pick(rhymes)
+        val (word, emoji) = g.pick(group.words)
+        val (match, matchEmoji) = g.pick(group.words.filter { it.first != word })
+        val others = rhymes.filter { it != group }.shuffled(g.random).take(g.optionCount - 1).map { g.pick(it.words) }
+        val (choices, answer) = g.shuffleIn(match to matchEmoji, others)
+        return Quiz(
+            g.id, Topic.RHYMES, g.level, g.difficulty, only("Which one rhymes with $word?"),
+            Stage.Picture(emoji, named(emoji, only(word), article = null)), choices.map { (w, e) -> Choice.Token(e, only(w)) }, answer,
+            reveal = only("${word.replaceFirstChar(Char::uppercase)} and $match rhyme!"),
+            say = only("This is a $word. Which picture's name sounds like $word at the end? Tap it!"),
+            voice = Lang.EN,
+            whyNot = whyNot(choices, answer) { (w, _) -> only("$w does not sound like $word. Listen: $word… $w.") },
+        )
+    }
+
+    // ── Naming, doing and describing words, in every language ──
+
+    fun card(g: Gen): WordUseCard {
+        val word = if (g.ordered) kindWords[g.inOrder("kindwords", kindWords.size)] else g.pick(kindWords)
+        return WordUseCard(g.id, g.level, g.difficulty, word)
+    }
+
+    fun cardSay(w: KindWord, age: Int): Txt = txt(
+        "${w.word[Lang.EN].replaceFirstChar(Char::uppercase)} is ${w.kind.one.forAge(age)[Lang.EN]}.",
+        "${w.word[Lang.HI]} ${w.kind.one.forAge(age)[Lang.HI]} है।",
+    ) + w.sentence
+
+    fun kind(g: Gen): Quiz {
+        val kind = g.pick(WordKind.entries)
+        val right = g.pick(kindWords.filter { it.kind == kind })
+        val others = kindWords.filter { it.kind != kind }.shuffled(g.random).take(g.optionCount - 1)
+        val (choices, answer) = g.shuffleIn(right, others)
+        val one = g.words(kind.one)
+        val ask = txt("Which one is ${one[Lang.EN]}?", "इनमें से ${one[Lang.HI]} कौन-सा है?")
+        return Quiz(
+            g.id, Topic.WORD_KINDS, g.level, g.difficulty, ask,
+            Stage.None, choices.map { Choice.Token(it.emoji, it.word) }, answer,
+            reveal = txt("${right.word[Lang.EN].replaceFirstChar(Char::uppercase)} is ${one[Lang.EN]}!", "${right.word[Lang.HI]} ${one[Lang.HI]} है!"),
+            say = ask + Phrases.tapIt,
+            whyNot = whyNot(choices, answer) {
+                val theirs = g.words(it.kind.one)
+                txt("${it.word[Lang.EN].replaceFirstChar(Char::uppercase)} is ${theirs[Lang.EN]}. Find ${one[Lang.EN]}!", "${it.word[Lang.HI]} ${theirs[Lang.HI]} है। ${one[Lang.HI]} ढूँढो!")
+            },
+        )
+    }
+
+    // ── मात्राएँ, in Hindi ──
+
+    fun matra(g: Gen): Quiz {
+        val known = matras.take(when (g.level) { 5 -> 5; 6 -> 7; else -> matras.size })
+        val c = g.pick(consonants)
+        val (sign, vowel) = g.pick(known)
+        val others = known.filter { it.first != sign }.shuffled(g.random).take(g.optionCount - 1)
+        val (choices, answer) = g.shuffleIn(sign to vowel, others)
+        return Quiz(
+            g.id, Topic.MATRAS, g.level, g.difficulty, txt("Add the vowel sign", "मात्रा लगाओ"),
+            Stage.Row(listOf(c, "+", sign, "=", c + sign), 4), choices.map { (s, _) -> Choice.Token(c + s) }, answer,
+            reveal = only("$c + $sign = ${c + sign}"),
+            say = txt("Put the $vowel sign on $c. What does it make?", "$c में $vowel की मात्रा लगाओ, तो क्या बनेगा?"),
+            voice = Lang.HI,
+            whyNot = whyNot(choices, answer) { (s, v) -> txt("${c + s} has the $v sign. Find the $vowel sign!", "${c + s} में $v की मात्रा है। $vowel की मात्रा ढूँढो!") },
+        )
+    }
+}

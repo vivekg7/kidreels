@@ -44,6 +44,8 @@ import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.ShapeCard
 import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.WordCard
+import com.crylo.kidreels.core.WordUseCard
+import com.crylo.kidreels.core.Grammar
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.art.Picture
@@ -262,6 +264,34 @@ fun WordView(reel: WordCard, padding: PaddingValues) {
         } else {
             T("👆", Modifier.floating(), size = 36.sp)
         }
+    }
+}
+
+/** "Run · doing word · The boy can run fast.": a word, what kind it is, and the word in a sentence. */
+@Composable
+fun WordUseView(reel: WordUseCard, padding: PaddingValues) {
+    val env = LocalReelEnv.current
+    val colors = LocalReelColors.current
+    val w = reel.word
+    var bounce by remember(reel.id) { mutableIntStateOf(0) }
+    Column(
+        Modifier.fillMaxSize().padding(padding).reelWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        MultiText(w.word, env.langs, colors.ink, size = 44.sp, say = { env.say(it) })
+        Box(Modifier.clip(RoundedCornerShape(24.dp)).background(colors.card).padding(horizontal = 16.dp, vertical = 6.dp)) {
+            MultiText(w.kind.one.forAge(reel.level), env.langs, colors.cardInk, size = 20.sp, say = { env.say(it) })
+        }
+        Picture(
+            w.emoji, 140.sp,
+            Modifier.floating(6f, 1800).popOn(bounce).tap {
+                bounce++
+                env.sfx(Sfx.POP)
+                env.say(Grammar.cardSay(w, reel.level))
+            },
+        )
+        MultiText(w.sentence, env.langs, colors.ink, size = 24.sp, say = { env.say(it) })
     }
 }
 

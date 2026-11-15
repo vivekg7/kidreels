@@ -52,8 +52,19 @@ class Template(
     val ages: IntRange,
     val solving: Boolean,
     val weight: Double = 1.0,
+    /**
+     * For a topic about one language (English rhymes, Hindi मात्राएँ): made only when one
+     * of these is chosen, and handed only those. Null for a topic in every language.
+     */
+    val langs: Set<Lang>? = null,
     val make: (Gen) -> Reel,
-)
+) {
+    /** Whether this topic can be made for a child with [chosen] languages. */
+    fun fits(chosen: List<Lang>): Boolean = langs == null || chosen.any { it in langs }
+
+    /** The chosen languages this topic can use. */
+    fun usable(chosen: List<Lang>): List<Lang> = if (langs == null) chosen else chosen.filter { it in langs }
+}
 
 /**
  * The letter's word as a picture name, so tapping the picture says "This is a ball" with
@@ -287,6 +298,15 @@ object Templates {
         // The whole child, drawn: parts emoji cannot show, where they really are.
         Template(Topic.BODY_PARTS, 2..6, solving = false, weight = 0.6) { g -> Body.card(g) },
         Template(Topic.BODY_TAP, 3..8, solving = true) { g -> Body.tap(g) },
+        // Words and grammar. A topic about one language says so in `langs`.
+        Template(Topic.OPPOSITES, 5..10, solving = true) { g -> Grammar.opposite(g) },
+        Template(Topic.PLURALS, 5..8, solving = true, langs = setOf(Lang.EN, Lang.HI)) { g -> Grammar.plural(g) },
+        Template(Topic.GENDER, 6..9, solving = true, langs = setOf(Lang.EN, Lang.HI)) { g -> Grammar.gender(g) },
+        Template(Topic.RHYMES, 4..7, solving = true, langs = setOf(Lang.EN)) { g -> Grammar.rhyme(g) },
+        Template(Topic.WORD_CARDS, 5..9, solving = false, weight = 0.6) { g -> Grammar.card(g) },
+        Template(Topic.WORD_KINDS, 6..10, solving = true) { g -> Grammar.kind(g) },
+        Template(Topic.MATRAS, 5..7, solving = true, langs = setOf(Lang.HI)) { g -> Grammar.matra(g) },
+
         // The computer cards asked the other way round: what each part is for.
         Template(Topic.COMPUTER_USE, 5..9, solving = true, weight = 0.6) { g ->
             val parts = Words.computer

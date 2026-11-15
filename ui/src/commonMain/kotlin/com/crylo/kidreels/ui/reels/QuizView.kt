@@ -431,7 +431,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
                 // Bigger in the big cards a quiz with nothing else on screen gets.
                 if (artFor(choice.text) != null) Picture(choice.text, if (big) 64.sp else 46.sp)
                 else T(choice.text, color = ink, size = if (big) 64.sp else 46.sp, weight = FontWeight.Bold)
-                choice.label?.let { T(it[env.main], color = ink, size = 13.sp, weight = FontWeight.SemiBold) }
+                choice.label?.let { T(it[env.main], color = ink, size = if (big) 18.sp else 13.sp, weight = FontWeight.SemiBold) }
             }
             is Choice.Group -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 (0 until choice.n).chunked(5).forEach { row ->
@@ -445,7 +445,11 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             is Choice.Sized -> T(choice.emoji, size = (72 * choice.scale).sp)
             is Choice.Time -> T("${choice.hour}:${choice.minute.toString().padStart(2, '0')}", color = ink, size = 32.sp, weight = FontWeight.ExtraBold)
             is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice)
-            is Choice.Word -> MultiText(choice.text, env.langs, ink, size = 32.sp)
+            // Smaller for long words, so "strawberries" fits on one line rather than breaking.
+            is Choice.Word -> MultiText(
+                choice.text, env.langs, ink,
+                size = when (choice.text[env.main].length) { in 0..7 -> 32.sp; in 8..10 -> 26.sp; else -> 21.sp },
+            )
         }
         if (right) {
             val tick = Modifier.align(Alignment.TopEnd).padding(8.dp)

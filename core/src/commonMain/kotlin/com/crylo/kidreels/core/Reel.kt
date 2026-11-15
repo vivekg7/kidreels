@@ -9,6 +9,7 @@ enum class Channel(val handle: Txt, val emoji: String) {
     WORLD(txt("Our world", "हमारी दुनिया"), "🌍"),
     THINKING(txt("Thinking", "सोचो"), "🧠"),
     MEMORY(txt("Memory", "याददाश्त"), "💭"),
+    WORDS(txt("Words", "शब्द"), "📝"),
 }
 
 enum class Topic(val channel: Channel, val title: Txt) {
@@ -71,6 +72,13 @@ enum class Topic(val channel: Channel, val title: Txt) {
     PAIRS(Channel.MEMORY, txt("Find the pairs", "जोड़ी ढूँढो")),
     COPY_ORDER(Channel.MEMORY, txt("Copy the order", "क्रम दोहराओ")),
     WHATS_MISSING(Channel.MEMORY, txt("What's missing?", "क्या ग़ायब है?")),
+    OPPOSITES(Channel.WORDS, txt("Opposites", "विलोम शब्द")),
+    PLURALS(Channel.WORDS, txt("One and many", "एक और अनेक")),
+    GENDER(Channel.WORDS, txt("Male and female", "पुल्लिंग और स्त्रीलिंग")),
+    RHYMES(Channel.WORDS, txt("Rhyming words", "तुकबंदी (अंग्रेज़ी)")),
+    WORD_CARDS(Channel.WORDS, txt("Words in a sentence", "वाक्य में शब्द")),
+    WORD_KINDS(Channel.WORDS, txt("Naming, doing, describing", "संज्ञा, क्रिया, विशेषण")),
+    MATRAS(Channel.WORDS, txt("Hindi vowel signs", "मात्राएँ")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
 
@@ -403,6 +411,7 @@ fun Reel.intro(main: Lang): List<Say> {
             part.fact.takeIf { showFact }?.let { line(it) },
         )
         is BodyTap -> listOf(line(Body.tapSay(part)))
+        is WordUseCard -> listOf(line(word.word), line(Grammar.cardSay(word, level)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

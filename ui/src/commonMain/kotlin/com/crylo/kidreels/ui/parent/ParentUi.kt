@@ -358,7 +358,7 @@ fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TopicPicker(focus: Topic?, age: Int, main: Lang, onPick: (Topic?) -> Unit) {
+fun TopicPicker(focus: Topic?, age: Int, langs: List<Lang>, main: Lang, onPick: (Topic?) -> Unit) {
     val c = LocalParent.current
     val forAge = { topic: Topic -> age in Templates.of(topic).ages }
     var otherAges by remember { mutableStateOf(focus != null && !forAge(focus)) }
@@ -366,7 +366,8 @@ fun TopicPicker(focus: Topic?, age: Int, main: Lang, onPick: (Topic?) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Pill(S.allTopics[main], focus == null, { onPick(null) })
         Channel.entries.forEach { channel ->
-            val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK && (otherAges || forAge(it)) }
+            // A topic about a language the child does not have (English rhymes for Hindi only) is not offered.
+            val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK && Templates.of(it).fits(langs) && (otherAges || forAge(it)) }
             if (topics.isEmpty()) return@forEach
             val expanded = channel in open
             val picked = focus?.takeIf { it.channel == channel }

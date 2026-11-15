@@ -40,6 +40,7 @@ import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.core.Word
 import com.crylo.kidreels.core.WordCard
+import com.crylo.kidreels.core.WordUseCard
 import com.crylo.kidreels.core.Words
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
@@ -120,6 +121,7 @@ fun ReelView(
         is MazeGame -> MazeView(reel, state, padding, onSolved)
         is BodyCard -> BodyCardView(reel, padding)
         is BodyTap -> BodyTapView(reel, state, padding, onSolved)
+        is WordUseCard -> WordUseView(reel, padding)
         is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }

@@ -122,7 +122,9 @@ class Feed(
         val age = s.age.coerceIn(Settings.AGES)
         made++
         val topic = focus
-        val reel = if (topic != null) focused(topic, s, age) else dueRetry(s, age) ?: fresh(s, age)
+        // A picked topic the child's languages no longer allow (Hindi मात्राएँ, then Hindi
+        // taken out) is ignored rather than made with no language.
+        val reel = if (topic != null && Templates.of(topic).fits(s.langs)) focused(topic, s, age) else dueRetry(s, age) ?: fresh(s, age)
         recent.addLast(reel)
         if (recent.size > HISTORY) recent.removeFirst()
         return reel
@@ -172,7 +174,7 @@ class Feed(
         val retry = retries.firstOrNull { it.due <= made && it.topic != recent.lastOrNull()?.topic } ?: return null
         retries.remove(retry)
         val level = retry.level.coerceIn((age - 1).coerceAtLeast(Settings.AGES.first), age)
-        val template = templates.firstOrNull { it.topic == retry.topic && level in it.ages } ?: return null
+        val template = templates.firstOrNull { it.topic == retry.topic && level in it.ages && it.fits(s.langs) } ?: return null
         return make(template, s, level, retry.difficulty)
     }
 
@@ -195,7 +197,7 @@ class Feed(
             }
         }.coerceIn(Settings.AGES)
 
-        val eligible = templates.filter { level in it.ages }
+        val eligible = templates.filter { level in it.ages && it.fits(s.langs) }
         val solvingRun = recent.reversed().takeWhile { it.needsSolving }.size
         val exploreRun = recent.reversed().takeWhile { !it.needsSolving }.size
         var pool = when {
@@ -226,7 +228,8 @@ class Feed(
             template.solving -> focusDifficulty
             else -> 3
         }
-        val langs = listOf(s.langs[focusLang % s.langs.size])
+        val usable = template.usable(s.langs)
+        val langs = listOf(usable[focusLang % usable.size])
         focusCursor.wrapped = false
         val reel = template.make(Gen(level, difficulty, random, langs, nextId++, focusCursor, age = s.age, ordered = true))
         if (focusCursor.wrapped) focusLang++
@@ -234,7 +237,7 @@ class Feed(
     }
 
     private fun make(template: Template, s: Settings, level: Int, difficulty: Int): Reel =
-        template.make(Gen(level, difficulty, random, s.langs, nextId++, progress, age = s.age))
+        template.make(Gen(level, difficulty, random, template.usable(s.langs), nextId++, progress, age = s.age))
 
     /** Liked topics come up a little more often: up to half as often again. */
     private fun weightedPick(pool: List<Template>): Template {

@@ -266,7 +266,7 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
             }
             ChildPart.TOPICS -> {
                 Body(S.showOnlyBody[main])
-                TopicPicker(child.feed.focus, s.age, main) {
+                TopicPicker(child.feed.focus, s.age, s.langs, main) {
                     child.feed.pick(it)
                     picked = true
                 }

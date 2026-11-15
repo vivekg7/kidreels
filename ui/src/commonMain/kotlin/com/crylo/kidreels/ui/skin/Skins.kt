@@ -82,6 +82,7 @@ fun channelColor(channel: Channel): Color = when (channel) {
     Channel.WORLD -> Color(0xFFF7A325)
     Channel.THINKING -> Color(0xFF14A3A3)
     Channel.MEMORY -> Color(0xFFE0629A)
+    Channel.WORDS -> Color(0xFF5B8C2A)
 }
 
 private fun calmBackground(channel: Channel): Color = when (channel) {
@@ -92,6 +93,7 @@ private fun calmBackground(channel: Channel): Color = when (channel) {
     Channel.WORLD -> Color(0xFFFFF5DD)
     Channel.THINKING -> Color(0xFFE2F6F5)
     Channel.MEMORY -> Color(0xFFFFEAF3)
+    Channel.WORDS -> Color(0xFFEEF6E4)
 }
 
 /** Deep enough at both ends that white text stays readable across the whole gradient. */

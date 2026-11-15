@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-59 templates, and why the tests can check every template at every age and difficulty.
+66 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -230,6 +230,38 @@ it lands on its own part, so two parts never sit too close to tell apart.
   for the age, so a six-year-old is asked about wrists, not noses.
 - The emoji cards ("My body") stay: they show the tongue, the teeth and the brain, which
   a picture of a whole child does not.
+
+### Words and grammar
+
+A channel of its own (`core/Grammar.kt`), all built from the existing quiz and card
+kinds, so it is content more than code.
+
+| Topic                     | Ages | Language                  |
+| ------------------------- | ---- | ------------------------- |
+| Opposites                 | 5–10 | every chosen one          |
+| Words in a sentence       | 5–9  | every chosen one (a card) |
+| Naming, doing, describing | 6–10 | every chosen one          |
+| One and many              | 5–8  | English or Hindi, its own |
+| Male and female           | 6–9  | English or Hindi, its own |
+| Rhyming words             | 4–7  | English only              |
+| मात्राएँ                    | 5–7  | Hindi only                |
+
+- **Grammar is about one language, so it is spoken in it**, as an alphabet is: "one
+  mouse, many mice" is English grammar and "एक लड़का, कई लड़के" Hindi grammar, and
+  neither translates. A template names its languages (`Template.langs`); the feed only
+  makes it when the child has one of them, the topic list only offers it then, and a
+  picked topic whose language is taken away is set aside rather than made in no
+  language. Opposites and kinds of word are the same idea in every language, so they
+  show every chosen language like any quiz.
+- **Wrong plurals are the mistakes children make**: the usual ending where it does not
+  belong ("foots", "कुर्सीयाँ"), an ending on an irregular plural ("mices",
+  "childrens"), or no change at all. Never a real word from the lists: लड़कियाँ is not
+  a wrong plural of लड़का, it is girls.
+- **Every miss teaches another pair**: "Sad is the opposite of happy. What is the
+  opposite of sweet?", "Queen is the female of king. What about lion?".
+- **School words from 6.** "संज्ञा, क्रिया, विशेषण" and "विलोम" are what a class uses; a
+  five-year-old hears "नाम बताने वाला शब्द" and "उल्टा", as everywhere else.
+- **A मात्रा on its own shows on a dotted circle** (ि), the way Hindi textbooks print it.
 
 ### Adding a reel type
 
