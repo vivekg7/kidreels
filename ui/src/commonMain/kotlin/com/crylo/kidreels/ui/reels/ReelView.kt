@@ -2,6 +2,15 @@ package com.crylo.kidreels.ui.reels
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
+import com.crylo.kidreels.ui.common.T
+import com.crylo.kidreels.ui.common.popOn
+import com.crylo.kidreels.ui.common.tap
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.crylo.kidreels.core.AngleLab
 import com.crylo.kidreels.core.CountAlong
@@ -17,6 +26,9 @@ import com.crylo.kidreels.core.SolidCard
 import com.crylo.kidreels.core.TimeUp
 import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.Txt
+import com.crylo.kidreels.core.Word
+import com.crylo.kidreels.core.WordCard
+import com.crylo.kidreels.core.Words
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import kotlin.random.Random
@@ -39,6 +51,17 @@ class ReelEnv(
 
     /** [text] in the main language, or in [voice] for a reel about that language. */
     fun say(text: Txt, voice: Lang? = null, tone: Tone = Tone.TALK) = say(Say(text[voice ?: main], voice ?: main, tone))
+
+    /** "This is an elephant!" for a tapped picture; [word] when the reel names it its own way. */
+    fun name(emoji: String, voice: Lang? = null, word: Word? = null) {
+        val w = word ?: Words.of(emoji) ?: return
+        say(w.thisIs(), voice)
+    }
+
+    /** A tapped piece of a row or grid: a picture says its name, a numeral is read out. */
+    fun token(text: String, voice: Lang? = null) {
+        if (Words.of(text) != null) name(text, voice) else say(Txt.same(text), voice)
+    }
 
     fun sfx(s: Sfx) {
         if (active) play(s)
@@ -70,6 +93,15 @@ fun ReelView(
         is SolidCard -> SolidView(reel, padding)
         is AngleLab -> AngleView(reel, state, padding, onSolved)
         is CurveLab -> CurveView(reel, padding)
+        is WordCard -> WordView(reel, padding)
         is TimeUp -> TimeUpView(padding, onMoreTime)
     }
+}
+
+/** A picture that says what it is when tapped, with a little pop. */
+@Composable
+fun Pic(emoji: String, size: TextUnit, modifier: Modifier = Modifier, voice: Lang? = null, word: Word? = null) {
+    val env = LocalReelEnv.current
+    var pop by remember { mutableIntStateOf(0) }
+    T(emoji, modifier.popOn(pop).tap { pop++; env.name(emoji, voice, word) }, size = size)
 }

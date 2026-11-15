@@ -57,7 +57,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–10) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-22 templates, and why the tests can check every template at every age and difficulty.
+30 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -136,6 +136,15 @@ long. It guards settings, the check-in and the "10 more minutes" button.
 - Pictures are emoji from the system font or shapes drawn in code: nothing to license,
   and the release APK stays under 2 MB. Every emoji is from Emoji 13.1 or earlier, the
   newest set Android 12 draws.
+- **Every picture has a name** (`core/Words.kt`), so tapping any picture says "This is an
+  elephant" / "यह हाथी है" in the reel's voice. One table covers every emoji the app
+  shows, and `everyPictureHasAName` fails when a new one is added without a name: a
+  picture that does nothing when tapped teaches a child that tapping is pointless. Answer
+  cards are the exception: a tap there is the answer, and a wrong one already names what
+  was tapped. A quiz can name its picture its own way: the first-letter quiz says the
+  alphabet's word ("This is a ball"), not another name for the same emoji. The same table
+  holds the picture cards' groups and facts; English and Hindi plurals are flagged
+  separately, since "glasses" is plural and "चश्मा" is not.
 - The 3D solids use a small renderer (`ui/draw/Solids.kt`): a mesh, rotation,
   perspective, flat shading, and back-face culling, which is enough because every school
   solid is convex.
@@ -170,6 +179,9 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   reel can say (praise, "try again") are kept simple for all ages; easy words
   suit a nine-year-old too. `littleChildrenHearHomeWordsNotSchoolWords` fails if a
   school word reaches a child of 5 or under.
+- **Picture cards are eight small topics, not one**, so each can be shown on its own
+  later. Each weighs 0.4 in the mix, about three reels' worth together,
+  so they do not crowd out the puzzles at ages 2 to 5.
 - **Capital letters only.** The alphabet card shows "A", not "A a": two shapes side by
   side read as two different letters to a child just starting. The first-letter quiz uses
   capitals too.

@@ -44,6 +44,7 @@ class ContentTest {
             Home.entries.forEach { add(it.label) }
             Categories.all.forEach { add(it.name) }
             (Alphabets.english + Alphabets.hindi).forEach { add(it.meaning) }
+            Words.byTopic.values.flatten().forEach { add(it.name); add(it.fact!!) }
         }
         for (t in texts) for (lang in Lang.entries) assertTrue(t.has(lang), "'$t' has no $lang")
     }
@@ -73,5 +74,45 @@ class ContentTest {
         assertEquals(AngleKind.STRAIGHT, AngleKind.of(179))
         assertEquals(AngleKind.REFLEX, AngleKind.of(250))
         assertEquals(90, AngleKind.snap(91))
+    }
+
+    /** Every picture a child can tap says what it is, so none of them is silently dead. */
+    @Test
+    fun everyPictureHasAName() {
+        val pictures = buildList {
+            Countables.forEach { add(it.emoji) }
+            PatternSets.flatten().forEach { add(it.emoji) }
+            Categories.all.forEach { addAll(it.items) }
+            AnimalSounds.all.forEach { add(it.emoji) }
+            Habitats.all.forEach { add(it.emoji) }
+            Home.entries.forEach { add(it.emoji) }
+            Shapes.all.forEach { addAll(it.examples) }
+            Solids.all.forEach { addAll(it.examples) }
+            Curves.all.forEach { add(it.example) }
+            addAll(Phrases.goodbyeThings)
+        }
+        val missing = pictures.distinct().filter { Words.of(it) == null }
+        assertTrue(missing.isEmpty(), "No name for $missing")
+    }
+
+    @Test
+    fun pictureCardsHaveAFactAndDoNotRepeat() {
+        val all = Words.byTopic.values.flatten()
+        assertTrue(all.all { it.fact != null })
+        assertEquals(all.size, all.map { it.emoji }.toSet().size, "a picture is in two groups")
+        assertTrue(Words.byTopic.keys.all { !Templates.of(it).solving })
+    }
+
+    @Test
+    fun tappingAPictureSaysWhatItIs() {
+        fun say(emoji: String) = Words.of(emoji)!!.thisIs().let { it[Lang.EN] to it[Lang.HI] }
+        assertEquals("This is an elephant!" to "यह हाथी है!", say("🐘"))
+        assertEquals("These are grapes!" to "ये अंगूर हैं!", say("🍇"))
+        assertEquals("These are glasses!" to "यह चश्मा है!", say("👓"))
+        assertEquals("This is corn!" to "यह भुट्टा है!", say("🌽"))
+        assertEquals("This is the colour red!" to "यह लाल रंग है!", say("🔴"))
+        assertEquals("This is an auto rickshaw!" to "यह ऑटो रिक्शा है!", say("🛺"))
+        // The variation selector is optional: ✈ and ✈️ are the same picture.
+        assertEquals(Words.of("✈️"), Words.of("✈"))
     }
 }

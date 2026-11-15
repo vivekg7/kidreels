@@ -53,6 +53,16 @@ class Template(
     val make: (Gen) -> Reel,
 )
 
+/**
+ * The letter's word as a picture name, so tapping the picture says "This is a ball" with
+ * the word the quiz is about, not another name for the same emoji.
+ */
+internal fun Letter.asWord(): Word {
+    val emoji = (picture as Picture.Emoji).text
+    val usual = Words.of(emoji)
+    return Word(emoji, txt(meaning[Lang.EN].lowercase(), meaning[Lang.HI]), plural = usual?.plural ?: false, pluralHi = usual?.pluralHi ?: false)
+}
+
 /** Puts [answer] among [others] at a random place. */
 internal fun <T> Gen.shuffleIn(answer: T, others: List<T>): Pair<List<T>, Int> {
     val all = (others + answer).shuffled(random)
@@ -134,7 +144,7 @@ object Templates {
             val (glyphs, answer) = g.shuffleIn(target.glyph, others)
             Quiz(
                 g.id, Topic.FIRST_LETTER, g.level, g.difficulty, Phrases.startsWith(target),
-                Stage.Picture((target.picture as Picture.Emoji).text),
+                Stage.Picture((target.picture as Picture.Emoji).text, target.asWord()),
                 glyphs.map { Choice.Token(it) }, answer,
                 reveal = Txt.same(target.phrase), say = Phrases.startsWithSay(target), voice = lang,
                 revealSaid = target.spoken(), whyNot = whyNot(glyphs, answer) { Phrases.notLetter(it, target) },
@@ -218,7 +228,12 @@ object Templates {
                 whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) },
             )
         },
-    )
+    ) + Words.byTopic.map { (topic, words) ->
+        // Eight small topics: light weights, so together they are about three reels' worth.
+        Template(topic, 2..5, solving = false, weight = 0.4) { g ->
+            WordCard(g.id, topic, g.level, g.difficulty, words[g.inOrder("words.${topic.name}", words.size)], showFact = g.level >= 4)
+        }
+    }
 
     private val byTopic = all.associateBy { it.topic }
 

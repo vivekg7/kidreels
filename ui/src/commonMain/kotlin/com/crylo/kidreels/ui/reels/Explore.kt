@@ -43,6 +43,7 @@ import com.crylo.kidreels.core.Picture
 import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.ShapeCard
 import com.crylo.kidreels.core.Tone
+import com.crylo.kidreels.core.WordCard
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.Confetti
@@ -225,10 +226,40 @@ fun ShapeView(reel: ShapeCard, padding: PaddingValues) {
         if (shape.examples.isNotEmpty()) {
             Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                 shape.examples.forEach { e ->
-                    var pop by remember(reel.id, e) { mutableIntStateOf(0) }
-                    T(e, Modifier.popOn(pop).tap { pop++; env.sfx(Sfx.POP) }, size = 48.sp)
+                    Pic(e, 48.sp)
                 }
             }
+        }
+    }
+}
+
+/** "This is an elephant": the picture, big, and its name. Tap it to hear it again. */
+@Composable
+fun WordView(reel: WordCard, padding: PaddingValues) {
+    val env = LocalReelEnv.current
+    val colors = LocalReelColors.current
+    val word = reel.word
+    var bounce by remember(reel.id) { mutableIntStateOf(0) }
+    Column(
+        Modifier.fillMaxSize().padding(padding).reelWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        MultiText(word.title, env.langs, colors.ink, size = 44.sp, say = { env.say(it) })
+        T(
+            word.emoji,
+            Modifier.floating(6f, 1800).popOn(bounce).tap {
+                bounce++
+                env.sfx(Sfx.POP)
+                env.say(listOfNotNull(word.thisIs(), word.fact?.takeIf { reel.showFact }).map { Say(it[env.main], env.main) })
+            },
+            size = 170.sp,
+        )
+        val fact = word.fact
+        if (reel.showFact && fact != null) {
+            MultiText(fact, env.langs, colors.ink, size = 21.sp, say = { env.say(it) })
+        } else {
+            T("👆", Modifier.floating(), size = 36.sp)
         }
     }
 }
@@ -250,7 +281,7 @@ fun TimeUpView(padding: PaddingValues, onMoreTime: () -> Unit) {
         MultiText(Phrases.allDone, env.langs, colors.ink, size = 32.sp, say = { env.say(it) })
         MultiText(Phrases.allDoneBody, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            listOf("🍽️", "⚽", "🧸", "📚", "🛏️").forEach { T(it, size = 38.sp) }
+            Phrases.goodbyeThings.forEach { Pic(it, 38.sp) }
         }
         HoldButton(S.moreTime[env.main], onMoreTime, Modifier.fillMaxWidth(), background = colors.ink.copy(alpha = 0.16f), content = colors.ink)
     }

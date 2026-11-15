@@ -43,7 +43,8 @@ object Shapes {
             txt("6 sides, 6 corners", "6 भुजाएँ, 6 कोने").simpler("6 sides, 6 corners", "6 किनारे, 6 कोने"), 6, listOf("🐝", "🔩"), 5),
         ShapeInfo(ShapeKind.CRESCENT, txt("Crescent", "अर्धचंद्र").simpler("Moon shape", "चाँद"),
             txt("Like the moon on some nights", "कुछ रातों के चाँद जैसा"), 0, listOf("🌙", "🥐", "🍌"), 5),
-        ShapeInfo(ShapeKind.OCTAGON, txt("Octagon", "अष्टभुज"), txt("8 sides, 8 corners", "8 भुजाएँ, 8 कोने"), 8, listOf("🛑"), 6),
+        ShapeInfo(ShapeKind.OCTAGON, txt("Octagon", "अष्टभुज").simpler("Octagon", "आठ कोनों वाला"),
+            txt("8 sides, 8 corners", "8 भुजाएँ, 8 कोने").simpler("8 sides, 8 corners", "8 किनारे, 8 कोने"), 8, listOf("🛑"), 6),
     )
 
     fun of(kind: ShapeKind): ShapeInfo = all.first { it.kind == kind }

@@ -45,7 +45,10 @@ import com.crylo.kidreels.core.Op
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Quiz
 import com.crylo.kidreels.core.Stage
+import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.Tone
+import com.crylo.kidreels.core.Txt
+import com.crylo.kidreels.core.Words
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.MultiText
@@ -127,12 +130,21 @@ private fun StageView(quiz: Quiz, state: ReelState) {
         Stage.None -> Unit
         is Stage.Sum -> SumStage(stage, if (state.solved) (quiz.choices[quiz.answer] as Choice.Number).n else null)
         is Stage.Count -> CountStage(stage, quiz.id)
-        is Stage.Picture -> T(
-            stage.emoji,
-            Modifier.floating().tap { env.say(quiz.say ?: quiz.prompt, quiz.voice) },
-            size = 120.sp,
-        )
-        is Stage.Row -> RowStage(stage, if (state.solved) stage.tokens[stage.blank] else null)
+        is Stage.Picture -> {
+            var pop by remember(quiz.id) { mutableStateOf(0) }
+            // Its name, then the question again: "This is a fish. Where does the fish live?"
+            T(
+                stage.emoji,
+                Modifier.floating().popOn(pop).tap {
+                    pop++
+                    val lang = quiz.voice ?: env.main
+                    val name = (stage.name ?: Words.of(stage.emoji))?.thisIs()
+                    env.say(listOfNotNull(name, quiz.say ?: quiz.prompt).map { Say(it[lang], lang) })
+                },
+                size = 120.sp,
+            )
+        }
+        is Stage.Row -> RowStage(stage, if (state.solved) stage.tokens[stage.blank] else null) { env.say(quiz.say ?: quiz.prompt, quiz.voice) }
         is Stage.Clock -> {
             val measurer = rememberTextMeasurer()
             // A paper-white face in every look: a clock is read by its hands, so contrast wins.
@@ -140,7 +152,7 @@ private fun StageView(quiz: Quiz, state: ReelState) {
                 drawClock(stage.hour, stage.minute, Color(0xFFFFFDF7), Color(0xFF2D2440), Color(0xFFE5484D), measurer)
             }
         }
-        is Stage.Grid -> GridStage(stage, state.solved)
+        is Stage.Grid -> GridStage(stage, state.solved) { env.say(quiz.say ?: quiz.prompt, quiz.voice) }
     }
 }
 
@@ -230,8 +242,9 @@ private fun CountStage(stage: Stage.Count, id: Long) {
 }
 
 @Composable
-private fun RowStage(stage: Stage.Row, filled: String?) {
+private fun RowStage(stage: Stage.Row, filled: String?, askAgain: () -> Unit) {
     val colors = LocalReelColors.current
+    val env = LocalReelEnv.current
     val numeric = stage.tokens.all { it.toIntOrNull() != null }
     BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
     // One row always: a pattern broken over two lines is a different pattern.
@@ -240,11 +253,16 @@ private fun RowStage(stage: Stage.Row, filled: String?) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)) {
         stage.tokens.forEachIndexed { i, token ->
             val blank = i == stage.blank
+            var pop by remember(stage, i) { mutableStateOf(0) }
             Box(
-                Modifier.size(cell * widthFactor, cell)
+                Modifier.popOn(pop).size(cell * widthFactor, cell)
                     .clip(RoundedCornerShape(14.dp))
                     .background(if (blank) colors.card.copy(alpha = if (filled != null) 1f else 0.55f) else colors.card)
-                    .border(2.dp, if (blank) (if (filled != null) colors.good else colors.ink.copy(alpha = 0.6f)) else colors.cardLine, RoundedCornerShape(14.dp)),
+                    .border(2.dp, if (blank) (if (filled != null) colors.good else colors.ink.copy(alpha = 0.6f)) else colors.cardLine, RoundedCornerShape(14.dp))
+                    .tap {
+                        pop++
+                        if (blank && filled == null) askAgain() else env.token(token)
+                    },
                 contentAlignment = Alignment.Center,
             ) {
                 val text = if (blank) filled ?: "?" else token
@@ -259,8 +277,9 @@ private fun RowStage(stage: Stage.Row, filled: String?) {
 }
 
 @Composable
-private fun GridStage(grid: Stage.Grid, solved: Boolean) {
+private fun GridStage(grid: Stage.Grid, solved: Boolean, askAgain: () -> Unit) {
     val colors = LocalReelColors.current
+    val env = LocalReelEnv.current
     val blankRow = grid.blank / grid.size
     val blankCol = grid.blank % grid.size
     val ink = Color(0xFF2D2440)
@@ -283,7 +302,8 @@ private fun GridStage(grid: Stage.Grid, solved: Boolean) {
                             else -> Color.Transparent
                         }
                         Box(
-                            Modifier.size(cell).background(bg).drawBoxLines(r, c, grid, line),
+                            Modifier.size(cell).background(bg).drawBoxLines(r, c, grid, line)
+                                .tap { if (i == grid.blank && !solved) askAgain() else env.token(grid.symbols[grid.cells[i]]) },
                             contentAlignment = Alignment.Center,
                         ) {
                             val text = if (i == grid.blank && !solved) "?" else grid.symbols[grid.cells[i]]

@@ -105,6 +105,7 @@ class FeedTest {
         if (this@hindi is Quiz) whyNot.filterNotNull().forEach { append(it[Lang.HI]).append(' ') }
         if (this@hindi is ShapeCard) append(shape.name[Lang.HI]).append(' ').append(shape.fact[Lang.HI])
         if (this@hindi is SolidCard) append(solid.name[Lang.HI])
+        if (this@hindi is WordCard) append(word.name[Lang.HI]).append(' ').append(word.fact?.get(Lang.HI))
     }
 
     @Test

@@ -44,6 +44,28 @@ object Phrases {
     val skipped = txt("Aww, you didn't try that one!", "अरे, वो तो किया ही नहीं!")
 
     val swipeUp = txt("Swipe up", "ऊपर सरकाओ")
+
+    /** Under the goodbye reel: what comes after the phone. */
+    val goodbyeThings = listOf("🍽️", "⚽", "🧸", "📚", "🛏️")
+
+    /** What tapping a picture says: see [Word.thisIs]. */
+    fun thisIs(name: Txt, plural: Boolean, pluralHi: Boolean, article: String?, colour: Boolean): Txt {
+        val en = name.en
+        val a = article ?: if (en.first().lowercaseChar() in "aeiou") "an" else "a"
+        return txt(
+            when {
+                colour -> "This is the colour $en!"
+                plural -> "These are $en!"
+                a.isEmpty() -> "This is $en!"
+                else -> "This is $a $en!"
+            },
+            when {
+                colour -> "यह ${name.hi} रंग है!"
+                pluralHi -> "ये ${name.hi} हैं!"
+                else -> "यह ${name.hi} है!"
+            },
+        )
+    }
     fun letsCount(t: Thing): Txt = txt("Let's count the ${t.many.en}!", "चलो ${t.many.hi} गिनें!")
 
     fun countAlong(t: Thing): Txt = letsCount(t) + txt("Tap them one by one.", "एक-एक करके सबको छुओ।")

@@ -32,6 +32,14 @@ enum class Topic(val channel: Channel, val title: Txt) {
     COLOURS(Channel.WORLD, txt("Colours", "रंग")),
     ANIMAL_SOUNDS(Channel.WORLD, txt("Animal sounds", "जानवरों की आवाज़")),
     HABITATS(Channel.WORLD, txt("Animal homes", "जानवरों के घर")),
+    ANIMALS(Channel.WORLD, txt("Animals", "जानवर")),
+    BIRDS(Channel.WORLD, txt("Birds", "चिड़ियाँ")),
+    VEHICLES(Channel.WORLD, txt("Vehicles", "गाड़ियाँ")),
+    BODY(Channel.WORLD, txt("My body", "मेरा शरीर")),
+    FRUITS(Channel.WORLD, txt("Fruits", "फल")),
+    VEGETABLES(Channel.WORLD, txt("Vegetables", "सब्ज़ियाँ")),
+    HOME_THINGS(Channel.WORLD, txt("At home", "घर की चीज़ें")),
+    CLOTHES(Channel.WORLD, txt("Clothes", "कपड़े")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
 
@@ -110,7 +118,8 @@ sealed interface Stage {
 
     data class Count(val emoji: String, val n: Int, val scattered: Boolean) : Stage
 
-    data class Picture(val emoji: String) : Stage
+    /** [name] is said when the picture is tapped; null means its usual one ([Words.of]). */
+    data class Picture(val emoji: String, val name: Word? = null) : Stage
 
     /** A row of tokens with one missing, shown as "?" at [blank]. */
     data class Row(val tokens: List<String>, val blank: Int) : Stage
@@ -239,6 +248,23 @@ data class CurveLab(
     override val voice: Lang? get() = null
 }
 
+/**
+ * "This is an elephant": a picture and its name, nothing to answer. From age 4 it adds a
+ * [Word.fact] ("The elephant has a long trunk").
+ */
+data class WordCard(
+    override val id: Long,
+    override val topic: Topic,
+    override val level: Int,
+    override val difficulty: Int,
+    val word: Word,
+    val showFact: Boolean,
+) : Reel {
+    override val needsSolving get() = false
+    override val prompt: Txt get() = word.title
+    override val voice: Lang? get() = null
+}
+
 /** The last reel of the day, once the parent's time limit is used up. */
 data class TimeUp(override val id: Long) : Reel {
     override val topic get() = Topic.BREAK
@@ -267,6 +293,11 @@ fun Reel.intro(main: Lang): List<Say> {
         is SolidCard -> listOf(line(Phrases.thisSolid(solid, showFact)))
         is AngleLab -> listOf(line(target?.let(Phrases::makeAngleSay) ?: Phrases.dragAngle))
         is CurveLab -> listOf(line(Phrases.thisCurve(curve)))
+        // Named, then named again with the child, as on the alphabet card.
+        is WordCard -> listOfNotNull(
+            line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),
+            word.fact?.takeIf { showFact }?.let { line(it) },
+        )
     }
 }
 

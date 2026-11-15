@@ -120,7 +120,7 @@ fun SolidView(reel: SolidCard, padding: PaddingValues) {
         if (reel.showFact) MultiText(solid.fact, env.langs, colors.ink, size = 19.sp, say = { env.say(it) })
         if (solid.examples.isNotEmpty()) {
             Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                solid.examples.forEach { T(it, size = 46.sp) }
+                solid.examples.forEach { Pic(it, 46.sp) }
             }
         }
     }
@@ -285,7 +285,7 @@ fun CurveView(reel: CurveLab, padding: PaddingValues) {
         KidSlider(param, { param = it }, colors.ink, Modifier.fillMaxWidth(0.8f))
         MultiText(curve.fact, env.langs, colors.ink, size = 19.sp, say = { env.say(it) })
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            T(curve.example, size = 40.sp)
+            Pic(curve.example, 40.sp)
             if (reel.showEquation) T(curve.equation, color = colors.ink, size = 22.sp, weight = FontWeight.Bold)
         }
     }
