@@ -109,6 +109,14 @@ object Templates {
             CountAlong(g.id, g.level, g.difficulty, g.pick(Countables), n)
         },
 
+        // 1 to 5 for a three-year-old, to 10 at 4, to 20 from 5: about what nursery and
+        // kindergarten teach. A picked topic goes 1, 2, 3… to the age's top.
+        Template(Topic.NUMBERS, 3..6, solving = false) { g ->
+            val top = when (g.level) { 3 -> 5; 4 -> 10; else -> Numbers.MAX }
+            val n = if (g.ordered) g.inOrder("numbers", top) + 1 else g.upTo(1, top)
+            NumberCard(g.id, g.level, g.difficulty, n)
+        },
+
         Template(Topic.COUNTING, 2..5, solving = true) { g ->
             val n = when (g.level) {
                 2 -> g.upTo(1, 3)
@@ -130,6 +138,24 @@ object Templates {
         Template(Topic.SUBTRACTION, 5..10, solving = true) { g -> subtraction(g) },
         Template(Topic.MULTIPLICATION, 7..10, solving = true) { g -> multiplication(g) },
         Template(Topic.COMPARE, 3..7, solving = true) { g -> compare(g) },
+        // The tables a class is on: 2, 5 and 10 first, then up to 10, then past it.
+        Template(Topic.TABLES, 6..10, solving = false) { g ->
+            val tables = when (g.level) {
+                6 -> listOf(2, 5, 10)
+                7 -> (2..10).toList()
+                8 -> (2..12).toList()
+                9 -> (2..15).toList()
+                else -> (11..20).toList()
+            }
+            val table = if (g.ordered) tables[g.inOrder("tables", tables.size)] else tables[g.upTo(0, tables.lastIndex)]
+            TableCard(g.id, g.level, g.difficulty, table)
+        },
+        Template(Topic.SQUARES, 8..10, solving = false) { g ->
+            val top = when (g.level) { 8 -> 6; 9 -> 10; else -> 12 }
+            val n = if (g.ordered) g.inOrder("squares", top - 1) + 2 else g.upTo(2, top)
+            SquareCard(g.id, g.level, g.difficulty, n, showPower = g.level >= 9)
+        },
+
         Template(Topic.SEQUENCE, 6..10, solving = true) { g -> sequence(g) },
         Template(Topic.CLOCK, 5..9, solving = true) { g -> clock(g) },
 

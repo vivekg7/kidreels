@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–10) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-44 templates, and why the tests can check every template at every age and difficulty.
+47 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -130,6 +130,27 @@ with easier versions earlier:
   quizzes use: an answer shaped unlike the gap it fills is one more thing to puzzle over.
 - Nine topics weigh half a reel each, so at 10 they are a good share of the mix without
   taking it over; a parent can pick one alone.
+
+### Numbers, as the alphabet
+
+The alphabet card works because it is the same every time: A is always the apple. Number
+cards copy it (`core/Numbers.kt`): "1 · O-N-E · one · 1 elephant", and 1 is always the
+elephant, 7 always butterflies, up to 20 bees. The English word is spelled in letter
+tiles, as the alphabet card shows its letter, and spoken letter by letter from age 4;
+Hindi is not spelled, since nobody learns एक as ए-क. Ages 3 to 6, up to 5, 10 and then
+20, roughly nursery to class 1. Count-along stays separate: there the child does the
+counting.
+
+- **Times tables are tapped through, a line per tap**, with the next line waiting as
+  "3 × 5 = ?" so a child can call it out before tapping. All ten lines at once would be
+  a page to read, not something to do. In Hindi the voice chants the पहाड़ा as every
+  Indian classroom does ("तीन एकम तीन, तीन दूनी छह, तीन तिया नौ"), not "3 गुणा 2":
+  that rhythm is how parents learned it and how they will say it along. The quiz that
+  asks for a product is "Multiplying" now; "Times tables" is this card.
+- **Square numbers fill a square row by row**, saying the running total (5, 10, 15, 20,
+  25), so "25 is a square number" is something seen: the tiles make a square. On a
+  paper-white card like the clock, as 144 small blue tiles on a coloured background
+  were hard to see. "5² = 25" joins "5 × 5 = 25" from age 9.
 
 ### Adding a reel type
 

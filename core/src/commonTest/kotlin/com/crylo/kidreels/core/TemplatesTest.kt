@@ -112,6 +112,20 @@ class TemplatesTest {
     }
 
     @Test
+    fun numberCardsSpellTheirNumber() {
+        assertEquals(listOf("O", "N", "E"), Numbers.spelling(1))
+        assertEquals("TWENTY", Numbers.spelling(20).joinToString(""))
+        assertEquals("3 times 4 is 12", Numbers.tableLine(3, 4)[Lang.EN])
+        assertEquals("3 चौके 12", Numbers.tableLine(3, 4)[Lang.HI])
+        // Every number a card can show has its own picture, and none is used twice.
+        assertEquals(Numbers.MAX, Numbers.things.map { it.emoji }.distinct().size)
+        for ((_, reel) in everyReel()) {
+            if (reel is NumberCard) assertTrue(reel.n in 1..Numbers.MAX, "$reel")
+            if (reel is SquareCard) assertTrue(reel.n >= 2, "$reel")
+        }
+    }
+
+    @Test
     fun angleChallengeNeverStartsSolved() {
         for ((_, reel) in everyReel()) {
             if (reel is AngleLab && reel.target != null) assertTrue(AngleKind.of(reel.startDegrees) != reel.target)

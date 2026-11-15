@@ -13,9 +13,12 @@ enum class Channel(val handle: Txt, val emoji: String) {
 enum class Topic(val channel: Channel, val title: Txt) {
     COUNT_ALONG(Channel.MATHS, txt("Counting", "गिनती")),
     COUNTING(Channel.MATHS, txt("How many", "कितने")),
+    NUMBERS(Channel.MATHS, txt("Numbers", "संख्याएँ")),
     ADDITION(Channel.MATHS, txt("Adding", "जोड़")),
     SUBTRACTION(Channel.MATHS, txt("Taking away", "घटाना")),
-    MULTIPLICATION(Channel.MATHS, txt("Times tables", "पहाड़े")),
+    MULTIPLICATION(Channel.MATHS, txt("Multiplying", "गुणा")),
+    TABLES(Channel.MATHS, txt("Times tables", "पहाड़े")),
+    SQUARES(Channel.MATHS, txt("Square numbers", "वर्ग संख्याएँ")),
     COMPARE(Channel.MATHS, txt("More or less", "कम या ज़्यादा")),
     SEQUENCE(Channel.MATHS, txt("Number patterns", "संख्या क्रम")),
     CLOCK(Channel.MATHS, txt("Telling time", "घड़ी")),
@@ -352,6 +355,18 @@ fun Reel.intro(main: Lang): List<Say> {
         is SolidCard -> listOf(line(Phrases.thisSolid(solid, showFact)))
         is AngleLab -> listOf(line(target?.let(Phrases::makeAngleSay) ?: Phrases.dragAngle))
         is CurveLab -> listOf(line(Phrases.thisCurve(curve)))
+        // Like the alphabet card: "1", "O", "N", "E", "one", "1 elephant", then again together.
+        is NumberCard -> buildList {
+            val part = { t: String, l: Lang -> Say(t, l, pauseMillis = Letter.PART_PAUSE) }
+            add(part(n.toString(), lang))
+            if (lang == Lang.EN && level >= 4) Numbers.spelling(n).forEach { add(part(it, lang)) }
+            add(part(word[lang], lang))
+            add(line(thing.of(n)))
+            add(line(Phrases.sayWithMe))
+            add(part(word[lang], lang))
+        }
+        is TableCard -> listOf(line(Phrases.tableSay(table)))
+        is SquareCard -> listOf(line(Phrases.squareSay(n)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

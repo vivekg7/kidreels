@@ -221,6 +221,20 @@ object Phrases {
         Op.MUL -> txt("$a times $b is $c!", "$a गुणा $b, $c होता है!")
     }
 
+    fun tableOf(n: Int): Txt = txt("The table of $n", "$n का पहाड़ा")
+
+    fun tableSay(n: Int): Txt = txt("The table of $n! Tap for each line, and say it with me.", "$n का पहाड़ा! हर लाइन के लिए छुओ, और मेरे साथ बोलो।")
+
+    fun tableDone(n: Int): Txt = txt("You said the whole table of $n!", "तुमने $n का पूरा पहाड़ा बोल दिया!")
+
+    fun squareOf(n: Int): Txt = txt("$n rows of $n", "$n की $n पंक्तियाँ")
+
+    fun squareSay(n: Int): Txt =
+        txt("Let's make a square: $n rows of $n. Tap to fill each row!", "चलो वर्ग बनाएँ: $n की $n पंक्तियाँ। हर पंक्ति भरने के लिए छुओ!")
+
+    fun squareDone(n: Int): Txt =
+        txt("$n times $n is ${n * n}. ${n * n} is a square number!", "$n गुणा $n, ${n * n} होता है। ${n * n} एक वर्ग संख्या है!")
+
     val addThem = txt("Add them up!", "जोड़ो!")
     val takeAway = txt("Take away!", "घटाओ!")
     val multiply = txt("Multiply!", "गुणा करो!")

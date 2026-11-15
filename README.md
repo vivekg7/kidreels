@@ -18,7 +18,7 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 ## What a child sees
 
 - A vertical feed: swipe up for the next reel, as in any reels app.
-- **Puzzles** to answer by tapping: how many, add, take away, times tables, which is
+- **Puzzles** to answer by tapping: how many, add, take away, multiply, which is
   more, what comes next, odd one out, what time is it, which colour, which shape, who
   says "moo", where does the fish live, big and small, first letter, one-cell sudoku.
   A right answer gets a chime, confetti and a spoken "well done". A wrong one gets a
@@ -27,7 +27,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   apples than that").
 - **Explore reels** with nothing to get wrong: "A for Apple" / "अ से अनानास", shapes
   whose corners count themselves when tapped, 3D solids to spin with a finger, an angle
-  to open and see named, curves that draw themselves, and count-along.
+  to open and see named, curves that draw themselves, count-along, number cards ("1 ·
+  O-N-E · one · 1 elephant"), times tables filled in a line per tap (in Hindi chanted
+  as at school: "दो दूनी चार"), and square numbers that fill a square row by row.
 - **Picture cards** for ages 2 to 5: "This is an elephant" / "यह हाथी है", in eight
   groups (animals, birds, vehicles, my body, fruits, vegetables, things at home,
   clothes). From age 4 each adds one fact: "The elephant has a long trunk".

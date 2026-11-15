@@ -81,6 +81,7 @@ class ContentTest {
     fun everyPictureHasAName() {
         val pictures = buildList {
             Countables.forEach { add(it.emoji) }
+            Numbers.things.forEach { add(it.emoji) }
             PatternSets.flatten().forEach { add(it.emoji) }
             Categories.all.forEach { addAll(it.items) }
             AnimalSounds.all.forEach { add(it.emoji) }
