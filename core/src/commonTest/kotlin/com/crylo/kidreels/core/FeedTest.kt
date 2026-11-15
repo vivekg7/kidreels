@@ -93,7 +93,8 @@ class FeedTest {
         val card = feed(3, langs = listOf(Lang.EN, Lang.HI)).take(300).filterIsInstance<LetterCard>().first { it.lang == Lang.HI }
         val intro = card.intro(Lang.EN)
         assertTrue(intro.all { it.lang == Lang.HI }, "$intro")
-        assertTrue(Say(card.letter.phrase, Lang.HI) in intro, "$intro")
+        val parts = intro.take(3).map { it.text }
+        assertEquals(listOf(card.letter.glyph, if (card.letter.like) "जैसे" else "से", card.letter.word), parts, "the letter, then a pause, then the word")
     }
 
     /** Everything a reel says or shows in Hindi, as one string to search. */

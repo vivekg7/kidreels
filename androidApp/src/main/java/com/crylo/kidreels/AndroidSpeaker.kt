@@ -65,8 +65,7 @@ class AndroidSpeaker(context: Context) : Speaker {
             // Language, pitch and pace are fixed per call to speak(), so queued lines can
             // each have their own.
             if (tts.setLanguage(locale(line.lang)) < TextToSpeech.LANG_AVAILABLE) continue
-            // A breath between lines: run together, "Ooh, look! A for Apple" sounds read out.
-            if (!first) tts.playSilentUtterance(PAUSE_MILLIS, TextToSpeech.QUEUE_ADD, "p${utterance++}")
+            if (!first) tts.playSilentUtterance(line.pauseMillis, TextToSpeech.QUEUE_ADD, "p${utterance++}")
             first = false
             val (pitch, pace) = sound(line.tone)
             tts.setPitch(pitch)
@@ -136,7 +135,6 @@ class AndroidSpeaker(context: Context) : Speaker {
         /** Below the engine's 1.0: that pace is for adults, and young children need time to follow. */
         private const val NORMAL_RATE = 0.85f
         private const val SLOW_RATE = 0.7f
-        private const val PAUSE_MILLIS = 300L
         private val ENGLISH_PREFERENCE = listOf("en-IN", "en-GB", "en-US").map(Locale::forLanguageTag)
     }
 }

@@ -59,8 +59,16 @@ class Txt(private val byLang: Map<Lang, String>, private val simple: Txt? = null
 
 fun txt(en: String, hi: String): Txt = Txt(mapOf(Lang.EN to en, Lang.HI to hi))
 
-/** One stretch of speech, in one voice. A reel's speech is a list of these. */
-data class Say(val text: String, val lang: Lang, val tone: Tone = Tone.TALK)
+/**
+ * One stretch of speech, in one voice. A reel's speech is a list of these, with a short
+ * silence of [pauseMillis] before each line after the first.
+ */
+data class Say(val text: String, val lang: Lang, val tone: Tone = Tone.TALK, val pauseMillis: Long = PAUSE) {
+    companion object {
+        /** A breath between lines: run together, a reel sounds read out. */
+        const val PAUSE = 300L
+    }
+}
 
 /**
  * How a line should sound. Speech engines offer no "happy" switch, so each platform turns

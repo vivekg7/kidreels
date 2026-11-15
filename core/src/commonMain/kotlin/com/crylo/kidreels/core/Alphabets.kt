@@ -25,6 +25,22 @@ data class Letter(
             Lang.EN -> "$glyph for $word"
             Lang.HI -> if (like) "$glyph, जैसे $word" else "$glyph से $word"
         }
+
+    /**
+     * The [phrase] as a child should hear it: "A" … "for" … "Apple", each part on its own
+     * with a clear gap, so the letter does not blur into the word.
+     */
+    fun spoken(): List<Say> {
+        val link = when (lang) {
+            Lang.EN -> "for"
+            Lang.HI -> if (like) "जैसे" else "से"
+        }
+        return listOf(glyph, link, word).map { Say(it, lang, pauseMillis = PART_PAUSE) }
+    }
+
+    companion object {
+        const val PART_PAUSE = 500L
+    }
 }
 
 /**

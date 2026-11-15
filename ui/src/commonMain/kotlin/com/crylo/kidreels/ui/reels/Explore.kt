@@ -146,14 +146,14 @@ fun LetterView(reel: LetterCard, padding: PaddingValues) {
             // The capital only: "A a" side by side reads as two letters to a new learner.
             T(letter.glyph, Modifier.popOn(bounce), color = Color(0xFFE5484D), size = 104.sp, weight = FontWeight.Black)
         }
-        Box(Modifier.tap { env.say(Say(letter.phrase, lang)); bounce++ }) {
+        Box(Modifier.tap { env.say(letter.spoken()); bounce++ }) {
             when (val p = letter.picture) {
                 is Picture.Emoji -> T(p.text, Modifier.floating().popOn(bounce), size = 130.sp)
                 is Picture.Drawn -> Canvas(Modifier.size(150.dp).floating().popOn(bounce)) { drawShape(p.shape, Color(0xFFFFB300)) }
             }
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            T(letter.phrase, Modifier.tap { env.say(Say(letter.phrase, lang)) }, color = colors.ink, size = 34.sp, weight = FontWeight.ExtraBold)
+            T(letter.phrase, Modifier.tap { env.say(letter.spoken()) }, color = colors.ink, size = 34.sp, weight = FontWeight.ExtraBold)
             // The word in the other chosen languages: अनानास is "Pineapple" too.
             val others = env.langs.filter { it != lang && letter.meaning[it] != letter.word }
             others.forEach { other ->

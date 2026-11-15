@@ -146,8 +146,9 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   carries a `Tone` that the platform turns into the way adults talk to toddlers. Speech
   is a little slower (0.85, or 0.7 with slow speech) and higher than the engine default.
   Praise is brighter, "try again" is softer and slower, and the goodbye reel is low and
-  calm. Lines are separated by a 300 ms pause. Pushed further, the voice sounds
-  cartoonish.
+  calm. Lines are separated by a 300 ms pause; "A", "for", "Apple" are three lines with
+  500 ms between them, so the letter stands apart from the word. Pushed further, the
+  voice sounds cartoonish.
 - Sound effects are a few notes synthesised into `AudioTrack`s at start-up.
 
 ## Small decisions worth knowing

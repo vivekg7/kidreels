@@ -249,7 +249,7 @@ fun Reel.intro(main: Lang): List<Say> {
     return when (this) {
         is TimeUp -> listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
         // Said, then said again with the child: toddlers learn a letter by repeating it.
-        is LetterCard -> listOf(Say(letter.phrase, lang), line(Phrases.sayWithMe), Say(letter.phrase, lang))
+        is LetterCard -> letter.spoken() + line(Phrases.sayWithMe) + letter.spoken()
         is Quiz -> listOf(line(say ?: prompt))
         is CountAlong -> listOf(line(Phrases.countAlong(thing)))
         is ShapeCard -> listOf(line(Phrases.thisShape(shape)))
