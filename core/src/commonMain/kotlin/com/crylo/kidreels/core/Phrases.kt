@@ -164,9 +164,12 @@ object Phrases {
 
     val tapItsHome = txt("Tap its home!", "उसका घर छुओ!")
 
-    fun startsWith(letter: Letter): Txt = when (letter.lang) {
-        Lang.EN -> txt("${letter.word} starts with which letter?", "${letter.word} किस अक्षर से शुरू होता है?")
-        Lang.HI -> txt("Which letter does ${letter.word} start with?", "${letter.word} किस अक्षर से शुरू होता है?")
+    fun startsWith(letter: Letter): Txt {
+        val hi = "${letter.word} किस अक्षर से शुरू ${if (letter.feminine) "होती" else "होता"} है?"
+        return when (letter.lang) {
+            Lang.EN -> txt("${letter.word} starts with which letter?", hi)
+            Lang.HI -> txt("Which letter does ${letter.word} start with?", hi)
+        }
     }
 
     fun startsWithSay(letter: Letter): Txt = startsWith(letter) + txt("Find the letter and tap it!", "वो अक्षर ढूँढकर छुओ!")

@@ -11,6 +11,8 @@ sealed interface Picture {
  * One alphabet card. [like] marks a letter no everyday word starts with (ङ, ञ, ण, अः,
  * क्ष): it then reads "ण, जैसे हिरण" instead of pretending "ण से …" exists.
  * [meaning] is the word in every language, shown under the card for the others.
+ * [feminine] is the word's gender in Hindi (for an English word, its Hindi meaning's:
+ * गेंद), because a Hindi question about it agrees: "बतख … शुरू होती है?".
  */
 data class Letter(
     val lang: Lang,
@@ -19,6 +21,7 @@ data class Letter(
     val picture: Picture,
     val meaning: Txt,
     val like: Boolean = false,
+    val feminine: Boolean = false,
 ) {
     val phrase: String
         get() = when (lang) {
@@ -50,36 +53,36 @@ data class Letter(
  * where the same lists were checked letter by letter.
  */
 object Alphabets {
-    private fun en(glyph: String, word: String, emoji: String, hi: String) =
-        Letter(Lang.EN, glyph, word, Picture.Emoji(emoji), txt(word, hi))
+    private fun en(glyph: String, word: String, emoji: String, hi: String, feminine: Boolean = false) =
+        Letter(Lang.EN, glyph, word, Picture.Emoji(emoji), txt(word, hi), feminine = feminine)
 
-    private fun hi(glyph: String, word: String, emoji: String, en: String, like: Boolean = false) =
-        Letter(Lang.HI, glyph, word, Picture.Emoji(emoji), txt(en, word), like)
+    private fun hi(glyph: String, word: String, emoji: String, en: String, like: Boolean = false, feminine: Boolean = false) =
+        Letter(Lang.HI, glyph, word, Picture.Emoji(emoji), txt(en, word), like, feminine)
 
     val english: List<Letter> = listOf(
         en("A", "Apple", "🍎", "सेब"),
-        en("B", "Ball", "⚽", "गेंद"),
-        en("C", "Cat", "🐱", "बिल्ली"),
+        en("B", "Ball", "⚽", "गेंद", feminine = true),
+        en("C", "Cat", "🐱", "बिल्ली", feminine = true),
         en("D", "Dog", "🐶", "कुत्ता"),
         en("E", "Elephant", "🐘", "हाथी"),
-        en("F", "Fish", "🐟", "मछली"),
+        en("F", "Fish", "🐟", "मछली", feminine = true),
         en("G", "Grapes", "🍇", "अंगूर"),
         en("H", "House", "🏠", "घर"),
-        en("I", "Ice cream", "🍦", "आइसक्रीम"),
+        en("I", "Ice cream", "🍦", "आइसक्रीम", feminine = true),
         en("J", "Juice", "🧃", "जूस"),
-        en("K", "Kite", "🪁", "पतंग"),
+        en("K", "Kite", "🪁", "पतंग", feminine = true),
         en("L", "Lion", "🦁", "शेर"),
         en("M", "Mango", "🥭", "आम"),
-        en("N", "Nose", "👃", "नाक"),
+        en("N", "Nose", "👃", "नाक", feminine = true),
         en("O", "Orange", "🍊", "संतरा"),
         en("P", "Parrot", "🦜", "तोता"),
-        en("Q", "Queen", "👸", "रानी"),
+        en("Q", "Queen", "👸", "रानी", feminine = true),
         en("R", "Rabbit", "🐰", "खरगोश"),
         en("S", "Sun", "🌞", "सूरज"),
         en("T", "Tiger", "🐯", "बाघ"),
         en("U", "Umbrella", "☔", "छाता"),
-        en("V", "Van", "🚐", "वैन"),
-        en("W", "Watch", "⌚", "घड़ी"),
+        en("V", "Van", "🚐", "वैन", feminine = true),
+        en("W", "Watch", "⌚", "घड़ी", feminine = true),
         en("X", "Xmas tree", "🎄", "क्रिसमस ट्री"),
         en("Y", "Yo-yo", "🪀", "यो-यो"),
         en("Z", "Zebra", "🦓", "ज़ेबरा"),
@@ -90,28 +93,28 @@ object Alphabets {
         hi("अ", "अनानास", "🍍", "Pineapple"),
         hi("आ", "आम", "🥭", "Mango"),
         hi("इ", "इंजन", "🚂", "Engine"),
-        hi("ई", "ईंट", "🧱", "Brick"),
+        hi("ई", "ईंट", "🧱", "Brick", feminine = true),
         hi("उ", "उल्लू", "🦉", "Owl"),
         hi("ऊ", "ऊँट", "🐫", "Camel"),
         hi("ऋ", "ऋषि", "🧘", "Sage"),
-        hi("ए", "एड़ी", "🦶", "Heel"),
-        hi("ऐ", "ऐनक", "👓", "Glasses"),
-        hi("ओ", "ओस", "💧", "Dew"),
-        hi("औ", "औरत", "👩", "Woman"),
+        hi("ए", "एड़ी", "🦶", "Heel", feminine = true),
+        hi("ऐ", "ऐनक", "👓", "Glasses", feminine = true),
+        hi("ओ", "ओस", "💧", "Dew", feminine = true),
+        hi("औ", "औरत", "👩", "Woman", feminine = true),
         hi("अं", "अंगूर", "🍇", "Grapes"),
         hi("अः", "छः", "6️⃣", "Six", like = true),
         hi("क", "केला", "🍌", "Banana"),
         hi("ख", "खरगोश", "🐰", "Rabbit"),
-        hi("ग", "गाय", "🐄", "Cow"),
+        hi("ग", "गाय", "🐄", "Cow", feminine = true),
         hi("घ", "घर", "🏠", "House"),
         hi("ङ", "शङ्ख", "🐚", "Conch", like = true),
         hi("च", "चम्मच", "🥄", "Spoon"),
-        hi("छ", "छतरी", "☔", "Umbrella"),
+        hi("छ", "छतरी", "☔", "Umbrella", feminine = true),
         hi("ज", "जहाज", "🚢", "Ship"),
         hi("झ", "झंडा", "🇮🇳", "Flag"),
         hi("ञ", "पञ्जा", "✋", "Palm", like = true),
         hi("ट", "टमाटर", "🍅", "Tomato"),
-        hi("ठ", "ठंड", "🥶", "Cold"),
+        hi("ठ", "ठंड", "🥶", "Cold", feminine = true),
         hi("ड", "डिब्बा", "📦", "Box"),
         hi("ढ", "ढोल", "🥁", "Drum"),
         hi("ण", "हिरण", "🦌", "Deer", like = true),
@@ -120,11 +123,11 @@ object Alphabets {
         hi("द", "दाँत", "🦷", "Tooth"),
         hi("ध", "धनुष", "🏹", "Bow"),
         hi("न", "नल", "🚰", "Tap"),
-        hi("प", "पतंग", "🪁", "Kite"),
+        hi("प", "पतंग", "🪁", "Kite", feminine = true),
         hi("फ", "फूल", "🌻", "Flower"),
-        hi("ब", "बतख", "🦆", "Duck"),
+        hi("ब", "बतख", "🦆", "Duck", feminine = true),
         hi("भ", "भालू", "🐻", "Bear"),
-        hi("म", "मछली", "🐟", "Fish"),
+        hi("म", "मछली", "🐟", "Fish", feminine = true),
         hi("य", "यान", "🚀", "Rocket"),
         hi("र", "राजा", "🤴", "King"),
         hi("ल", "लड़का", "👦", "Boy"),
@@ -133,7 +136,7 @@ object Alphabets {
         Letter(Lang.HI, "ष", "षट्कोण", Picture.Drawn(ShapeKind.HEXAGON), txt("Hexagon", "षट्कोण")),
         hi("स", "सेब", "🍎", "Apple"),
         hi("ह", "हाथी", "🐘", "Elephant"),
-        hi("क्ष", "कक्षा", "🏫", "Classroom", like = true),
+        hi("क्ष", "कक्षा", "🏫", "Classroom", like = true, feminine = true),
         hi("त्र", "त्रिशूल", "🔱", "Trident"),
         hi("ज्ञ", "ज्ञानी", "🧑‍🏫", "Wise person"),
     )

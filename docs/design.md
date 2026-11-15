@@ -141,7 +141,8 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   blue, red, blue. What comes next?". A quiz carries this as `say`, next to the short
   `prompt` shown on screen; explore reels build it from their data in `Reel.intro`.
   Things to count are `Thing`s with a Hindi plural and gender, because the sentence
-  agrees with them: कितने सेब, but कितनी तितलियाँ. The speaker button repeats the same.
+  agrees with them: कितने सेब, but कितनी तितलियाँ. Alphabet words carry a gender for
+  the same reason: "बतख किस अक्षर से शुरू होती है?". The speaker button repeats the same.
 - **Tone is pitch and pace.** Engines have no emotion setting, so each spoken line
   carries a `Tone` that the platform turns into the way adults talk to toddlers. Speech
   is a little slower (0.85, or 0.7 with slow speech) and higher than the engine default.

@@ -144,6 +144,16 @@ class FeedTest {
     }
 
     @Test
+    fun firstLetterQuestionAgreesWithTheWord() {
+        val duck = Alphabets.hindi.first { it.word == "बतख" }
+        val apple = Alphabets.hindi.first { it.word == "सेब" }
+        val ball = Alphabets.english.first { it.word == "Ball" }
+        assertEquals("बतख किस अक्षर से शुरू होती है?", Phrases.startsWith(duck)[Lang.HI])
+        assertEquals("सेब किस अक्षर से शुरू होता है?", Phrases.startsWith(apple)[Lang.HI])
+        assertEquals("Ball किस अक्षर से शुरू होती है?", Phrases.startsWith(ball)[Lang.HI])
+    }
+
+    @Test
     fun timeBudgetCountsPerDay() {
         val store = MapStore()
         var day = 100L
