@@ -160,6 +160,55 @@ class AppStateTest {
     }
 
     @Test
+    fun aChildsPageChangesThatChildEvenWhenAnotherIsPlaying() {
+        val (aarav, meera) = children(Settings(age = 4), Settings(age = 7))
+        val app = AppState(host)
+        app.choose(aarav)
+        host.day += 50
+        val other = app.childOf(meera)
+        app.update(other.settings.copy(age = 8, bedtime = 20 * 60), other)
+        assertEquals(aarav, app.child.id)
+        assertEquals(4, app.settings.age)
+        assertEquals(0, app.settings.bedtime)
+        val saved = SettingsStore(Profiles(host.store).storeOf(meera)).load()
+        assertEquals(8, saved.age)
+        assertEquals(20 * 60, saved.bedtime)
+        // A new age starts the check-in's count again, as it does for the playing child.
+        assertEquals(host.day, saved.ageSetDay)
+    }
+
+    @Test
+    fun backGoesUpOneSettingsPageAtATime() {
+        val (aarav) = children(Settings())
+        val app = AppState(host)
+        app.openSettings()
+        app.page = Page.Part(aarav, ChildPart.PROFILE)
+        assertTrue(app.onBack())
+        assertEquals(Page.OfChild(aarav), app.page)
+        assertTrue(app.onBack())
+        assertEquals(Page.Home, app.page)
+        assertEquals(Screen.SETTINGS, app.screen)
+        assertTrue(app.onBack())
+        assertEquals(Screen.FEED, app.screen)
+        // The gear always opens on the list, not on the page left last time.
+        app.page = Page.OfChild(aarav)
+        app.closeSettings()
+        app.openSettings()
+        assertEquals(Page.Home, app.page)
+    }
+
+    @Test
+    fun removingAChildFromTheirPageGoesBackToTheList() {
+        val (_, meera) = children(Settings(), Settings())
+        val app = AppState(host)
+        app.openSettings()
+        app.page = Page.OfChild(meera)
+        app.removeChild(meera)
+        assertEquals(Page.Home, app.page)
+        assertEquals(1, app.all.size)
+    }
+
+    @Test
     fun aNewChildStartsFromTheCurrentSettingsWithTheirOwnAge() {
         children(Settings(age = 4, dailyMinutes = 30, langs = listOf(Lang.HI, Lang.EN)))
         val app = AppState(host)

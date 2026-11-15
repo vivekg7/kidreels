@@ -26,6 +26,23 @@ import com.crylo.kidreels.core.Txt
 enum class Screen { ONBOARDING, PICKER, FEED, SETTINGS }
 
 /**
+ * Where a grown-up is inside settings. The first page lists the children and what is the
+ * phone's; each child has a page of their own, and each of its rows opens a [Part].
+ */
+sealed interface Page {
+    data object Home : Page
+
+    data object NewChild : Page
+
+    data class OfChild(val id: Int) : Page
+
+    data class Part(val id: Int, val part: ChildPart) : Page
+}
+
+/** One thing about a child, on a page of its own. [PROFILE] is who they are: name, animal and age. */
+enum class ChildPart { PROFILE, LIMIT, BEDTIME, TOPICS, LANGUAGES, LOOK }
+
+/**
  * One child's settings, progress, time and feed. Kept while the app runs, so switching
  * back to a child finds the reel they left, mid-puzzle.
  */
@@ -46,7 +63,8 @@ class AppState(val host: Host) {
     val profiles = Profiles(host.store)
     private val children = mutableMapOf<Int, Child>()
 
-    private fun childOf(id: Int): Child = children.getOrPut(id) { Child(this, id) }
+    /** Any child's settings, progress and feed: settings pages show children who are not playing. */
+    fun childOf(id: Int): Child = children.getOrPut(id) { Child(this, id) }
 
     /** The child whose feed and settings are showing. */
     var child by mutableStateOf(childOf(profiles.last))
@@ -76,8 +94,8 @@ class AppState(val host: Host) {
     var pickerUnlocked by mutableStateOf(false)
         private set
 
-    /** The child being added (0) or edited, over settings; null when neither. */
-    var editing by mutableStateOf<Int?>(null)
+    /** The settings page showing, while [screen] is [Screen.SETTINGS]. */
+    var page by mutableStateOf<Page>(Page.Home)
 
     /** Set while the parent gate is up; run once it is passed. */
     var gateAction by mutableStateOf<(() -> Unit)?>(null)
@@ -159,17 +177,39 @@ class AppState(val host: Host) {
 
     fun text(t: Txt): String = t[settings.main]
 
-    val checkInDue: Boolean get() = CheckIn.isDue(settings, host.clock.today())
+    val checkInDue: Boolean get() = checkInDue(child)
 
-    fun update(next: Settings) {
-        val c = child
+    fun checkInDue(c: Child): Boolean = CheckIn.isDue(c.settings, host.clock.today())
+
+    /** From the feed's gear, past the gate. */
+    fun openSettings() {
+        page = Page.Home
+        screen = Screen.SETTINGS
+    }
+
+    fun closeSettings() {
+        screen = Screen.FEED
+        feed.recheck()
+    }
+
+    /** Settings' back arrow and Android's back: one page up. */
+    fun pageBack() {
+        page = when (val p = page) {
+            is Page.Part -> Page.OfChild(p.id)
+            is Page.OfChild, Page.NewChild -> Page.Home
+            Page.Home -> return closeSettings()
+        }
+    }
+
+    /** Changes [c]'s settings, the playing child's unless another is named. */
+    fun update(next: Settings, c: Child = child) {
         val before = c.settings
         val today = host.clock.today()
         val s = if (next.age != before.age) next.copy(ageSetDay = today) else next
         if (s.age != before.age) c.progress.resetSkills()
         c.settings = s
         c.settingsStore.save(s)
-        host.speaker.setSlow(s.slowSpeech)
+        if (c === child) host.speaker.setSlow(s.slowSpeech)
         // Reels already made for the old age or languages would be wrong now, including the
         // one on screen: a 2-year-old should not come back from settings to a times table.
         if (s.age != before.age || s.langs != before.langs) c.feed.remake()
@@ -221,13 +261,14 @@ class AppState(val host: Host) {
 
     /**
      * A new child, starting from the current child's languages, look and limit: siblings
-     * usually share them, and the parent can change them once the child is picked.
+     * usually share them, and the parent can change them on the child's page.
      */
-    fun addChild(p: Profile, age: Int) {
+    fun addChild(p: Profile, age: Int): Int {
         val s = settings.copy(onboarded = true, age = age, ageSetDay = host.clock.today())
         val id = profiles.add(p, s)
         all = profiles.all()
         select(id)
+        return id
     }
 
     fun removeChild(id: Int) {
@@ -236,6 +277,7 @@ class AppState(val host: Host) {
         profiles.remove(id)
         children.remove(id)
         all = profiles.all()
+        page = Page.Home
     }
 
     private companion object {
@@ -265,11 +307,7 @@ class AppState(val host: Host) {
         gateAction != null -> true.also { gateAction = null }
         checkInOpen -> true.also { checkInOpen = false }
         voiceOpen != null -> true.also { voiceOpen = null }
-        editing != null -> true.also { editing = null }
-        screen == Screen.SETTINGS -> true.also {
-            screen = Screen.FEED
-            feed.recheck()
-        }
+        screen == Screen.SETTINGS -> true.also { pageBack() }
         // Back to the child who was playing: they are never the one the gate guards.
         screen == Screen.PICKER && played -> true.also {
             pickerUnlocked = false

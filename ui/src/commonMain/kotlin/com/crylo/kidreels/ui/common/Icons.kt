@@ -23,7 +23,8 @@ import kotlin.math.sin
  * they scale to any size. Each draws into a square canvas.
  */
 
-enum class Icon { HEART, SPEAKER, GEAR, BACK }
+/** [NEXT] and [DOWN] are chevrons: a row that opens a page, a group that opens in place. */
+enum class Icon { HEART, SPEAKER, GEAR, BACK, NEXT, DOWN }
 
 @Composable
 fun DrawnIcon(icon: Icon, color: Color, modifier: Modifier, filled: Boolean = false) {
@@ -33,6 +34,8 @@ fun DrawnIcon(icon: Icon, color: Color, modifier: Modifier, filled: Boolean = fa
             Icon.SPEAKER -> speaker(color)
             Icon.GEAR -> gear(color)
             Icon.BACK -> back(color)
+            Icon.NEXT -> chevron(color, down = false)
+            Icon.DOWN -> chevron(color, down = true)
         }
     }
 }
@@ -104,6 +107,24 @@ private fun DrawScope.back(color: Color) {
         moveTo(w * 0.62f, h * 0.2f)
         lineTo(w * 0.32f, h * 0.5f)
         lineTo(w * 0.62f, h * 0.8f)
+    }
+    drawPath(p, color, style = stroke)
+}
+
+private fun DrawScope.chevron(color: Color, down: Boolean) {
+    val w = size.width
+    val h = size.height
+    val stroke = Stroke(w * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    val p = Path().apply {
+        if (down) {
+            moveTo(w * 0.25f, h * 0.38f)
+            lineTo(w * 0.5f, h * 0.62f)
+            lineTo(w * 0.75f, h * 0.38f)
+        } else {
+            moveTo(w * 0.38f, h * 0.25f)
+            lineTo(w * 0.62f, h * 0.5f)
+            lineTo(w * 0.38f, h * 0.75f)
+        }
     }
     drawPath(p, color, style = stroke)
 }

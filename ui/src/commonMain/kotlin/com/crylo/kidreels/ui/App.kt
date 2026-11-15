@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.crylo.kidreels.ui.feed.FeedScreen
 import com.crylo.kidreels.ui.feed.WhoIsPlaying
-import com.crylo.kidreels.ui.parent.ChildEditor
 import com.crylo.kidreels.ui.parent.CheckInDialog
 import com.crylo.kidreels.ui.parent.VoiceDialog
 import com.crylo.kidreels.ui.parent.Gate
@@ -42,10 +41,7 @@ private fun Screens(app: AppState) {
             else -> {
                 // Each child's feed is its own: a switch starts the pager afresh.
                 key(app.child.id) { FeedScreen(app) }
-                if (app.screen == Screen.SETTINGS) {
-                    SettingsScreen(app)
-                    app.editing?.let { ChildEditor(app, it) }
-                }
+                if (app.screen == Screen.SETTINGS) SettingsScreen(app)
             }
         }
         if (app.checkInOpen) CheckInDialog(app)

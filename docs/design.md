@@ -176,8 +176,8 @@ when it is made; outcomes (skips, struggles) affect the reels after that.
 ### A topic picked by the parent
 
 A parent teaching the alphabet wants the alphabet, A to Z, not one letter every few reels.
-Settings has a "Show only" picker; with a topic picked (`Feed.focus`), none of the rules
-above apply:
+Each child's settings page has a "Show only" row; with a topic picked (`Feed.focus`),
+none of the rules above apply:
 
 - **Only that topic**, made at the child's age, or the nearest age the topic has: the
   alphabet for an 8-year-old is the age-6 alphabet. Topics made for other ages are still
@@ -222,9 +222,10 @@ before: age, languages, look, limit, check-in, slow speech, progress, today's ti
   bed by the goodbye reel could carry on as their brother. A tile with time up shows a
   moon. A grown-up opening the picker from the feed (the avatar beside the gear, behind
   the gate) can pick anyone.
-- **Settings are the picked child's.** The Children section at the top lists every child;
-  tapping one makes them the child the settings below (and the feed) are for. A new child
-  copies the current child's languages, look and limit: siblings usually share them.
+- **Each child has a settings page.** Settings opens on the list of children; tapping one
+  opens their page, whether or not they are the one playing. A new child copies the
+  current child's languages, look and limit (siblings usually share them), and saving
+  goes straight to their page. Switching who plays stays with the avatar on the feed.
 - **Each child's feed is kept while the app runs**, so switching back finds the reel
   they left, mid-puzzle, with their "Show only" topic still on. Voices are the phone's,
   not a child's.
@@ -248,7 +249,7 @@ parent passes the gate to see "Is your child ready for harder reels?" with how o
 child answered first time at the current age, and can move up, stay, or be asked again in
 a week. At age 10 there is nothing to move up to, so it never appears.
 
-Settings also opens on a note about the last 7 days: minutes, days played, puzzles and
+Each child's page also has a note about the last 7 days: minutes, days played, puzzles and
 the share right first time, then topics the child does well at (80% or more right first
 time), finds hard (under 50%) and likes most. A topic needs 4 tries before it is called
 either, so one unlucky puzzle is not a verdict. The running totals in `Progress` cannot
@@ -342,6 +343,14 @@ the feed, and picking another child once the last one's time is up.
   noise for a toddler.
 - **Swipe threshold is a quarter page**, not the default half: small hands drag short
   and slow.
+- **Settings are pages, a row each.** The first page lists the children, the phone's
+  voices and About; a child's page has one row per choice, saying what is set now
+  ("20 min · 12 min left today"), and each row opens that choice on its own page. One
+  long page used to hold the playing child's choices with every topic below them, and
+  it read as being about the whole phone; the topic list alone grows with every
+  release. Topics are folded by channel and list the child's age unless asked for more.
+  Age sits with the name and animal: it is who the child is, not a preference. The
+  gear always opens on the first page.
 - **Settings open over the feed**, not instead of it, so the child returns to the same
   reel mid-puzzle. Changing the age or languages is the exception: the reel on screen and
   the ones made ahead are made again, since they no longer fit the child, and the new reel

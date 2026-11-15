@@ -226,7 +226,7 @@ private fun Gear(app: AppState, dark: Boolean) {
     Box(
         Modifier.size(44.dp).clip(CircleShape)
             .background(if (dark) Color(0x33000000) else Color(0x14000000))
-            .pressable({ app.requestGate { app.screen = Screen.SETTINGS } }),
+            .pressable({ app.requestGate { app.openSettings() } }),
         contentAlignment = Alignment.Center,
     ) { DrawnIcon(Icon.GEAR, if (dark) Color.White.copy(alpha = 0.85f) else Color(0xFF2E2A3A).copy(alpha = 0.7f), Modifier.size(22.dp)) }
 }

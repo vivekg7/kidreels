@@ -53,7 +53,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 
 ## What a parent sets
 
-On first launch, and later in settings (behind a 3-second press-and-hold gate):
+On first launch, and later in settings (behind a 3-second press-and-hold gate). Settings
+opens on the list of children; each child has a page of their own with one row per
+choice below, and each row opens that choice:
 
 - **Children**: a name (optional), an animal and a colour for each child, up to 6. Each
   has their own age, languages, look, time limit and progress. With one child the app
@@ -73,13 +75,14 @@ On first launch, and later in settings (behind a 3-second press-and-hold gate):
 - **Bedtime**: off, or 7 pm to 9:30 pm. From then until 6 in the morning a good-night reel
   takes the feed's place, however many minutes are left, with the same wind-down before
   it and the same 10 more minutes for a grown-up.
-- **Show only**: one topic for now, such as just the alphabet or just vehicles. It goes in
-  order (the alphabet from A, counting from 1, shapes from the simplest) and puzzles get
-  harder as they are solved. A chip on the feed says which topic is on. It is not saved:
+- **Show only**: one topic for now, picked from topics folded by channel, such as just
+  the alphabet or just vehicles. It goes in order (the alphabet from A, counting from 1,
+  shapes from the simplest) and puzzles get harder as they are solved. A chip on the feed says which topic is on. It is not saved:
   the next start of the app is the usual mix again.
 - **Age check-in**: every 1, 3 or 6 months (or never), a "For grown-ups" banner asks
   whether the child is ready for the next age, with how they did at this one.
-- **Speech**: slow speech, and which voices are installed.
+- **Speech**: slow speech for each child, and on the first page which voices the phone
+  has for the children's languages.
 - **Error report**: if the app ever crashes, settings says so and offers the report to copy
   (to email, or paste into a GitHub issue) or delete. The app has no internet access, so
   it never sends it.

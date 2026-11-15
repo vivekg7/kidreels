@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,12 +40,9 @@ import com.crylo.kidreels.core.CheckIn
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Settings
 import com.crylo.kidreels.ui.AppState
+import com.crylo.kidreels.ui.Child
 import com.crylo.kidreels.ui.S
-import com.crylo.kidreels.ui.Screen
-import com.crylo.kidreels.ui.common.AvatarBadge
-import com.crylo.kidreels.ui.common.DrawnIcon
 import com.crylo.kidreels.ui.common.HoldButton
-import com.crylo.kidreels.ui.common.Icon
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.pressable
 
@@ -172,133 +167,20 @@ private fun Dots(step: Int, count: Int) {
     }
 }
 
-/** Everything from setup, plus check-ins, speech, progress and about. Changes apply at once. */
-@Composable
-fun SettingsScreen(app: AppState) {
-    val s = app.settings
-    val main = s.main
-    val close = {
-        app.screen = Screen.FEED
-        app.feed.recheck()
-    }
-    ParentPage { c ->
-        LaunchedEffect(c.dark) { app.host.darkSystemIcons(!c.dark) }
-        Column(Modifier.fillMaxSize()) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).clip(CircleShape).pressable(close), contentAlignment = Alignment.Center) {
-                    DrawnIcon(Icon.BACK, c.ink, Modifier.size(26.dp))
-                }
-                T(S.settings[main], Modifier.padding(start = 4.dp), color = c.ink, size = 22.sp, weight = FontWeight.ExtraBold)
-            }
-            Column(
-                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                ChildrenSection(app)
-                // Everything below is the picked child's own.
-                if (app.all.size > 1) {
-                    Row(Modifier.fillMaxWidth().padding(top = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                        AvatarBadge(app.child.profile, 36.dp)
-                        T(S.settingsFor(app.child.profile.label(main))[main], Modifier.padding(start = 10.dp), color = LocalParent.current.ink, size = 20.sp, weight = FontWeight.ExtraBold)
-                    }
-                }
-                if (app.checkInDue) CheckInCard(app)
-
-                SectionTitle(S.limitTitle[main])
-                app.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[main]) }
-                LimitPicker(s.dailyMinutes, main) { app.update(s.copy(dailyMinutes = it)) }
-
-                SectionTitle(S.bedtimeTitle[main])
-                Body(S.bedtimeBody[main])
-                BedtimePicker(s.bedtime, main) { app.update(s.copy(bedtime = it)) }
-
-                SectionTitle(S.showOnly[main])
-                Body(S.showOnlyBody[main])
-                TopicPicker(app.feed.focus, s.age, main) { app.feed.pick(it) }
-
-                SectionTitle(S.ageTitle[main])
-                AgePicker(s.age, main) { app.update(s.copy(age = it)) }
-
-                SectionTitle(S.langsTitle[main])
-                LanguagePicker(s.langs, main) { app.update(s.copy(langs = it)) }
-
-                SectionTitle(S.lookTitle[main])
-                LookPicker(s.look, main) { app.update(s.copy(look = it)) }
-
-                SectionTitle(S.checkInTitle[main])
-                Body(S.checkInBody[main])
-                CheckInPicker(s.checkInMonths, main) { app.update(s.copy(checkInMonths = it)) }
-
-                SectionTitle(S.speech[main])
-                Toggle(S.slowSpeech[main], s.slowSpeech) { app.update(s.copy(slowSpeech = it)) }
-                Voices(app)
-
-                SectionTitle(S.progress[main])
-                WeekNote(app)
-                val levels = (s.age - 1..s.age + 1).filter { it in Settings.AGES }.map { it to app.progress.stats(it) }.filter { it.second.tried > 0 }
-                if (levels.isEmpty()) Body(S.noProgress[main])
-                levels.forEach { (level, st) -> Body(S.levelLine(level, st.tried, st.firstTryPercent)[main]) }
-
-                SectionTitle(S.about[main])
-                Body(S.aboutBody(app.host.appVersion)[main])
-                // Behind the gate like everything here: a child never reaches the browser.
-                // Opening a link needs no internet permission; the browser does the fetching.
-                val links = LocalUriHandler.current
-                Pill(S.privacyPolicy[main], false, { runCatching { links.openUri(S.PRIVACY_URL) } })
-                app.crashReport?.let { CrashCard(app, it) }
-                Spacer(Modifier.height(24.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun Voices(app: AppState) {
-    val c = LocalParent.current
-    val main = app.settings.main
-    val speaker = app.host.speaker
-    if (!speaker.hasEngine) {
-        Body(S.noEngine[main])
-        return
-    }
-    app.settings.langs.forEach { lang ->
-        val ready = speaker.ready(lang)
-        Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                T(lang.nativeName, color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-                T(if (ready) S.voiceReady[main] else S.voiceMissing[main], color = if (ready) c.sub else Color(0xFFD9434A), size = 13.sp)
-            }
-            if (!ready) Pill(S.installVoice[main], true, { app.host.openVoiceSettings() })
-        }
-    }
-}
-
-@Composable
-private fun CheckInCard(app: AppState) {
-    val c = LocalParent.current
-    Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.surface).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) { CheckInContent(app, onDone = {}) }
-}
-
 /** "Ready for the next age?" with how the child has done at this one. */
 @Composable
-fun CheckInContent(app: AppState, onDone: () -> Unit) {
-    val s = app.settings
-    val main = s.main
+fun CheckInContent(app: AppState, child: Child, onDone: () -> Unit) {
+    val s = child.settings
+    val main = app.settings.main
     val today = app.host.clock.today()
     val months = (((today - s.ageSetDay) / 30).toInt()).coerceAtLeast(s.checkInMonths)
-    val stats = app.progress.stats(s.age)
+    val stats = child.progress.stats(s.age)
     Title(S.checkInQuestion[main])
     Body(S.checkInSince(months, s.age)[main])
     if (stats.tried > 0) Body(S.levelLine(s.age, stats.tried, stats.firstTryPercent)[main])
-    if (s.age < Settings.AGES.last) PrimaryButton(S.moveUp(s.age + 1)[main], { app.update(s.copy(age = s.age + 1)); onDone() }, Modifier.fillMaxWidth())
-    SecondaryButton(S.keep(s.age)[main], { app.update(s.copy(ageSetDay = today)); onDone() }, Modifier.fillMaxWidth())
-    SecondaryButton(S.later[main], { app.update(CheckIn.snooze(s, today)); onDone() }, Modifier.fillMaxWidth())
+    if (s.age < Settings.AGES.last) PrimaryButton(S.moveUp(s.age + 1)[main], { app.update(s.copy(age = s.age + 1), child); onDone() }, Modifier.fillMaxWidth())
+    SecondaryButton(S.keep(s.age)[main], { app.update(s.copy(ageSetDay = today), child); onDone() }, Modifier.fillMaxWidth())
+    SecondaryButton(S.later[main], { app.update(CheckIn.snooze(s, today), child); onDone() }, Modifier.fillMaxWidth())
 }
 
 /** A dimmed screen with one card: the parent gate, or the age check-in after it. */
@@ -336,7 +218,7 @@ fun Gate(app: AppState) {
 @Composable
 fun CheckInDialog(app: AppState) {
     Overlay({ app.checkInOpen = false }) {
-        CheckInContent(app) { app.checkInOpen = false }
+        CheckInContent(app, app.child) { app.checkInOpen = false }
     }
 }
 
@@ -357,54 +239,5 @@ fun VoiceDialog(app: AppState, lang: Lang) {
             Modifier.fillMaxWidth(),
         )
         SecondaryButton(S.notNow[main], { app.voiceLater(lang) }, Modifier.fillMaxWidth())
-    }
-}
-
-/** The last seven days in a few lines: how long, how well, and which topics stood out. */
-@Composable
-private fun WeekNote(app: AppState) {
-    val c = LocalParent.current
-    val main = app.settings.main
-    // Read afresh each time settings open: the feed underneath keeps adding to it.
-    val week = remember(app.child.id) { app.child.history.week() }
-    Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        T(S.thisWeek[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-        if (week.minutes == 0 && week.tried == 0) {
-            Body(S.nothingThisWeek[main])
-            return@Column
-        }
-        Body(S.weekTime(week.minutes, week.days)[main])
-        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent)[main])
-        val names = { topics: List<com.crylo.kidreels.core.Topic> -> topics.joinToString(", ") { it.title[main] } }
-        if (week.strong.isNotEmpty()) Body(S.doingWell[main] + " " + names(week.strong))
-        if (week.hard.isNotEmpty()) Body(S.findsHard[main] + " " + names(week.hard))
-        if (week.liked.isNotEmpty()) Body(S.likesMost[main] + " " + names(week.liked))
-    }
-}
-
-/** The last crash: what it was, and a way to pass it on. The app itself never sends it. */
-@Composable
-private fun CrashCard(app: AppState, report: String) {
-    val c = LocalParent.current
-    val main = app.settings.main
-    var copied by remember { mutableStateOf(false) }
-    Column(
-        Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        T(S.crashTitle[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-        Body(S.crashBody[main])
-        // The first lines say which version, which phone, when, and what broke.
-        T(report.lines().take(5).joinToString("\n"), color = c.sub, size = 12.sp, lineHeight = 16.sp)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Pill(if (copied) S.copied[main] else S.copyReport[main], true, {
-                app.host.copyText(report)
-                copied = true
-            })
-            Pill(S.deleteReport[main], false, { app.clearCrash() })
-        }
     }
 }

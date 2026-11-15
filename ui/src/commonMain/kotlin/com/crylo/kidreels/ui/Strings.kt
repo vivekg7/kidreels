@@ -54,24 +54,24 @@ object S {
 
     val children = txt("Children", "बच्चे")
     val childrenBody = txt(
-        "Each child has their own age, languages, time limit and progress. With more than one, the app asks who is playing when it opens.",
-        "हर बच्चे की अपनी उम्र, भाषाएँ, समय और प्रगति होती है। एक से ज़्यादा बच्चे हों तो ऐप खुलते ही पूछता है कि कौन खेलेगा।",
+        "Each child has their own age, languages, time limit and progress: tap a child to see or change them. With more than one, the app asks who is playing when it opens.",
+        "हर बच्चे की अपनी उम्र, भाषाएँ, समय और प्रगति होती है: देखने या बदलने के लिए बच्चे को छुएँ। एक से ज़्यादा बच्चे हों तो ऐप खुलते ही पूछता है कि कौन खेलेगा।",
     )
     val addChild = txt("Add a child", "बच्चा जोड़ें")
-    val edit = txt("Edit", "बदलें")
     val playingNow = txt("Playing now", "अभी इनकी बारी")
-    val tapToSwitch = txt("Tap to switch", "बदलने के लिए छुएँ")
+    val checkInDue = txt("Age check-in waiting", "उम्र की जाँच बाकी है")
+    val profile = txt("Name, animal and age", "नाम, जानवर और उम्र")
+    val timeGroup = txt("Time", "समय")
+    val reelsGroup = txt("Reels", "रील्स")
+    val languages = txt("Languages", "भाषाएँ")
+    val look = txt("Look", "रूप")
 
     fun childLine(age: Int, minutes: Int): Txt =
         if (minutes == 0) txt("Age $age · no limit", "$age साल · कोई सीमा नहीं") else txt("Age $age · $minutes min a day", "$age साल · रोज़ $minutes मिनट")
 
-    fun settingsFor(name: String): Txt = txt("Settings for $name", "$name की सेटिंग्स")
-
-    fun editChild(name: String): Txt = txt("Edit $name", "$name को बदलें")
-
     fun newChildBody(name: String): Txt = txt(
-        "Languages, look and time limit start the same as $name's. Change them in settings once this child is picked.",
-        "भाषाएँ, रूप और समय $name जैसे ही रहेंगे। यह बच्चा चुनने के बाद इन्हें सेटिंग्स में बदल सकते हैं।",
+        "Languages, look and time limit start the same as $name's. You can change them on the next page.",
+        "भाषाएँ, रूप और समय $name जैसे ही रहेंगे। इन्हें अगले पेज पर बदल सकते हैं।",
     )
 
     val save = txt("Save", "सहेजें")
@@ -138,6 +138,7 @@ object S {
         "सिर्फ़ एक विषय का अभ्यास कराने के लिए उसे चुनें। वह क्रम से चलेगा: वर्णमाला शुरू से, गिनती 1 से, पहेलियाँ आसान से कठिन तक। यह ऐप बंद होने तक रहेगा, फिर सभी विषय वापस आ जाएँगे।",
     )
     val allTopics = txt("All topics", "सभी विषय")
+    val otherAges = txt("Also show topics for other ages", "दूसरी उम्र के विषय भी दिखाएँ")
 
     fun forAges(ages: IntRange): Txt = txt("ages ${ages.first}–${ages.last}", "${ages.first}–${ages.last} साल")
 
@@ -154,7 +155,7 @@ object S {
         else -> txt("Every $n months", "हर $n महीने")
     }
 
-    val speech = txt("Speech", "आवाज़")
+    val voices = txt("Voices on this phone", "इस फ़ोन की आवाज़ें")
     val slowSpeech = txt("Speak slowly", "धीरे बोलें")
     val voiceReady = txt("Voice ready", "आवाज़ तैयार है")
     val voiceMissing = txt("Voice not installed: reels in it will be silent", "आवाज़ इंस्टॉल नहीं है: इसकी रील्स चुप रहेंगी")

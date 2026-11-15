@@ -10,6 +10,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +41,8 @@ import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Look
 import com.crylo.kidreels.core.Settings
 import com.crylo.kidreels.ui.S
+import com.crylo.kidreels.ui.common.DrawnIcon
+import com.crylo.kidreels.ui.common.Icon
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.pressable
 import com.crylo.kidreels.ui.skin.LookPreview
@@ -105,14 +113,51 @@ fun Pill(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
     ) { T(text, color = if (selected) c.onAccent else c.ink, weight = FontWeight.SemiBold, size = 15.sp) }
 }
 
+/**
+ * A card of rows, like the phone's own settings: each row says what is set now and opens a
+ * page to change it, so the list stays short however many choices there come to be.
+ */
+@Composable
+fun Rows(content: @Composable ColumnScope.() -> Unit) {
+    val c = LocalParent.current
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface), content = content)
+}
+
+/** Between two rows of a [Rows] card. */
+@Composable
+fun RowLine() {
+    Box(Modifier.padding(start = 16.dp).fillMaxWidth().height(1.dp).background(LocalParent.current.line))
+}
+
+/** A row that opens a page: what it is, and what is set now. */
+@Composable
+fun NavRow(label: String, value: String?, onClick: () -> Unit, valueColor: Color? = null, leading: (@Composable () -> Unit)? = null) {
+    val c = LocalParent.current
+    Row(
+        Modifier.fillMaxWidth().pressable(onClick).padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (leading != null) {
+            leading()
+            Spacer(Modifier.width(12.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            T(label, color = c.ink, size = 16.sp, weight = FontWeight.SemiBold, maxLines = 1)
+            if (value != null) T(value, color = valueColor ?: c.sub, size = 13.sp, lineHeight = 17.sp)
+        }
+        DrawnIcon(Icon.NEXT, c.sub, Modifier.size(20.dp))
+    }
+}
+
+/** A switch, as a row of a [Rows] card. */
 @Composable
 fun Toggle(label: String, on: Boolean, onChange: (Boolean) -> Unit) {
     val c = LocalParent.current
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).pressable({ onChange(!on) }).padding(16.dp),
+        Modifier.fillMaxWidth().pressable({ onChange(!on) }).padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        T(label, Modifier.weight(1f), color = c.ink, size = 16.sp)
+        T(label, Modifier.weight(1f), color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
         Box(
             Modifier.width(50.dp).height(30.dp).clip(RoundedCornerShape(50)).background(if (on) c.accent else c.line).padding(3.dp),
             contentAlignment = if (on) Alignment.CenterEnd else Alignment.CenterStart,
@@ -211,25 +256,49 @@ fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
 }
 
 /**
- * Every topic, grouped by channel, plus "All topics". One at a time: "in order" means
- * nothing across two topics. Topics made for other ages are still offered, with their ages.
+ * "All topics", then each channel folded up, so the list stays a handful of lines however
+ * many topics are added. One topic at a time: "in order" means nothing across two. Only the
+ * child's age's topics are listed unless asked; the others come with their ages.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TopicPicker(focus: Topic?, age: Int, main: Lang, onPick: (Topic?) -> Unit) {
     val c = LocalParent.current
+    val forAge = { topic: Topic -> age in Templates.of(topic).ages }
+    var otherAges by remember { mutableStateOf(focus != null && !forAge(focus)) }
+    var open by remember { mutableStateOf(setOfNotNull(focus?.channel)) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Pill(S.allTopics[main], focus == null, { onPick(null) })
         Channel.entries.forEach { channel ->
-            val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK }
-            T("${channel.emoji}  ${channel.handle[main]}", Modifier.padding(top = 4.dp), color = c.sub, size = 13.sp, weight = FontWeight.Bold)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                topics.forEach { topic ->
-                    val ages = Templates.of(topic).ages
-                    val label = topic.title[main] + if (age in ages) "" else " · " + S.forAges(ages)[main]
-                    Pill(label, topic == focus, { onPick(if (topic == focus) null else topic) })
+            val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK && (otherAges || forAge(it)) }
+            if (topics.isEmpty()) return@forEach
+            val expanded = channel in open
+            val picked = focus?.takeIf { it.channel == channel }
+            Rows {
+                Row(
+                    Modifier.fillMaxWidth().pressable({ open = if (expanded) open - channel else open + channel }).padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    T(channel.emoji, size = 20.sp)
+                    T(channel.handle[main], Modifier.padding(start = 12.dp).weight(1f), color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+                    T(picked?.title?.get(main) ?: topics.size.toString(), Modifier.padding(horizontal = 8.dp), color = if (picked != null) c.accent else c.sub, size = 14.sp, weight = FontWeight.SemiBold, maxLines = 1)
+                    DrawnIcon(if (expanded) Icon.DOWN else Icon.NEXT, c.sub, Modifier.size(20.dp))
+                }
+                if (expanded) {
+                    FlowRow(
+                        Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        topics.forEach { topic ->
+                            val ages = Templates.of(topic).ages
+                            val label = topic.title[main] + if (age in ages) "" else " · " + S.forAges(ages)[main]
+                            Pill(label, topic == focus, { onPick(if (topic == focus) null else topic) })
+                        }
+                    }
                 }
             }
         }
+        Rows { Toggle(S.otherAges[main], otherAges) { otherAges = it } }
     }
 }
