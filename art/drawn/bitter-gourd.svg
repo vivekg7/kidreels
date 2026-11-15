@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Bitter gourd (karela): dark green, pointed at both ends, covered in bumps. -->
+  <path fill="#558B2F" d="M36,116 C26,104 30,72 50,44 C64,24 86,10 98,12 C104,20 98,48 84,72 C68,100 50,120 36,116 Z"/>
+  <path fill="#33691E" d="M36,116 C52,112 70,96 84,72 C98,48 104,20 98,12 C102,30 92,58 78,80 C64,102 48,116 36,116 Z"/>
+  <g fill="#7CB342">
+    <ellipse cx="42" cy="104" rx="4" ry="3"/><ellipse cx="38" cy="92" rx="3.5" ry="3"/>
+    <ellipse cx="50" cy="96" rx="4" ry="3"/><ellipse cx="44" cy="80" rx="4" ry="3"/>
+    <ellipse cx="56" cy="84" rx="4" ry="3"/><ellipse cx="52" cy="68" rx="4" ry="3"/>
+    <ellipse cx="64" cy="72" rx="4" ry="3"/><ellipse cx="60" cy="56" rx="4" ry="3"/>
+    <ellipse cx="72" cy="60" rx="4" ry="3"/><ellipse cx="68" cy="44" rx="4" ry="3"/>
+    <ellipse cx="80" cy="48" rx="3.5" ry="3"/><ellipse cx="78" cy="32" rx="3.5" ry="3"/>
+    <ellipse cx="88" cy="36" rx="3.5" ry="2.5"/><ellipse cx="88" cy="22" rx="3" ry="2.5"/>
+  </g>
+  <g fill="#9CCC65">
+    <ellipse cx="41" cy="103" rx="1.5" ry="1"/><ellipse cx="49" cy="95" rx="1.5" ry="1"/>
+    <ellipse cx="55" cy="83" rx="1.5" ry="1"/><ellipse cx="63" cy="71" rx="1.5" ry="1"/>
+    <ellipse cx="71" cy="59" rx="1.5" ry="1"/><ellipse cx="79" cy="47" rx="1.5" ry="1"/>
+  </g>
+  <path fill="#827717" d="M96,14 L106,4 C108,3 110,5 109,7 L99,17 Z"/>
+</svg>

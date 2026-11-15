@@ -223,8 +223,10 @@ object S {
     val about = txt("About", "जानकारी")
 
     fun aboutBody(version: String): Txt = txt(
-        "Kid Reels $version. Free and open source (MIT licence). No ads, no tracking and no internet access: nothing leaves this phone.",
-        "किड रील्स $version। मुफ़्त और ओपन सोर्स (MIT लाइसेंस)। कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं, इंटरनेट नहीं: कुछ भी फ़ोन से बाहर नहीं जाता।",
+        "Kid Reels $version. Free and open source (MIT licence). No ads, no tracking and no internet access: nothing leaves this phone. " +
+            "The peas, ginger, beetroot and kidney beans pictures are from Noto Emoji, © Google LLC, under the SIL Open Font License 1.1.",
+        "किड रील्स $version। मुफ़्त और ओपन सोर्स (MIT लाइसेंस)। कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं, इंटरनेट नहीं: कुछ भी फ़ोन से बाहर नहीं जाता। " +
+            "मटर, अदरक, चुकंदर और राजमा की तस्वीरें Noto Emoji से हैं, © Google LLC, SIL Open Font License 1.1 के तहत।",
     )
 
     val privacyPolicy = txt("Privacy policy", "गोपनीयता नीति")

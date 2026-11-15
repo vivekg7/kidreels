@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.TextUnit
+import com.crylo.kidreels.ui.art.Picture
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.tap
@@ -125,5 +126,5 @@ fun ReelView(
 fun Pic(emoji: String, size: TextUnit, modifier: Modifier = Modifier, voice: Lang? = null, word: Word? = null) {
     val env = LocalReelEnv.current
     var pop by remember { mutableIntStateOf(0) }
-    T(emoji, modifier.popOn(pop).tap { pop++; env.name(emoji, voice, word) }, size = size)
+    Picture(emoji, size, modifier.popOn(pop).tap { pop++; env.name(emoji, voice, word) })
 }

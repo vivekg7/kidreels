@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Cauliflower (phool gobhi): a cream head of florets in green leaves. -->
+  <path fill="#689F38" d="M8,78 C14,56 40,58 56,82 C46,106 18,110 8,78 Z"/>
+  <path fill="#689F38" d="M120,78 C114,56 88,58 72,82 C82,106 110,110 120,78 Z"/>
+  <path fill="#7CB342" d="M30,92 C44,74 84,74 98,92 C90,118 38,118 30,92 Z"/>
+  <path fill="#9CCC65" d="M62,88 L66,88 L65,114 L63,114 Z"/>
+  <circle fill="#EADFC0" cx="64" cy="58" r="34"/>
+  <g fill="#FFF8E1">
+    <circle cx="44" cy="52" r="14"/><circle cx="64" cy="38" r="15"/><circle cx="84" cy="52" r="14"/>
+    <circle cx="50" cy="72" r="13"/><circle cx="78" cy="72" r="13"/><circle cx="64" cy="58" r="14"/>
+  </g>
+  <g fill="#F1E6C8">
+    <circle cx="48" cy="56" r="4"/><circle cx="68" cy="42" r="4"/><circle cx="88" cy="56" r="4"/>
+    <circle cx="54" cy="76" r="4"/><circle cx="82" cy="76" r="4"/><circle cx="68" cy="62" r="4"/>
+    <circle cx="40" cy="48" r="3"/><circle cx="60" cy="34" r="3"/><circle cx="80" cy="48" r="3"/>
+  </g>
+</svg>

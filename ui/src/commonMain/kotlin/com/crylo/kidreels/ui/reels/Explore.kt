@@ -46,6 +46,7 @@ import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.WordCard
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Sfx
+import com.crylo.kidreels.ui.art.Picture
 import com.crylo.kidreels.ui.common.Confetti
 import com.crylo.kidreels.ui.common.HoldButton
 import com.crylo.kidreels.ui.common.MultiText
@@ -246,14 +247,14 @@ fun WordView(reel: WordCard, padding: PaddingValues) {
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
         MultiText(word.title, env.langs, colors.ink, size = 44.sp, say = { env.say(it) })
-        T(
+        Picture(
             word.emoji,
+            170.sp,
             Modifier.floating(6f, 1800).popOn(bounce).tap {
                 bounce++
                 env.sfx(Sfx.POP)
                 env.say(listOfNotNull(word.thisIs(), word.fact?.takeIf { reel.showFact }).map { Say(it[env.main], env.main) })
             },
-            size = 170.sp,
         )
         val fact = word.fact
         if (reel.showFact && fact != null) {

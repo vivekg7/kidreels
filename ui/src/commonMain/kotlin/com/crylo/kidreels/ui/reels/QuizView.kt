@@ -51,6 +51,8 @@ import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.core.Words
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
+import com.crylo.kidreels.ui.art.Picture
+import com.crylo.kidreels.ui.art.artFor
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
@@ -427,7 +429,8 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             }
             is Choice.Token -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // Bigger in the big cards a quiz with nothing else on screen gets.
-                T(choice.text, color = ink, size = if (big) 64.sp else 46.sp, weight = FontWeight.Bold)
+                if (artFor(choice.text) != null) Picture(choice.text, if (big) 64.sp else 46.sp)
+                else T(choice.text, color = ink, size = if (big) 64.sp else 46.sp, weight = FontWeight.Bold)
                 choice.label?.let { T(it[env.main], color = ink, size = 13.sp, weight = FontWeight.SemiBold) }
             }
             is Choice.Group -> Column(horizontalAlignment = Alignment.CenterHorizontally) {

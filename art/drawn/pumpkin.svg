@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Pumpkin (kaddu): orange, ribbed, with a short stalk and a leaf. -->
+  <path fill="#6D4C41" d="M60,40 C57,28 61,16 70,12 L75,16 C68,21 66,29 69,40 Z"/>
+  <path fill="#7CB342" d="M71,22 C82,12 100,14 104,22 C94,30 80,30 71,22 Z"/>
+  <ellipse fill="#EF6C00" cx="36" cy="78" rx="28" ry="38"/>
+  <ellipse fill="#EF6C00" cx="92" cy="78" rx="28" ry="38"/>
+  <ellipse fill="#F57C00" cx="48" cy="77" rx="22" ry="41"/>
+  <ellipse fill="#F57C00" cx="80" cy="77" rx="22" ry="41"/>
+  <ellipse fill="#FB8C00" cx="64" cy="76" rx="22" ry="42"/>
+  <ellipse fill="#FFB74D" cx="58" cy="62" rx="5" ry="14"/>
+  <ellipse fill="#FFA726" cx="30" cy="70" rx="4" ry="12"/>
+</svg>

@@ -148,6 +148,18 @@ object Words {
         w("🥦", "broccoli", "ब्रोकली", "Broccoli looks like a little tree.", "ब्रोकली छोटे पेड़ जैसी दिखती है।", article = ""),
         w("🍄", "mushroom", "मशरूम", "The mushroom looks like a little umbrella.", "मशरूम छोटे छाते जैसा दिखता है।"),
         w("🍠", "sweet potato", "शकरकंद", "The sweet potato is sweet when it is roasted.", "भुना शकरकंद मीठा लगता है।"),
+        // No emoji shows these well, or at all, so they are drawn: see art/README.md.
+        w("art:okra", "okra", "भिंडी", "Okra has sticky seeds inside.", "भिंडी के अंदर चिपचिपे बीज होते हैं।", article = "", pluralHi = false),
+        w("art:bottle-gourd", "bottle gourd", "लौकी", "A bottle gourd is long and full of water.", "लौकी लंबी होती है और उसमें बहुत पानी होता है।"),
+        w("art:bitter-gourd", "bitter gourd", "करेला", "Bitter gourd tastes bitter, but it is good for you.", "करेला कड़वा होता है, पर सेहत के लिए अच्छा है।"),
+        w("art:cauliflower", "cauliflower", "फूलगोभी", "A cauliflower is made of little white florets.", "फूलगोभी छोटे-छोटे सफ़ेद फूलों से बनी होती है।"),
+        w("art:spinach", "spinach", "पालक", "Spinach leaves make us strong.", "पालक के पत्ते हमें ताक़त देते हैं।", article = ""),
+        w("art:radish", "radish", "मूली", "A radish is a white root that grows under the ground.", "मूली ज़मीन के नीचे उगने वाली सफ़ेद जड़ है।"),
+        w("art:pumpkin", "pumpkin", "कद्दू", "A pumpkin can grow very, very big.", "कद्दू बहुत बड़ा हो सकता है।"),
+        w("art:peas", "peas", "मटर", "Peas grow inside a pod.", "मटर के दाने फली के अंदर होते हैं।", plural = true, pluralHi = false),
+        w("art:ginger", "ginger", "अदरक", "We put ginger in tea.", "चाय में अदरक डालते हैं।", article = ""),
+        w("art:beetroot", "beetroot", "चुकंदर", "Beetroot turns everything pink!", "चुकंदर हर चीज़ को गुलाबी कर देता है!", article = ""),
+        w("art:kidney-beans", "kidney beans", "राजमा", "Rajma and rice make a yummy meal.", "राजमा-चावल बहुत स्वादिष्ट होते हैं।", plural = true, pluralHi = false),
     )
 
     val home = listOf(

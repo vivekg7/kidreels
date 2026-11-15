@@ -371,9 +371,15 @@ the feed, and picking another child once the last one's time is up.
 
 ## Pictures and sound
 
-- Pictures are emoji from the system font or shapes drawn in code: nothing to license,
-  and the release APK stays under 2 MB. Every emoji is from Emoji 13.1 or earlier, the
-  newest set Android 12 draws.
+- **Pictures are emoji first, drawings where emoji fall short.** Emoji from the system
+  font cost nothing in the APK, so they stay the default; every emoji is from Emoji 13.1
+  or earlier, the newest set Android 12 draws. But emoji show an eye, not an elbow, and
+  have no bhindi or lauki at all, and the app should not teach a child with the wrong
+  picture. So a word can name a drawing instead (`art:okra`): an SVG in `art/`, turned
+  into Kotlin path data by `scripts/art.py` and drawn with the same Canvas as everything
+  else, so no image library is added and every platform draws it the same. Each is a few
+  KB. Sources, licences and what the script accepts are in `art/README.md`. Speech stays
+  the phone's TTS for now; recordings may be bundled later where a voice falls short.
 - **Every picture has a name** (`core/Words.kt`), so tapping any picture says "This is an
   elephant" / "यह हाथी है" in the reel's voice. One table covers every emoji the app
   shows, and `everyPictureHasAName` fails when a new one is added without a name: a
