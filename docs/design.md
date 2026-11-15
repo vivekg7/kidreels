@@ -345,6 +345,10 @@ the feed, and picking another child once the last one's time is up.
   noise for a toddler.
 - **Swipe threshold is a quarter page**, not the default half: small hands drag short
   and slow.
+- **"Swipe up" has a band of its own** under the first four reels of a session, where
+  it shows once a reel is done. Laid over the reel at a fixed height, it covered
+  whatever was there: a shape's example pictures, a quiz's answer line. Those four
+  reels give up 48 dp of height for it; the rest keep it all.
 - **Settings are pages, a row each.** The first page lists the children, the phone's
   voices and About; a child's page has one row per choice, saying what is set now
   ("20 min · 12 min left today"), and each row opens that choice on its own page. One

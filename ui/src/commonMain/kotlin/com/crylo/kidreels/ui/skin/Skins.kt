@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -151,6 +152,9 @@ private fun chromePadding(look: Look): PaddingValues = when (look) {
     Look.CALM -> PaddingValues(start = 20.dp, top = 60.dp, end = 20.dp, bottom = 96.dp)
 }
 
+/** The hint's pill is 40 dp, and it bounces up by 7. */
+private val HINT_BAND = 48.dp
+
 @Composable
 private fun plus(a: PaddingValues, b: PaddingValues): PaddingValues {
     val dir = LocalLayoutDirection.current
@@ -174,13 +178,25 @@ fun ReelFrame(
     onAgain: () -> Unit,
     /** More room at the top while the feed shows a banner there (time almost up, check-in). */
     extraTop: Dp = 0.dp,
+    /**
+     * The "swipe up" hint, given a band of its own under the content. Laid over the content,
+     * it landed on whatever a reel had at that height: a shape's examples, a quiz's answer.
+     */
+    hint: (@Composable () -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val insets = WindowInsets.safeDrawing.asPaddingValues()
-    val padding = plus(plus(insets, chromePadding(look)), PaddingValues(top = extraTop))
+    val frame = plus(plus(insets, chromePadding(look)), PaddingValues(top = extraTop))
+    val padding = if (hint != null) plus(frame, PaddingValues(bottom = HINT_BAND)) else frame
     Box(Modifier.fillMaxSize()) {
         Background(look, info)
         content(padding)
+        if (hint != null) {
+            Box(
+                Modifier.fillMaxWidth().padding(frame).height(HINT_BAND).align(Alignment.BottomCenter),
+                contentAlignment = Alignment.BottomCenter,
+            ) { hint() }
+        }
         Box(Modifier.fillMaxSize().padding(insets)) {
             when (look) {
                 Look.CLASSIC -> ClassicChrome(info, onLike, onAgain)

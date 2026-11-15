@@ -160,6 +160,11 @@ fun FeedScreen(app: AppState) {
                             onLike = { model.like(reel) },
                             onAgain = { env.say(reel.intro(settings.main)) },
                             extraTop = extraTop,
+                            hint = if (page < HINTED_REELS && reel !is TimeUp) {
+                                { SwipeHintFor(page, done = !reel.needsSolving || state.solved, main = settings.main) }
+                            } else {
+                                null
+                            },
                         ) { padding ->
                             ReelView(
                                 reel, state, padding,
@@ -174,7 +179,6 @@ fun FeedScreen(app: AppState) {
                             )
                         }
                         Confetti(state.celebrate)
-                        SwipeHintFor(page, done = !reel.needsSolving || state.solved, isTimeUp = reel is TimeUp, main = settings.main)
                     }
                 }
             }
@@ -243,9 +247,10 @@ private fun Chip(text: String, dark: Boolean) {
  * "Swipe up" under a finished reel, for the first few reels of a session only: by then a
  * child has got it, and a hint on every reel would just be noise.
  */
+private const val HINTED_REELS = 4
+
 @Composable
-private fun SwipeHintFor(page: Int, done: Boolean, isTimeUp: Boolean, main: com.crylo.kidreels.core.Lang) {
-    if (page >= 4 || isTimeUp) return
+private fun SwipeHintFor(page: Int, done: Boolean, main: com.crylo.kidreels.core.Lang) {
     var show by remember(page) { mutableStateOf(false) }
     LaunchedEffect(page, done) {
         show = false
@@ -253,9 +258,5 @@ private fun SwipeHintFor(page: Int, done: Boolean, isTimeUp: Boolean, main: com.
         delay(if (page == 0) 4000 else 2500)
         show = true
     }
-    if (show) {
-        Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(bottom = 128.dp), contentAlignment = Alignment.BottomCenter) {
-            SwipeHint(Phrases.swipeUp[main])
-        }
-    }
+    if (show) SwipeHint(Phrases.swipeUp[main])
 }

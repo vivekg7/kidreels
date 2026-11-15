@@ -152,7 +152,7 @@ fun SwipeHint(text: String, modifier: Modifier = Modifier) {
     val y by t.animateFloat(0f, -14f, infiniteRepeatable(tween(520), RepeatMode.Reverse))
     val a = remember { Animatable(0f) }
     LaunchedEffect(Unit) { a.animateTo(1f, tween(400)) }
-    // On its own dark pill: it can land over a reel's text, and must stay readable there.
+    // On its own dark pill, so it reads on any look and channel colour.
     Row(
         modifier.graphicsLayer { translationY = y * density / 2; alpha = a.value }
             .clip(RoundedCornerShape(50)).background(Color(0xCC2B2440))
