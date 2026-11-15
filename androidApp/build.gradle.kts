@@ -5,10 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-// Release signing credentials, kept out of the repo. Absent on a fresh clone, in which
-// case the release build simply comes out unsigned rather than failing.
+// Release signing credentials live in local/, which is gitignored, so the key and its
+// password never reach the repo. Absent on a fresh clone, in which case the release
+// build simply comes out unsigned rather than failing.
 val keystoreProperties = Properties().apply {
-    val file = rootProject.file("keystore.properties")
+    val file = rootProject.file("local/keystore.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
 

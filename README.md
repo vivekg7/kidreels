@@ -91,13 +91,44 @@ This Mac has no system JDK; Android Studio's bundled JBR works:
 ```sh
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ./gradlew :core:jvmTest assembleDebug
-./gradlew assembleRelease   # unsigned unless keystore.properties exists
+./gradlew assembleRelease   # signed if the key is set up, else unsigned
+./scripts/archive-apk.sh    # build, verify, keep the APK and AAB in local/releases/
 ```
 
-Release signing is optional: create `keystore.properties` (git-ignored) at the repo root
-with `storeFile`, `storePassword`, `keyAlias` and `keyPassword`.
-
 Requires Android 12 (API 31) or newer.
+
+### Signing
+
+`assembleRelease` and `bundleRelease` sign the APK and the AAB when
+`local/keystore.properties` exists:
+
+```properties
+storeFile=local/kidreels-release.jks
+storePassword=…
+keyAlias=kidreels
+keyPassword=…
+```
+
+`local/` is gitignored, so neither the key nor its password reaches the repository.
+Without the file, release still builds, unsigned.
+
+**The key cannot be recovered.** Lose it and no sideloaded copy of Kid Reels can be
+updated, because Android refuses an update signed by a different key. Keep a backup off
+this machine. On Google Play it is only the upload key: Play signs what it delivers with
+its own key, so a Play install and a sideloaded one cannot update each other.
+
+### Archiving a release
+
+`scripts/archive-apk.sh` builds the release APK and AAB and copies them into
+`local/releases/v<version>/` as `kidreels-v<version>.apk` and `.aab`, each with a
+`.sha256`, and the R8 `mapping.txt` that turns a minified stack trace from that build
+back into names (upload it to Play with the AAB). The version is read from the built
+APK, so the name cannot disagree with what shipped.
+
+It is not wired into `assembleRelease`, so a build made while working cannot overwrite an
+archived release. The script also refuses an unsigned APK, archives a dirty tree as
+`v<version>-dirty-g<commit>/`, and never replaces an existing archive without `--force`.
+Bump `versionCode` and `versionName` in `androidApp/build.gradle.kts` for each release.
 
 ## Permissions
 
