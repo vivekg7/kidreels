@@ -15,6 +15,7 @@ import com.crylo.kidreels.core.Settings
 import com.crylo.kidreels.core.SettingsStore
 import com.crylo.kidreels.core.TimeBudget
 import com.crylo.kidreels.core.TimeUp
+import com.crylo.kidreels.core.Topic
 import com.crylo.kidreels.core.Txt
 
 enum class Screen { ONBOARDING, FEED, SETTINGS }
@@ -113,6 +114,20 @@ class FeedModel(private val app: AppState) {
         private set
     var remainingMillis by mutableStateOf<Long?>(null)
         private set
+
+    /**
+     * The topic a parent picked to show alone, for as long as the app runs: it is not
+     * saved, so the next start is the usual mix. Changing it remakes the reel on screen.
+     */
+    var focus by mutableStateOf<Topic?>(null)
+        private set
+
+    fun pick(topic: Topic?) {
+        if (topic == focus) return
+        focus = topic
+        engine.focus = topic
+        remake()
+    }
 
     /** Bumped when a puzzle is swiped past unsolved, to show the sad face. */
     var skippedPuzzle by mutableIntStateOf(0)

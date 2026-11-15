@@ -84,11 +84,45 @@ class Feed(
 
     var windDown: Boolean = false
 
+    /**
+     * A topic a parent picked for now: only its reels, in order, and puzzles from easy to
+     * hard. Null is the usual mix. Kept in memory only, so the app starts mixed again.
+     */
+    var focus: Topic? = null
+        set(value) {
+            field = value
+            focusCursor = SessionCursor()
+            focusDifficulty = 1
+            focusStreak = 0
+            focusLang = 0
+        }
+
+    /** Positions for [focus]: from the start each time a topic is picked, not where the mix left off. */
+    private class SessionCursor : Cursor {
+        private val at = mutableMapOf<String, Int>()
+
+        /** Set when a list has just been gone through to the end. */
+        var wrapped = false
+
+        override fun next(key: String, size: Int): Int {
+            val i = (at[key] ?: 0) % size
+            at[key] = i + 1
+            if (i + 1 == size) wrapped = true
+            return i
+        }
+    }
+
+    private var focusCursor = SessionCursor()
+    private var focusDifficulty = 1
+    private var focusStreak = 0
+    private var focusLang = 0
+
     fun next(): Reel {
         val s = settings()
         val age = s.age.coerceIn(Settings.AGES)
         made++
-        val reel = dueRetry(s, age) ?: fresh(s, age)
+        val topic = focus
+        val reel = if (topic != null) focused(topic, s, age) else dueRetry(s, age) ?: fresh(s, age)
         recent.addLast(reel)
         if (recent.size > HISTORY) recent.removeFirst()
         return reel
@@ -98,6 +132,22 @@ class Feed(
 
     fun record(reel: Reel, outcome: Outcome) {
         if (!reel.needsSolving) return
+        if (focus != null) {
+            // Three right first time and the next ones are a step harder; a skip, a step easier.
+            when (outcome) {
+                Outcome.SOLVED_FIRST_TRY -> if (++focusStreak >= FOCUS_STEP) {
+                    focusDifficulty = (focusDifficulty + 1).coerceAtMost(5)
+                    focusStreak = 0
+                }
+                Outcome.SOLVED -> Unit
+                Outcome.SKIPPED -> {
+                    focusDifficulty = (focusDifficulty - 1).coerceAtLeast(1)
+                    focusStreak = 0
+                }
+            }
+            progress.record(reel.level, outcome)
+            return
+        }
         when (outcome) {
             Outcome.SOLVED_FIRST_TRY -> progress.adjustSkill(reel.topic, 0.34)
             Outcome.SOLVED -> {
@@ -163,6 +213,26 @@ class Feed(
         return make(template, s, level, difficulty)
     }
 
+    /**
+     * The picked topic only. Made for the child's age where the topic has it, else the
+     * nearest age it has: the alphabet for an 8-year-old is the age-6 alphabet. With two
+     * languages, one alphabet is gone through to the end before the next begins.
+     */
+    private fun focused(topic: Topic, s: Settings, age: Int): Reel {
+        val template = templates.first { it.topic == topic }
+        val level = age.coerceIn(template.ages)
+        val difficulty = when {
+            windDown -> 1
+            template.solving -> focusDifficulty
+            else -> 3
+        }
+        val langs = listOf(s.langs[focusLang % s.langs.size])
+        focusCursor.wrapped = false
+        val reel = template.make(Gen(level, difficulty, random, langs, nextId++, focusCursor, age = s.age, ordered = true))
+        if (focusCursor.wrapped) focusLang++
+        return reel
+    }
+
     private fun make(template: Template, s: Settings, level: Int, difficulty: Int): Reel =
         template.make(Gen(level, difficulty, random, s.langs, nextId++, progress, age = s.age))
 
@@ -184,6 +254,8 @@ class Feed(
         const val MAX_EXPLORE_IN_A_ROW = 2
         /** A topic waits this many reels before it comes round again, when there is choice. */
         const val RECENT_TOPICS = 4
+        /** Right first time this many times in a row, and a picked topic gets a step harder. */
+        const val FOCUS_STEP = 3
         private const val HISTORY = 6
     }
 }

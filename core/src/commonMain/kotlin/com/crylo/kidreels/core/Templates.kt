@@ -18,6 +18,8 @@ class Gen(
     private val cursor: Cursor,
     /** The child's age, which picks the words; [level] picks the content. */
     val age: Int = level,
+    /** A parent picked this topic alone: things that can go in order do (count 1, 2, 3…). */
+    val ordered: Boolean = false,
 ) {
     /** [t] in words for this child: see [Txt.forAge]. */
     fun words(t: Txt): Txt = t.forAge(age)
@@ -98,9 +100,10 @@ private val List<Choice>.numbers: List<Int> get() = map { (it as Choice.Number).
 object Templates {
     val all: List<Template> = listOf(
         Template(Topic.COUNT_ALONG, 2..4, solving = false) { g ->
-            val n = when (g.level) {
-                2 -> g.upTo(1, 5)
-                3 -> g.upTo(3, 7)
+            val n = when {
+                g.ordered -> g.inOrder("count", when (g.level) { 2 -> 5; 3 -> 7; else -> 10 }) + 1
+                g.level == 2 -> g.upTo(1, 5)
+                g.level == 3 -> g.upTo(3, 7)
                 else -> g.upTo(5, 10)
             }
             CountAlong(g.id, g.level, g.difficulty, g.pick(Countables), n)

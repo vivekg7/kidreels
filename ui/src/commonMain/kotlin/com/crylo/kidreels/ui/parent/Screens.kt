@@ -189,9 +189,14 @@ fun SettingsScreen(app: AppState) {
             ) {
                 if (app.checkInDue) CheckInCard(app)
 
+
                 SectionTitle(S.limitTitle[main])
                 app.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[main]) }
                 LimitPicker(s.dailyMinutes, main) { app.update(s.copy(dailyMinutes = it)) }
+
+                SectionTitle(S.showOnly[main])
+                Body(S.showOnlyBody[main])
+                TopicPicker(app.feed.focus, s.age, main) { app.feed.pick(it) }
 
                 SectionTitle(S.ageTitle[main])
                 AgePicker(s.age, main) { app.update(s.copy(age = it)) }

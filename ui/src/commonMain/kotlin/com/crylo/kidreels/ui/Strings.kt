@@ -72,6 +72,17 @@ object S {
     fun leftToday(minutes: Long): Txt = txt("$minutes min left today", "आज $minutes मिनट बाकी")
 
     val settings = txt("Settings", "सेटिंग्स")
+
+    val showOnly = txt("Show only", "सिर्फ़ यह दिखाएँ")
+    val showOnlyBody = txt(
+        "Pick a topic to practise just that, in order: the alphabet from A, counting from 1, puzzles from easy to hard. It lasts until the app is closed; then all topics come back.",
+        "सिर्फ़ एक विषय का अभ्यास कराने के लिए उसे चुनें। वह क्रम से चलेगा: वर्णमाला शुरू से, गिनती 1 से, पहेलियाँ आसान से कठिन तक। यह ऐप बंद होने तक रहेगा, फिर सभी विषय वापस आ जाएँगे।",
+    )
+    val allTopics = txt("All topics", "सभी विषय")
+
+    fun forAges(ages: IntRange): Txt = txt("ages ${ages.first}–${ages.last}", "${ages.first}–${ages.last} साल")
+
+    fun onlyTopic(title: Txt): Txt = txt("Only: ${title[com.crylo.kidreels.core.Lang.EN]}", "सिर्फ़: ${title[com.crylo.kidreels.core.Lang.HI]}")
     val checkInTitle = txt("Age check-in", "उम्र की जाँच")
     val checkInBody = txt(
         "Every few months we ask whether your child is ready for the next age's reels.",

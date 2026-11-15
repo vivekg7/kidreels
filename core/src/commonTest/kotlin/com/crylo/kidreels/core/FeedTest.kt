@@ -226,4 +226,46 @@ class FeedTest {
         store.save(s)
         assertEquals(s, store.load())
     }
+
+    @Test
+    fun aPickedTopicGoesInOrderOneAlphabetAfterTheOther() {
+        val f = feed(3, langs = listOf(Lang.EN, Lang.HI))
+        f.take(40) // the mix moves the alphabet on; a picked topic still starts at A
+        f.focus = Topic.LETTERS
+        val cards = f.take(26 + Alphabets.hindi.size + 1).map { it as LetterCard }
+        assertEquals(Alphabets.english.map { it.glyph }, cards.take(26).map { it.letter.glyph })
+        assertEquals(Alphabets.hindi.map { it.glyph }, cards.drop(26).take(Alphabets.hindi.size).map { it.letter.glyph })
+        assertEquals("A", cards.last().letter.glyph)
+    }
+
+    @Test
+    fun aPickedTopicOutsideTheAgeUsesTheNearestOne() {
+        val f = feed(9)
+        f.focus = Topic.SHAPES
+        val shapes = f.take(5).map { it as ShapeCard }
+        assertTrue(shapes.all { it.level == 6 })
+        assertEquals(ShapeKind.CIRCLE, shapes.first().shape.kind)
+    }
+
+    @Test
+    fun countingAlongCountsUpWhenPicked() {
+        val f = feed(2)
+        f.focus = Topic.COUNT_ALONG
+        assertEquals(listOf(1, 2, 3, 4, 5, 1), f.take(6).map { (it as CountAlong).n })
+    }
+
+    @Test
+    fun aPickedPuzzleGetsHarderAsItIsSolved() {
+        val f = feed(6)
+        f.focus = Topic.ADDITION
+        val first = f.take(3)
+        assertTrue(first.all { it.difficulty == 1 && it.topic == Topic.ADDITION })
+        first.forEach { f.record(it, Outcome.SOLVED_FIRST_TRY) }
+        val next = f.next()
+        assertEquals(2, next.difficulty)
+        f.record(next, Outcome.SKIPPED)
+        assertEquals(1, f.next().difficulty)
+        f.focus = null
+        assertTrue(f.take(10).map { it.topic }.toSet().size > 1, "back to the mix")
+    }
 }

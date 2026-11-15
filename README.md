@@ -56,6 +56,10 @@ On first launch, and later in settings (behind a 3-second press-and-hold gate):
 - **Daily time limit**: 10 to 60 minutes, or none. In the last two minutes only easy reels
   appear and an "Almost done" chip shows; then a goodbye reel says it is time to eat and
   play, and the feed stops. A grown-up can hold a button there for 10 more minutes.
+- **Show only**: one topic for now, such as just the alphabet or just vehicles. It goes in
+  order (the alphabet from A, counting from 1, shapes from the simplest) and puzzles get
+  harder as they are solved. A chip on the feed says which topic is on. It is not saved:
+  the next start of the app is the usual mix again.
 - **Age check-in**: every 1, 3 or 6 months (or never), a "For grown-ups" banner asks
   whether the child is ready for the next age, with how they did at this one.
 - **Speech**: slow speech, and which voices are installed.

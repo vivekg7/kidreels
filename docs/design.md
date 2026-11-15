@@ -107,6 +107,28 @@ Reels are generated two ahead of the one on screen, so a swipe never waits. The 
 hard one, an easy one" rule uses the _difficulty_ of the previous reel, which is known
 when it is made; outcomes (skips, struggles) affect the reels after that.
 
+### A topic picked by the parent
+
+A parent teaching the alphabet wants the alphabet, A to Z, not one letter every few reels.
+Settings has a "Show only" picker; with a topic picked (`Feed.focus`), none of the rules
+above apply:
+
+- **Only that topic**, made at the child's age, or the nearest age the topic has: the
+  alphabet for an 8-year-old is the age-6 alphabet. Topics made for other ages are still
+  offered, with their ages next to them.
+- **From the beginning, in order.** Lists that have an order (alphabets, shapes, solids,
+  curves, picture cards, count-along's 1, 2, 3…) start at their first item each time a
+  topic is picked, on a cursor of their own, so the usual mix's place is not lost. With
+  two languages, one alphabet is finished before the next starts.
+- **Puzzles go from easy to hard**: difficulty 1 first, one step up after three right
+  first time in a row (`Feed.FOCUS_STEP`), one step down after a skip. No retries: they
+  would break the order.
+- **One topic, not several**: "in order" means nothing across two topics.
+- **Gone on the next start.** It lives in memory only. A parent who forgets it is on would
+  otherwise leave a child on one topic for days. Android may also end the app in the
+  background, which then counts as a new start; for a session-long choice that is fine.
+  A chip on the feed says it is on. The time limit and wind-down still apply.
+
 ## Languages on screen and in the voice
 
 Every `Txt` holds all languages. A reel shows its text in each chosen language, main one

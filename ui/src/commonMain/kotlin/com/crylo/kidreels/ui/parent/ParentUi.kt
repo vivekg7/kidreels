@@ -1,5 +1,9 @@
 package com.crylo.kidreels.ui.parent
 
+import com.crylo.kidreels.core.Channel
+import com.crylo.kidreels.core.Templates
+import com.crylo.kidreels.core.Topic
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -195,5 +199,29 @@ fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
 fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Settings.CHECK_IN_MONTHS.forEach { m -> Pill(S.everyMonths(m)[main], m == months, { onChange(m) }) }
+    }
+}
+
+/**
+ * Every topic, grouped by channel, plus "All topics". One at a time: "in order" means
+ * nothing across two topics. Topics made for other ages are still offered, with their ages.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun TopicPicker(focus: Topic?, age: Int, main: Lang, onPick: (Topic?) -> Unit) {
+    val c = LocalParent.current
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Pill(S.allTopics[main], focus == null, { onPick(null) })
+        Channel.entries.forEach { channel ->
+            val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK }
+            T("${channel.emoji}  ${channel.handle[main]}", Modifier.padding(top = 4.dp), color = c.sub, size = 13.sp, weight = FontWeight.Bold)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                topics.forEach { topic ->
+                    val ages = Templates.of(topic).ages
+                    val label = topic.title[main] + if (age in ages) "" else " · " + S.forAges(ages)[main]
+                    Pill(label, topic == focus, { onPick(if (topic == focus) null else topic) })
+                }
+            }
+        }
     }
 }

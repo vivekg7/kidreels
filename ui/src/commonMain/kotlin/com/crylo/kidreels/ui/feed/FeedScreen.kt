@@ -174,6 +174,8 @@ fun FeedScreen(app: AppState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                // For the grown-up: a reminder that the feed is showing one topic only.
+                model.focus?.let { Chip(it.channel.emoji + " " + S.onlyTopic(it.title)[settings.main], colors.dark) }
                 if (windingDown) Chip("🌙 " + Phrases.almostDone[settings.main], colors.dark)
                 Gear(app, colors.dark)
             }
