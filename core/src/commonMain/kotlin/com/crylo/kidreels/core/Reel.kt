@@ -18,6 +18,7 @@ enum class Topic(val channel: Channel, val title: Txt) {
     COMPARE(Channel.MATHS, txt("More or less", "कम या ज़्यादा")),
     SEQUENCE(Channel.MATHS, txt("Number patterns", "संख्या क्रम")),
     CLOCK(Channel.MATHS, txt("Telling time", "घड़ी")),
+    BASKET(Channel.MATHS, txt("Fill the basket", "टोकरी भरो")),
     LETTERS(Channel.LETTERS, txt("Alphabet", "वर्णमाला")),
     FIRST_LETTER(Channel.LETTERS, txt("First letter", "पहला अक्षर")),
     SHAPES(Channel.SHAPES, txt("Shapes", "आकार")),
@@ -25,13 +26,17 @@ enum class Topic(val channel: Channel, val title: Txt) {
     SOLIDS(Channel.SHAPES, txt("3D shapes", "ठोस आकार")),
     ANGLES(Channel.SHAPES, txt("Angles", "कोण")),
     CURVES(Channel.SHAPES, txt("Curves", "वक्र")),
+    SHAPE_SORTER(Channel.SHAPES, txt("Shape sorter", "आकार की जगह")),
     PATTERN(Channel.PUZZLES, txt("Patterns", "पैटर्न")),
     ODD_ONE_OUT(Channel.PUZZLES, txt("Odd one out", "अलग कौन")),
     SUDOKU(Channel.PUZZLES, txt("Sudoku", "सुडोकू")),
+    MISSING_PIECE(Channel.PUZZLES, txt("Missing piece", "छूटा टुकड़ा")),
+    SORTING(Channel.PUZZLES, txt("Sort it out", "छाँटो")),
     SIZES(Channel.WORLD, txt("Big and small", "बड़ा और छोटा")),
     COLOURS(Channel.WORLD, txt("Colours", "रंग")),
     ANIMAL_SOUNDS(Channel.WORLD, txt("Animal sounds", "जानवरों की आवाज़")),
     HABITATS(Channel.WORLD, txt("Animal homes", "जानवरों के घर")),
+    FEEDING(Channel.WORLD, txt("Feed the animals", "जानवरों को खिलाओ")),
     ANIMALS(Channel.WORLD, txt("Animals", "जानवर")),
     BIRDS(Channel.WORLD, txt("Birds", "चिड़ियाँ")),
     VEHICLES(Channel.WORLD, txt("Vehicles", "गाड़ियाँ")),
@@ -288,6 +293,7 @@ fun Reel.intro(main: Lang): List<Say> {
         // Said, then said again with the child: toddlers learn a letter by repeating it.
         is LetterCard -> letter.spoken() + line(Phrases.sayWithMe) + letter.spoken()
         is Quiz -> listOf(line(say ?: prompt))
+        is DragGame -> listOf(line(say))
         is CountAlong -> listOf(line(Phrases.countAlong(thing)))
         is ShapeCard -> listOf(line(Phrases.thisShape(shape)))
         is SolidCard -> listOf(line(Phrases.thisSolid(solid, showFact)))

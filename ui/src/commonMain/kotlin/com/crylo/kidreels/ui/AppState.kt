@@ -96,6 +96,9 @@ class ReelState {
     var solved by mutableStateOf(false)
     var wrongTries by mutableIntStateOf(0)
     val wrong = mutableStateListOf<Int>()
+
+    /** Drag games: which piece is in which place (piece index to target index). */
+    val placed = mutableStateMapOf<Int, Int>()
     var liked by mutableStateOf(false)
 
     /** Bumped on every like, to send up the hearts. */

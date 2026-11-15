@@ -116,4 +116,23 @@ class TemplatesTest {
             if (reel is AngleLab && reel.target != null) assertTrue(AngleKind.of(reel.startDegrees) != reel.target)
         }
     }
+
+    @Test
+    fun dragGamesCanBeFinishedAndExplainEveryWrongDrop() {
+        for ((_, reel) in everyReel(seeds = 30)) {
+            if (reel !is DragGame) continue
+            reel.pieces.forEach { p ->
+                p.whyNot.forEachIndexed { t, why -> assertEquals(p.target == t, why == null, "${reel.kind}: $p at $t") }
+                // Every picture in a drag game can be tapped for its name too.
+                (p.sprite as? Sprite.Emoji)?.let { assertTrue(Words.of(it.text) != null, "no name for ${it.text}") }
+            }
+            if (reel.kind == DragKind.MISSING_PIECE) {
+                val right = reel.pieces.filter { it.target == 0 }
+                assertEquals(1, right.size)
+                assertEquals(reel.targets[0].sprite, right[0].sprite)
+                assertEquals(reel.pieces.size, reel.pieces.map { it.sprite }.toSet().size, "two pieces look the same")
+            }
+            if (reel.kind == DragKind.BASKET) assertTrue(reel.pieces.size > reel.targets[0].capacity, "nothing to count out")
+        }
+    }
 }

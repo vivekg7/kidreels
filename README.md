@@ -31,6 +31,10 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 - **Picture cards** for ages 2 to 5: "This is an elephant" / "यह हाथी है", in eight
   groups (animals, birds, vehicles, my body, fruits, vegetables, things at home,
   clothes). From age 4 each adds one fact: "The elephant has a long trunk".
+- **Drag-and-drop games**: find the missing piece of a picture, put shapes in their holes,
+  feed each animal its food, put 4 mangoes in the basket, sort fruits from vegetables. A
+  piece dropped in the wrong place slides back with a reason ("That is not the dog's
+  food. Whose food is the banana?").
 - **Every picture talks.** Tapping any picture on any reel says what it is ("This is a
   fish", "This is the colour red"); tapping a number in a row reads it out.
 - Numbers under 20 come with matchsticks (तीलियाँ) under them, in fives, with tied
@@ -71,7 +75,7 @@ than a rewrite:
 
 | Module        | What                                                                                                                                    | Depends on |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `core/`       | Reel model, content (alphabets, shapes, animals…), the 30 reel templates, the feed rules, settings, time limit, check-in. Plain Kotlin. | nothing    |
+| `core/`       | Reel model, content (alphabets, shapes, animals…), the 35 reel templates, the feed rules, settings, time limit, check-in. Plain Kotlin. | nothing    |
 | `ui/`         | Every screen and reel, the three looks, the parent screens. Compose Multiplatform, foundation only (no Material).                       | `core`     |
 | `androidApp/` | The Android shell: text-to-speech, sound effects, storage, clock.                                                                       | `ui`       |
 

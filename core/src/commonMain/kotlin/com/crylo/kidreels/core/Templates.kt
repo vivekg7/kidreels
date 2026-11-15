@@ -183,6 +183,12 @@ object Templates {
         Template(Topic.ODD_ONE_OUT, 3..10, solving = true) { g -> oddOneOut(g) },
         Template(Topic.SUDOKU, 5..10, solving = true) { g -> sudoku(g) },
 
+        Template(Topic.FEEDING, 2..4, solving = true) { g -> DragGames.feed(g) },
+        Template(Topic.SHAPE_SORTER, 2..5, solving = true) { g -> DragGames.shapeSorter(g) },
+        Template(Topic.BASKET, 3..6, solving = true) { g -> DragGames.basket(g) },
+        Template(Topic.SORTING, 4..8, solving = true) { g -> DragGames.sort(g) },
+        Template(Topic.MISSING_PIECE, 3..8, solving = true) { g -> DragGames.missingPiece(g) },
+
         Template(Topic.SIZES, 2..3, solving = true) { g ->
             val thing = g.pick(Countables)
             val scales = if (g.level == 2) listOf(0.45f, 1f) else listOf(0.4f, 0.7f, 1f)

@@ -57,10 +57,35 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–10) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-30 templates, and why the tests can check every template at every age and difficulty.
+35 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
+
+### Drag games
+
+A `DragGame` is pieces and places (`core/DragGames.kt`): each piece names the place it
+belongs in (or none, for a wrong option) and, for every other place, why it does not go
+there. A place is full at its `capacity`; the game is solved when every place is full.
+One model, five games, drawn by `DragView` according to the `DragKind`:
+
+| Game             | Ages | What changes with age and difficulty                                                                                   |
+| ---------------- | ---- | ---------------------------------------------------------------------------------------------------------------------- |
+| Feed the animals | 2–4  | 2 animals at 2, then 3                                                                                                 |
+| Shape sorter     | 2–5  | 2, 3, then 4 holes; easy boards never hold look-alikes (square and diamond)                                            |
+| Fill the basket  | 3–6  | how many to count out, with 2 or 3 spare                                                                               |
+| Sort it out      | 4–8  | 2, 3, then 4 per basket; unlike groups first (fruit, vehicles), then near ones (birds, insects)                        |
+| Missing piece    | 3–8  | 2×2 then 3×3; wrong pieces from other pictures, then from elsewhere in the same one, then the right piece turned round |
+
+- **The missing piece is cut, not drawn.** The picture is an emoji drawn at the board's
+  size, and every piece is the same drawing clipped to one square, so a piece always
+  matches its gap exactly, at any screen size.
+- **A wrong drop slides back and says why**, as a wrong tap does. A right one stays and
+  says its line ("The dog loves the bone!"), or the count in the basket.
+- **Pieces only move from where they are**: a drag that starts between pieces turns the
+  page as usual, so the feed never feels stuck. A placed piece leaves its slot empty, so
+  the others stay under the child's finger.
+- **Tapping a piece names it**, like every other picture.
 
 ### Adding a reel type
 

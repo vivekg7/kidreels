@@ -226,21 +226,22 @@ object Habitats {
  * Groups for "odd one out". [near] names groups that look alike, which make the hard
  * version of the puzzle: picking the vegetable among fruits is harder than the car.
  */
-data class Category(val key: String, val name: Txt, val items: List<String>, val near: Set<String> = emptySet()) {
-    fun forAge(age: Int) = copy(name = name.forAge(age))
+/** [one] is a single member: "That is a fruit, not a vegetable!". */
+data class Category(val key: String, val name: Txt, val one: Txt, val items: List<String>, val near: Set<String> = emptySet()) {
+    fun forAge(age: Int) = copy(name = name.forAge(age), one = one.forAge(age))
 }
 
 object Categories {
     val all: List<Category> = listOf(
-        Category("fruit", txt("fruits", "फल"), listOf("🍎", "🍌", "🍇", "🍊", "🍉", "🍓", "🍍", "🥭", "🍐", "🍒"), setOf("veg")),
-        Category("veg", txt("vegetables", "सब्ज़ियाँ"), listOf("🥕", "🥦", "🌽", "🥔", "🍆", "🧅", "🥒", "🫑"), setOf("fruit")),
-        Category("animal", txt("animals", "जानवर"), listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐯", "🦁", "🐮", "🐷", "🐵"), setOf("bird", "sea")),
-        Category("bird", txt("birds", "पक्षी").simpler("birds", "चिड़िया"), listOf("🐦", "🦜", "🦆", "🦉", "🐧", "🦅", "🦚", "🐔"), setOf("animal", "bug")),
-        Category("sea", txt("sea animals", "समुद्री जीव").simpler("sea animals", "समुद्र के जानवर"), listOf("🐟", "🐠", "🐙", "🦀", "🐬", "🐳", "🦈", "🐡"), setOf("animal")),
-        Category("bug", txt("insects", "कीड़े").simpler("bugs", "कीड़े"), listOf("🐝", "🐞", "🦋", "🐜", "🐛", "🦗"), setOf("bird")),
-        Category("vehicle", txt("vehicles", "गाड़ियाँ").simpler("things that go", "गाड़ियाँ"), listOf("🚗", "🚕", "🚌", "🚓", "🚑", "🚒", "🚜", "🚲", "🚂", "✈️", "🚀", "🚢")),
-        Category("clothes", txt("clothes", "कपड़े"), listOf("👕", "👖", "👗", "🧦", "🧢", "👟", "🧤", "🧣")),
-        Category("ball", txt("balls", "गेंदें"), listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐")),
+        Category("fruit", txt("fruits", "फल"), txt("a fruit", "फल"), listOf("🍎", "🍌", "🍇", "🍊", "🍉", "🍓", "🍍", "🥭", "🍐", "🍒"), setOf("veg")),
+        Category("veg", txt("vegetables", "सब्ज़ियाँ"), txt("a vegetable", "सब्ज़ी"), listOf("🥕", "🥦", "🌽", "🥔", "🍆", "🧅", "🥒", "🫑"), setOf("fruit")),
+        Category("animal", txt("animals", "जानवर"), txt("an animal", "जानवर"), listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐯", "🦁", "🐮", "🐷", "🐵"), setOf("bird", "sea")),
+        Category("bird", txt("birds", "पक्षी").simpler("birds", "चिड़िया"), txt("a bird", "पक्षी").simpler("a bird", "चिड़िया"), listOf("🐦", "🦜", "🦆", "🦉", "🐧", "🦅", "🦚", "🐔"), setOf("animal", "bug")),
+        Category("sea", txt("sea animals", "समुद्री जीव").simpler("sea animals", "समुद्र के जानवर"), txt("a sea animal", "समुद्री जीव").simpler("a sea animal", "समुद्र का जानवर"), listOf("🐟", "🐠", "🐙", "🦀", "🐬", "🐳", "🦈", "🐡"), setOf("animal")),
+        Category("bug", txt("insects", "कीड़े").simpler("bugs", "कीड़े"), txt("an insect", "कीड़ा").simpler("a bug", "कीड़ा"), listOf("🐝", "🐞", "🦋", "🐜", "🐛", "🦗"), setOf("bird")),
+        Category("vehicle", txt("vehicles", "गाड़ियाँ").simpler("things that go", "गाड़ियाँ"), txt("a vehicle", "गाड़ी").simpler("a thing that goes", "गाड़ी"), listOf("🚗", "🚕", "🚌", "🚓", "🚑", "🚒", "🚜", "🚲", "🚂", "✈️", "🚀", "🚢")),
+        Category("clothes", txt("clothes", "कपड़े"), txt("something to wear", "पहनने की चीज़"), listOf("👕", "👖", "👗", "🧦", "🧢", "👟", "🧤", "🧣")),
+        Category("ball", txt("balls", "गेंदें"), txt("a ball", "गेंद"), listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐")),
     )
 
     fun byKey(key: String): Category = all.first { it.key == key }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.crylo.kidreels.core.AngleLab
 import com.crylo.kidreels.core.CountAlong
 import com.crylo.kidreels.core.CurveLab
+import com.crylo.kidreels.core.DragGame
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.LetterCard
 import com.crylo.kidreels.core.Phrases
@@ -67,9 +68,13 @@ class ReelEnv(
         if (active) play(s)
     }
 
-    /** A cheer, then the [reveal], or [said] when the reveal is spoken in parts. */
-    fun praise(reveal: Txt?, voice: Lang?, said: List<Say>? = null) {
-        val lines = mutableListOf(Say(Phrases.pick(Phrases.praise, Random)[main], main, Tone.CHEER))
+    /**
+     * A cheer, then the [reveal], or [said] when the reveal is spoken in parts. [first] goes
+     * before the cheer: the last piece's own line in a drag game.
+     */
+    fun praise(reveal: Txt?, voice: Lang?, said: List<Say>? = null, first: Txt? = null) {
+        val lines = listOfNotNull(first?.let { Say(it[main], main) }).toMutableList()
+        lines += Say(Phrases.pick(Phrases.praise, Random)[main], main, Tone.CHEER)
         lines += said ?: reveal?.let { listOf(Say(it[voice ?: main], voice ?: main)) }.orEmpty()
         say(lines)
     }
@@ -94,6 +99,7 @@ fun ReelView(
         is AngleLab -> AngleView(reel, state, padding, onSolved)
         is CurveLab -> CurveView(reel, padding)
         is WordCard -> WordView(reel, padding)
+        is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(padding, onMoreTime)
     }
 }
