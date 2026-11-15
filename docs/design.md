@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-50 templates, and why the tests can check every template at every age and difficulty.
+54 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -164,6 +164,38 @@ counting.
   out, and tapping 2 crosses out its multiples, then 3, 5 and 7, until only primes are
   left and light up. Only the number to tap next does anything, and any other tap says
   which one that is, so a child cannot get lost in a hundred cells.
+
+### Memory games
+
+A fourth kind of thinking beside numbers, letters and figures, in a channel of its own.
+Each game has a part to watch that runs by itself and a part to answer that waits.
+
+| Game            | Ages | Easy end → hard end                                      |
+| --------------- | ---- | -------------------------------------------------------- |
+| Cup shuffle     | 3–12 | 2 cups, 1 or 2 slow swaps → 4 cups, up to 9 quick ones   |
+| Find the pairs  | 3–12 | 2 pairs shown face up first → 8 pairs, no peek           |
+| Copy the order  | 4–12 | 3 pads, 2 flashes → 4 pads, 7 quick ones                 |
+| What's missing? | 3–12 | 3 pictures, a long look → 6 in a new order, a short look |
+
+- **The watching part waits for the child.** The shuffle and the flashes start only on
+  the reel on screen, after the spoken instructions, and start again from the top if
+  the child swipes away and back: a shuffle half-seen is not a fair puzzle.
+- **A swap is an arc, one cup over and one under**, never the same two cups twice
+  running (which only undoes the move), except with two cups, where there is no other
+  move. A wrong cup lifts to show it is empty.
+- **A miss in find-the-pairs is a slip only when the partner had been seen.** Turning
+  two cards nobody has seen yet is luck, not memory, so only a pair the child could have
+  remembered counts against the topic's skill. A turned card says its name, which helps
+  the memory.
+- **The pads are colours, not sounds.** The app has a handful of sound effects, not a
+  note per pad, and four colours a child can name are easy to tell apart. A wrong pad
+  shows the whole order again.
+- **What's missing hides its answers while the child looks.** The right answer was on
+  screen a moment ago and the others never were, so showing them during the look would
+  give it away. From 8 the hard end shows the rest in a new order instead of leaving a
+  gap.
+- Each weighs 0.75 in the mix: four new topics at once would otherwise crowd out the
+  rest.
 
 ### Adding a reel type
 

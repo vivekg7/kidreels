@@ -219,6 +219,12 @@ object Templates {
         Template(Topic.MISSING_PIECE, 3..8, solving = true) { g -> DragGames.missingPiece(g) },
 
         // Reasoning with figures: nine small topics, so each weighs half a reel in the mix.
+        // Memory: four small games, lighter than a topic each so they season the mix.
+        Template(Topic.CUPS, 3..12, solving = true, weight = 0.75) { g -> Memory.cups(g) },
+        Template(Topic.PAIRS, 3..12, solving = true, weight = 0.75) { g -> Memory.pairs(g) },
+        Template(Topic.COPY_ORDER, 4..12, solving = true, weight = 0.75) { g -> Memory.order(g) },
+        Template(Topic.WHATS_MISSING, 3..12, solving = true, weight = 0.75) { g -> Memory.missing(g) },
+
         Template(Topic.SAME_FIGURE, 4..8, solving = true, weight = 0.5) { g -> Reasoning.sameFigure(g) },
         Template(Topic.ODD_FIGURE, 4..12, solving = true, weight = 0.5) { g -> Reasoning.oddFigure(g) },
         Template(Topic.COMPLETE_PATTERN, 5..12, solving = true, weight = 0.5) { g -> Reasoning.completePattern(g) },

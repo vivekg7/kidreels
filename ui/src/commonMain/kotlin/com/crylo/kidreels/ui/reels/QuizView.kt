@@ -74,6 +74,8 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
     val colors = LocalReelColors.current
     var shake by remember(quiz.id) { mutableStateOf(0) }
     var shaking by remember(quiz.id) { mutableStateOf(-1) }
+    // "What is missing?" hides its answers while the child looks: see MemoryStage.
+    var looking by remember(quiz.id) { mutableStateOf(quiz.stage is Stage.Memory && !state.solved) }
 
     fun choose(i: Int) {
         if (state.solved || i in state.wrong) return
@@ -107,9 +109,13 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
             }
         } else {
             Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
-                StageView(quiz, state)
+                StageView(quiz, state, looking) { looking = false }
             }
-            Choices(quiz, state, shake, shaking, big = false, choose = ::choose)
+            if (looking) {
+                Box(Modifier.fillMaxWidth().height(204.dp), contentAlignment = Alignment.Center) { T("👀", Modifier.floating(), size = 44.sp) }
+            } else {
+                Choices(quiz, state, shake, shaking, big = false, choose = ::choose)
+            }
         }
         Box(Modifier.fillMaxWidth().height(64.dp), contentAlignment = Alignment.Center) {
             val reveal = quiz.reveal
@@ -125,7 +131,7 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
 }
 
 @Composable
-private fun StageView(quiz: Quiz, state: ReelState) {
+private fun StageView(quiz: Quiz, state: ReelState, looking: Boolean, onLooked: () -> Unit) {
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
     when (val stage = quiz.stage) {
@@ -160,6 +166,7 @@ private fun StageView(quiz: Quiz, state: ReelState) {
         is Stage.Hidden -> HiddenStage(stage, state.solved)
         is Stage.Fold -> FoldStage(stage)
         is Stage.Pairs -> PairsStage(stage)
+        is Stage.Memory -> MemoryStage(stage, quiz.id, looking, state.solved, onLooked)
     }
 }
 

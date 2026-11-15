@@ -149,6 +149,34 @@ class TemplatesTest {
     }
 
     @Test
+    fun memoryGamesAreFair() {
+        for ((_, reel) in everyReel()) {
+            when (reel) {
+                is CupGame -> {
+                    assertTrue(reel.answer in 0 until reel.cups && reel.swaps.isNotEmpty(), "$reel")
+                    if (reel.cups > 2) assertTrue(reel.swaps.zipWithNext().none { (a, b) -> a == b }, "a swap undone: $reel")
+                }
+                is PairsGame -> {
+                    assertTrue(reel.cards.groupingBy { it }.eachCount().values.all { it == 2 }, "not all pairs: $reel")
+                    assertEquals(0, reel.cards.size % reel.columns, "ragged grid: $reel")
+                }
+                is OrderGame -> {
+                    assertTrue(reel.sequence.all { it in 0 until reel.pads }, "$reel")
+                    assertTrue(reel.sequence.zipWithNext().none { (a, b) -> a == b }, "a pad twice running: $reel")
+                }
+                is Quiz -> {
+                    val stage = reel.stage as? Stage.Memory ?: continue
+                    val right = (reel.choices[reel.answer] as Choice.Token).text
+                    assertEquals(stage.items[stage.missing], right)
+                    // No other option was on screen, so only memory can tell them apart.
+                    assertTrue(reel.choices.filterIndexed { i, _ -> i != reel.answer }.none { (it as Choice.Token).text in stage.items }, "$reel")
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    @Test
     fun numberCardsSpellTheirNumber() {
         assertEquals(listOf("O", "N", "E"), Numbers.spelling(1))
         assertEquals("TWENTY", Numbers.spelling(20).joinToString(""))

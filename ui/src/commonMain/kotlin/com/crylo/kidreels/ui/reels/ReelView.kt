@@ -14,6 +14,9 @@ import com.crylo.kidreels.ui.common.tap
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.crylo.kidreels.core.AngleLab
 import com.crylo.kidreels.core.CountAlong
+import com.crylo.kidreels.core.CupGame
+import com.crylo.kidreels.core.OrderGame
+import com.crylo.kidreels.core.PairsGame
 import com.crylo.kidreels.core.CurveLab
 import com.crylo.kidreels.core.DragGame
 import com.crylo.kidreels.core.Lang
@@ -107,6 +110,9 @@ fun ReelView(
         is TableCard -> TableView(reel, padding)
         is SquareCard -> SquareView(reel, padding)
         is SieveLab -> SieveView(reel, padding)
+        is CupGame -> CupView(reel, state, padding, onSolved)
+        is PairsGame -> PairsView(reel, state, padding, onSolved)
+        is OrderGame -> OrderView(reel, state, padding, onSolved)
         is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }

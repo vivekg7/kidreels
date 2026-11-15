@@ -8,6 +8,7 @@ enum class Channel(val handle: Txt, val emoji: String) {
     PUZZLES(txt("Puzzles", "पहेली"), "🧩"),
     WORLD(txt("Our world", "हमारी दुनिया"), "🌍"),
     THINKING(txt("Thinking", "सोचो"), "🧠"),
+    MEMORY(txt("Memory", "याददाश्त"), "💭"),
 }
 
 enum class Topic(val channel: Channel, val title: Txt) {
@@ -61,6 +62,10 @@ enum class Topic(val channel: Channel, val title: Txt) {
     FIT_PIECE(Channel.THINKING, txt("Complete the square", "वर्ग पूरा करो")),
     HIDDEN_FIGURE(Channel.THINKING, txt("Hidden figure", "छिपी आकृति")),
     PAPER_FOLD(Channel.THINKING, txt("Fold and punch", "मोड़ो और छेद करो")),
+    CUPS(Channel.MEMORY, txt("Cup shuffle", "कप का खेल")),
+    PAIRS(Channel.MEMORY, txt("Find the pairs", "जोड़ी ढूँढो")),
+    COPY_ORDER(Channel.MEMORY, txt("Copy the order", "क्रम दोहराओ")),
+    WHATS_MISSING(Channel.MEMORY, txt("What's missing?", "क्या ग़ायब है?")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
 
@@ -165,6 +170,12 @@ sealed interface Stage {
 
     /** Busy [lines] on a [size] × [size] lattice; [answer] is where the hidden shape is, shown once solved. */
     data class Hidden(val lines: Lines, val size: Int, val answer: Lines) : Stage
+
+    /**
+     * "What is missing?": [items] are shown for [lookMillis], then again without the one at
+     * [missing], with a "?" in its place, or in a new order when [reshuffle] is set.
+     */
+    data class Memory(val items: List<String>, val missing: Int, val lookMillis: Long, val reshuffle: Boolean) : Stage
 
     /** [n] dots in pairs, for "even or odd?": an odd number leaves one without a partner. */
     data class Pairs(val n: Int) : Stage
@@ -377,6 +388,9 @@ fun Reel.intro(main: Lang): List<Say> {
         is TableCard -> listOf(line(Phrases.tableSay(table)))
         is SquareCard -> listOf(line(Phrases.squareSay(n)))
         is SieveLab -> listOf(line(NumberKinds.sieveSay(top)))
+        is CupGame -> listOf(line(Memory.cupsSay(prize)))
+        is PairsGame -> listOf(line(Memory.pairsSay))
+        is OrderGame -> listOf(line(Memory.orderSay))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),
