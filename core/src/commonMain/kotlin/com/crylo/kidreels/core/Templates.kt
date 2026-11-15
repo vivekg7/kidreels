@@ -156,6 +156,9 @@ object Templates {
             SquareCard(g.id, g.level, g.difficulty, n, showPower = g.level >= 9)
         },
 
+        Template(Topic.EVEN_ODD, 6..9, solving = true) { g -> NumberKinds.evenOdd(g) },
+        Template(Topic.PRIMES, 10..12, solving = true) { g -> NumberKinds.prime(g) },
+        Template(Topic.SIEVE, 10..12, solving = false) { g -> SieveLab(g.id, g.level, g.difficulty, top = if (g.level == 10) 50 else 100) },
         Template(Topic.SEQUENCE, 6..12, solving = true) { g -> sequence(g) },
         Template(Topic.CLOCK, 5..9, solving = true) { g -> clock(g) },
 

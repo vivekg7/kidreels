@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-47 templates, and why the tests can check every template at every age and difficulty.
+50 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -151,6 +151,19 @@ counting.
   25), so "25 is a square number" is something seen: the tiles make a square. On a
   paper-white card like the clock, as 144 small blue tiles on a coloured background
   were hard to see. "5² = 25" joins "5 × 5 = 25" from age 9.
+- **Even and odd start as pairs, not a rule.** Up to age 7 the number is shown as dots
+  joined in pairs and the question is "even or odd?": one dot left without a partner is
+  what odd means, and the wrong tap says so ("one dot has no partner"). From 8 it is
+  which of four two- or three-digit numbers is even, and the hint is the last digit. The
+  odd one out already asked about even and odd numbers from 7; this topic teaches it.
+- **Primes from 10, with the traps that catch children.** "Which is prime?" with wrong
+  options that are easy to rule out at first (even, or ending in 5), then odd numbers
+  that only look prime (21, 27, 51, 91) and 1, which most children call prime. A wrong
+  tap names a factor pair: "91 is 7 × 13".
+- **The sieve is done, not shown.** A board of 1 to 50 (100 from 11); 1 starts crossed
+  out, and tapping 2 crosses out its multiples, then 3, 5 and 7, until only primes are
+  left and light up. Only the number to tap next does anything, and any other tap says
+  which one that is, so a child cannot get lost in a hundred cells.
 
 ### Adding a reel type
 

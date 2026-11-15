@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -33,15 +34,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.crylo.kidreels.core.Lang
+import com.crylo.kidreels.core.NumberKinds
 import com.crylo.kidreels.core.NumberCard
 import com.crylo.kidreels.core.Numbers
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Say
+import com.crylo.kidreels.core.SieveLab
+import com.crylo.kidreels.core.Stage
 import com.crylo.kidreels.core.SquareCard
 import com.crylo.kidreels.core.TableCard
 import com.crylo.kidreels.core.Tone
@@ -255,4 +260,107 @@ fun SquareView(reel: SquareCard, padding: PaddingValues) {
 private fun Sum(text: String, color: Color, size: Int = 34) {
     val env = LocalReelEnv.current
     T(text, Modifier.tap { env.say(Txt.same(text.substringAfter("= "))) }, color = color, size = size.sp, weight = FontWeight.Black)
+}
+
+/**
+ * [n] dots in two rows, each pair joined by a line: an even number fills every pair, an
+ * odd one leaves the last dot alone on top.
+ */
+@Composable
+fun PairsStage(stage: Stage.Pairs) {
+    val colors = LocalReelColors.current
+    val columns = (stage.n + 1) / 2
+    BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        val step = minOf(maxWidth / (columns + 1), 64.dp)
+        Canvas(Modifier.size(step * columns, step * 2.2f)) {
+            val r = step.toPx() * 0.3f
+            val w = step.toPx()
+            for (c in 0 until columns) {
+                val x = w * (c + 0.5f)
+                val top = Offset(x, w * 0.5f)
+                val bottom = Offset(x, w * 1.7f)
+                val paired = 2 * c + 1 < stage.n
+                if (paired) drawLine(colors.ink.copy(alpha = 0.35f), top, bottom, r * 0.4f)
+                drawCircle(colors.ink, r, top)
+                if (paired) drawCircle(colors.ink, r, bottom)
+            }
+        }
+    }
+}
+
+/**
+ * The sieve: each tap on the next prime crosses out its multiples, until only primes are
+ * left. Only the number to tap next does anything; any other says which one that is.
+ */
+@Composable
+fun SieveView(reel: SieveLab, padding: PaddingValues) {
+    val env = LocalReelEnv.current
+    val colors = LocalReelColors.current
+    val steps = reel.steps
+    var step by remember(reel.id) { mutableIntStateOf(0) }
+    val done = step == steps.size
+    val crossed = remember(step) { setOf(1) + steps.take(step).flatMap { p -> (p * 2..reel.top step p).toList() } }
+    val target = steps.getOrNull(step)
+    fun tapped(n: Int) {
+        val now = steps.getOrNull(step)
+        when {
+            now == null -> env.say(Txt.same(n.toString()))
+            n == now -> {
+                step++
+                val next = steps.getOrNull(step)
+                env.sfx(if (next == null) Sfx.CORRECT else Sfx.TICK)
+                val lines = mutableListOf(Say(NumberKinds.sieveStep(n, next)[env.main], env.main))
+                if (next == null) lines += Say(NumberKinds.sieveDone(reel.top, Numbers.primes.count { it <= reel.top })[env.main], env.main, Tone.CHEER)
+                env.say(lines)
+            }
+            else -> env.say(NumberKinds.sieveTapNext(now))
+        }
+    }
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().padding(padding).reelWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            MultiText(reel.prompt, env.langs, colors.ink, Modifier.fillMaxWidth(), size = 28.sp, say = { env.say(it) })
+            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                val rows = (reel.top + 9) / 10
+                val cell = minOf((maxWidth - 16.dp) / 10, (maxHeight - 16.dp) / rows, 44.dp)
+                // Paper white like the clock: a hundred small numbers need the contrast.
+                Column(Modifier.clip(RoundedCornerShape(16.dp)).background(Paper).padding(6.dp)) {
+                    for (r in 0 until rows) {
+                        Row {
+                            for (c in 1..10) {
+                                val n = r * 10 + c
+                                if (n > reel.top) break
+                                SieveCell(n, cell, crossed = n in crossed, prime = n in steps.take(step) || (done && n !in crossed), next = n == target) { tapped(n) }
+                            }
+                        }
+                    }
+                }
+            }
+            Box(Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                val note = if (target != null) NumberKinds.sieveTapNext(target) else NumberKinds.sieveCount(reel.top, Numbers.primes.count { it <= reel.top })
+                MultiText(note, env.langs, colors.ink, size = 22.sp, say = { env.say(it) })
+            }
+        }
+        Confetti(if (done) 1 else 0)
+    }
+}
+
+private val PrimeGreen = Color(0xFF2E9E5B)
+private val SieveInk = Color(0xFF2D2440)
+
+@Composable
+private fun SieveCell(n: Int, size: androidx.compose.ui.unit.Dp, crossed: Boolean, prime: Boolean, next: Boolean, onTap: () -> Unit) {
+    val fade by animateFloatAsState(if (crossed) 0.25f else 1f, tween(400))
+    Box(
+        Modifier.size(size).padding(2.dp).clip(RoundedCornerShape(8.dp))
+            .background(if (prime) PrimeGreen else Color.Transparent)
+            .then(if (next) Modifier.border(2.5.dp, NumberBlue, RoundedCornerShape(8.dp)) else Modifier)
+            .tap(onTap),
+        contentAlignment = Alignment.Center,
+    ) {
+        T(
+            n.toString(), Modifier.graphicsLayer { alpha = fade }.then(if (next) Modifier.popOn(1) else Modifier),
+            color = if (prime) Color.White else SieveInk, size = (size.value * 0.4f).sp, weight = if (prime || next) FontWeight.Black else FontWeight.SemiBold,
+        )
+        if (crossed) Canvas(Modifier.fillMaxSize().padding(6.dp)) { drawLine(Color(0xFFE5484D).copy(alpha = 0.7f), Offset(0f, this.size.height), Offset(this.size.width, 0f), 2.dp.toPx()) }
+    }
 }

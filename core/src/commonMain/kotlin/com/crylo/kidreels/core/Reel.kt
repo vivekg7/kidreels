@@ -19,6 +19,9 @@ enum class Topic(val channel: Channel, val title: Txt) {
     MULTIPLICATION(Channel.MATHS, txt("Multiplying", "गुणा")),
     TABLES(Channel.MATHS, txt("Times tables", "पहाड़े")),
     SQUARES(Channel.MATHS, txt("Square numbers", "वर्ग संख्याएँ")),
+    EVEN_ODD(Channel.MATHS, txt("Even and odd", "सम और विषम")),
+    PRIMES(Channel.MATHS, txt("Prime numbers", "अभाज्य संख्याएँ")),
+    SIEVE(Channel.MATHS, txt("Find the primes", "अभाज्य संख्याएँ ढूँढो")),
     COMPARE(Channel.MATHS, txt("More or less", "कम या ज़्यादा")),
     SEQUENCE(Channel.MATHS, txt("Number patterns", "संख्या क्रम")),
     CLOCK(Channel.MATHS, txt("Telling time", "घड़ी")),
@@ -163,6 +166,9 @@ sealed interface Stage {
     /** Busy [lines] on a [size] × [size] lattice; [answer] is where the hidden shape is, shown once solved. */
     data class Hidden(val lines: Lines, val size: Int, val answer: Lines) : Stage
 
+    /** [n] dots in pairs, for "even or odd?": an odd number leaves one without a partner. */
+    data class Pairs(val n: Int) : Stage
+
     /** A square of paper folded in half (left over right, or top over bottom; [twice]: both), with [holes] punched. */
     data class Fold(val vertical: Boolean, val twice: Boolean, val holes: Set<Hole>) : Stage
 }
@@ -211,6 +217,9 @@ sealed interface Choice {
     data class Cut(val piece: Polygon) : Choice
 
     data class Shapes(val lines: Lines) : Choice
+
+    /** A word, shown in every chosen language: "Even" / "सम". */
+    data class Word(val text: Txt) : Choice
 
     /** An unfolded square of paper with these holes. */
     data class Holes(val holes: Set<Hole>) : Choice
@@ -367,6 +376,7 @@ fun Reel.intro(main: Lang): List<Say> {
         }
         is TableCard -> listOf(line(Phrases.tableSay(table)))
         is SquareCard -> listOf(line(Phrases.squareSay(n)))
+        is SieveLab -> listOf(line(NumberKinds.sieveSay(top)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

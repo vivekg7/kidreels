@@ -19,6 +19,7 @@ import com.crylo.kidreels.core.DragGame
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.LetterCard
 import com.crylo.kidreels.core.NumberCard
+import com.crylo.kidreels.core.SieveLab
 import com.crylo.kidreels.core.SquareCard
 import com.crylo.kidreels.core.TableCard
 import com.crylo.kidreels.core.Phrases
@@ -105,6 +106,7 @@ fun ReelView(
         is NumberCard -> NumberView(reel, padding)
         is TableCard -> TableView(reel, padding)
         is SquareCard -> SquareView(reel, padding)
+        is SieveLab -> SieveView(reel, padding)
         is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }

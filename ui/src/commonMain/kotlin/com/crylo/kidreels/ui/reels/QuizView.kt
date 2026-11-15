@@ -159,6 +159,7 @@ private fun StageView(quiz: Quiz, state: ReelState) {
         is Stage.Cutout -> CutoutStage(stage, state.solved)
         is Stage.Hidden -> HiddenStage(stage, state.solved)
         is Stage.Fold -> FoldStage(stage)
+        is Stage.Pairs -> PairsStage(stage)
     }
 }
 
@@ -433,6 +434,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
             is Choice.Sized -> T(choice.emoji, size = (72 * choice.scale).sp)
             is Choice.Time -> T("${choice.hour}:${choice.minute.toString().padStart(2, '0')}", color = ink, size = 32.sp, weight = FontWeight.ExtraBold)
             is Choice.Fig, is Choice.Cut, is Choice.Shapes, is Choice.Holes -> ReasoningChoice(choice)
+            is Choice.Word -> MultiText(choice.text, env.langs, ink, size = 32.sp)
         }
         if (right) {
             val tick = Modifier.align(Alignment.TopEnd).padding(8.dp)

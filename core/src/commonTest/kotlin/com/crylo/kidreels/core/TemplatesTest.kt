@@ -32,6 +32,7 @@ class TemplatesTest {
                 val expected = when (reel.topic) {
                     Topic.COMPARE -> 2
                     Topic.SUDOKU -> 4
+                    Topic.EVEN_ODD -> if (reel.level <= 7) 2 else 4
                     else -> reel.level.coerceIn(2, 4)
                 }
                 assertEquals(expected, reel.choices.size, "${reel.topic} at ${reel.level}: ${reel.choices}")
@@ -119,6 +120,32 @@ class TemplatesTest {
             assertTrue(here.size >= 8, "Only ${here.size} topics at age $age")
             assertTrue(here.any { it.solving } && here.any { !it.solving }, "Age $age lacks puzzles or explore reels")
         }
+    }
+
+    @Test
+    fun evenOddAndPrimeAnswersAreRight() {
+        for ((_, reel) in everyReel()) {
+            if (reel !is Quiz) continue
+            when (reel.topic) {
+                Topic.EVEN_ODD -> {
+                    val stage = reel.stage
+                    if (stage is Stage.Pairs) {
+                        assertEquals(stage.n % 2, reel.answer, "$reel")
+                    } else {
+                        val numbers = reel.choices.map { (it as Choice.Number).n }
+                        val right = numbers[reel.answer] % 2
+                        assertTrue(numbers.filterIndexed { i, _ -> i != reel.answer }.all { it % 2 != right }, "two answers in $numbers")
+                    }
+                }
+                Topic.PRIMES -> {
+                    val numbers = reel.choices.map { (it as Choice.Number).n }
+                    assertEquals(listOf(numbers[reel.answer]), numbers.filter(Numbers::isPrime), "$numbers")
+                }
+                else -> Unit
+            }
+        }
+        assertEquals(25, Numbers.primes.count { it <= 100 })
+        assertEquals(listOf(2, 3, 5, 7), SieveLab(1, 11, 1, 100).steps)
     }
 
     @Test
