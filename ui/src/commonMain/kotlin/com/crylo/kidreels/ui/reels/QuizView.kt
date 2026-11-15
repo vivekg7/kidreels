@@ -108,7 +108,11 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
         Box(Modifier.fillMaxWidth().height(64.dp), contentAlignment = Alignment.Center) {
             val reveal = quiz.reveal
             if (state.solved && reveal != null) {
-                MultiText(reveal, env.langs, colors.ink, size = 17.sp, first = quiz.voice ?: env.main, say = { env.say(it) })
+                // A tap says the answer as the cheer did: "S" … "for" … "Sun", not run together.
+                val parts = quiz.revealSaid
+                MultiText(reveal, env.langs, colors.ink, size = 17.sp, first = quiz.voice ?: env.main, say = { line ->
+                    env.say(parts?.takeIf { it.first().lang == line.lang } ?: listOf(line))
+                })
             }
         }
     }
