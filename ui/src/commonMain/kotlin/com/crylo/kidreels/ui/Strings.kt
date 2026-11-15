@@ -104,6 +104,11 @@ object S {
         "किड रील्स $version। मुफ़्त और ओपन सोर्स (MIT लाइसेंस)। कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं, इंटरनेट नहीं: कुछ भी फ़ोन से बाहर नहीं जाता।",
     )
 
+    val privacyPolicy = txt("Privacy policy", "गोपनीयता नीति")
+
+    /** Linked from Google Play too, so the two can never say different things. */
+    const val PRIVACY_URL = "https://github.com/vivekg7/kidreels/blob/main/PRIVACY.md"
+
     val gateTitle = txt("For grown-ups", "बड़ों के लिए")
     val gateBody = txt("Press and hold the button for 3 seconds.", "बटन को 3 सेकंड तक दबाकर रखें।")
     val hold = txt("Hold", "दबाए रखें")

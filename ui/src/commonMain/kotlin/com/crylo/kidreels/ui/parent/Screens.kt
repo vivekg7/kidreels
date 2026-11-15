@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -216,6 +217,10 @@ fun SettingsScreen(app: AppState) {
 
                 SectionTitle(S.about[main])
                 Body(S.aboutBody(app.host.appVersion)[main])
+                // Behind the gate like everything here: a child never reaches the browser.
+                // Opening a link needs no internet permission; the browser does the fetching.
+                val links = LocalUriHandler.current
+                Pill(S.privacyPolicy[main], false, { runCatching { links.openUri(S.PRIVACY_URL) } })
                 Spacer(Modifier.height(24.dp))
             }
         }
