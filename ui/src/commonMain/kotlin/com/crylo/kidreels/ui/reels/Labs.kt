@@ -111,7 +111,8 @@ fun SolidView(reel: SolidCard, padding: PaddingValues) {
                     }
                 }
                 .pointerInput(reel.id) {
-                    detectTapGestures { env.say(listOf(Say(solid.name[env.main], env.main), Say(solid.fact[env.main], env.main))) }
+                    // The fact is said only where it is shown: faces and edges are beyond a five-year-old.
+                    detectTapGestures { env.say(listOfNotNull(Say(solid.name[env.main], env.main), Say(solid.fact[env.main], env.main).takeIf { reel.showFact })) }
                 },
         ) {
             drawMesh(mesh, yaw, pitch, Color(reel.argb), Color(0xFF2D2440))

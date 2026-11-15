@@ -41,7 +41,9 @@ On first launch, and later in settings (behind a 3-second press-and-hold gate):
 
 - **Languages**: up to 3, in order; the first is the main one. English and Hindi for now.
 - **Age**, 2 to 10. Reels are made for that age, with an occasional one a level above or
-  below, and an easy reel always follows a hard one.
+  below, and an easy reel always follows a hard one. Up to age 5 the words are the ones
+  children hear at home ("तिकोना", "take away"); from 6, the ones used at school
+  ("त्रिभुज", "minus").
 - **Look**: Classic (dark, laid out like the reels apps children know), Candy (bright
   gradients and bubbles) or Calm (soft colours, nothing extra).
 - **Daily time limit**: 10 to 60 minutes, or none. In the last two minutes only easy reels

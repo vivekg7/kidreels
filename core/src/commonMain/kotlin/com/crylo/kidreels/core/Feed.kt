@@ -164,7 +164,7 @@ class Feed(
     }
 
     private fun make(template: Template, s: Settings, level: Int, difficulty: Int): Reel =
-        template.make(Gen(level, difficulty, random, s.langs, nextId++, progress))
+        template.make(Gen(level, difficulty, random, s.langs, nextId++, progress, age = s.age))
 
     /** Liked topics come up a little more often: up to half as often again. */
     private fun weightedPick(pool: List<Template>): Template {

@@ -96,6 +96,28 @@ class FeedTest {
         assertTrue(Say(card.letter.phrase, Lang.HI) in intro, "$intro")
     }
 
+    /** Everything a reel says or shows in Hindi, as one string to search. */
+    private fun Reel.hindi(): String = buildString {
+        intro(Lang.HI).forEach { append(it.text).append(' ') }
+        prompt?.let { append(it[Lang.HI]).append(' ') }
+        if (this@hindi is Quiz) reveal?.let { append(it[Lang.HI]) }
+        if (this@hindi is ShapeCard) append(shape.name[Lang.HI]).append(' ').append(shape.fact[Lang.HI])
+        if (this@hindi is SolidCard) append(solid.name[Lang.HI])
+    }
+
+    @Test
+    fun littleChildrenHearHomeWordsNotSchoolWords() {
+        val schoolWords = listOf("वृत्त", "त्रिभुज", "आयत", "भुजा", "संख्या", "पक्षी", "ध्रुवीय", "पंचभुज", "घन ", "शंकु", "लगभग")
+        for (age in 2..5) for (seed in 1..3) {
+            for (reel in feed(age, seed, listOf(Lang.HI, Lang.EN)).take(300)) {
+                val said = reel.hindi()
+                schoolWords.forEach { assertFalse(it in said, "age $age heard '$it' in: $said") }
+            }
+        }
+        val olderSaid = (1..3).flatMap { feed(7, it, listOf(Lang.HI, Lang.EN)).take(300) }.joinToString(" ") { it.hindi() }
+        assertTrue("त्रिभुज" in olderSaid || "वर्ग" in olderSaid, "a 7-year-old should hear the school names for shapes")
+    }
+
     @Test
     fun hearingAReelAgainRepeatsItWithoutTheOpener() {
         for (reel in feed(5).take(200)) {

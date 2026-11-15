@@ -12,11 +12,18 @@ object Phrases {
         txt("Wow, you did it!", "अरे वाह, तुमने कर दिखाया!"),
     )
 
+    /*
+     * Lines every reel can say are in words a three-year-old knows: they suit older
+     * children too. Words a child only meets at school ("संख्या", "minus") get a simpler
+     * version for the little ones instead (see Txt.simpler), so a seven-year-old still
+     * hears the word their class uses.
+     */
+
     /** Never "wrong": a pre-schooler hears that as "you are bad". */
     val tryAgain: List<Txt> = listOf(
-        txt("Oops! Try again.", "उफ़! फिर से कोशिश करो।"),
-        txt("Almost! Try another one.", "लगभग! दूसरा देखो।"),
-        txt("Hmm, not that one. Have another go!", "हम्म, वो नहीं। एक बार और!"),
+        txt("Oops! Try again.", "उफ़! फिर से करो।"),
+        txt("Not that one! Try another.", "वो नहीं! दूसरा देखो।"),
+        txt("Hmm, have another go!", "हम्म, एक बार और करो!"),
     )
 
     /*
@@ -65,17 +72,19 @@ object Phrases {
     val howMany = txt("How many are there?", "कितने हैं?")
     val whatNext = txt("What comes next?", "आगे क्या आएगा?")
     val whatMissing = txt("What is missing?", "बीच में क्या छूटा है?")
-    val oddOneOut = txt("Which one does not belong?", "इनमें से अलग कौन है?")
+    val oddOneOut = txt("Which one is different?", "इनमें से अलग कौन है?")
     val whatTime = txt("What time is it?", "घड़ी में कितने बजे हैं?")
     val whichMore = txt("Which has more?", "किसमें ज़्यादा हैं?")
-    val whichBigger = txt("Which number is bigger?", "कौन सी संख्या बड़ी है?")
-    val whichSmaller = txt("Which number is smaller?", "कौन सी संख्या छोटी है?")
+    val whichBigger = txt("Which number is bigger?", "कौन सी संख्या बड़ी है?").simpler("Which number is bigger?", "कौन सा नंबर बड़ा है?")
+    val whichSmaller = txt("Which number is smaller?", "कौन सी संख्या छोटी है?").simpler("Which number is smaller?", "कौन सा नंबर छोटा है?")
     val whichBig = txt("Which one is big?", "बड़ा वाला कौन सा है?")
     val whichSmall = txt("Which one is small?", "छोटा वाला कौन सा है?")
     val whichBiggest = txt("Which one is the biggest?", "सबसे बड़ा कौन सा है?")
     val whichSmallest = txt("Which one is the smallest?", "सबसे छोटा कौन सा है?")
     val sudokuNumber = txt("Which number goes in the empty box?", "खाली खाने में कौन सी संख्या आएगी?")
+        .simpler("Which number goes in the empty box?", "खाली डिब्बे में कौन सा नंबर आएगा?")
     val sudokuPicture = txt("Which one goes in the empty box?", "खाली खाने में कौन सा आएगा?")
+        .simpler("Which one goes in the empty box?", "खाली डिब्बे में कौन सा आएगा?")
     val sudokuRule = txt("Each row, column and box has each one once.", "हर पंक्ति, स्तंभ और खंड में हर एक बस एक बार।")
     val dragAngle = txt("Drag the arm to make an angle!", "भुजा को खींचकर कोण बनाओ!")
     val stretchIt = txt("Slide to change it", "बदलने के लिए सरकाओ")
@@ -86,14 +95,15 @@ object Phrases {
         return txt("Make $article $name!", "${kind.title[Lang.HI]} बनाओ!")
     }
 
-    fun whichColour(colour: Colour): Txt = txt("Which one is ${colour.name[Lang.EN]}?", "इनमें ${colour.name[Lang.HI]} कौन सा है?")
+    fun whichColour(colour: Colour): Txt = txt("Which one is ${colour.name[Lang.EN]}?", "${colour.name[Lang.HI]} वाला कौन सा है?")
 
     fun yesColour(colour: Colour): Txt = txt("Yes! That is ${colour.name[Lang.EN]}!", "हाँ! यह ${colour.name[Lang.HI]} है!")
 
     fun whichShape(shape: ShapeInfo): Txt =
         txt("Which one is the ${shape.name[Lang.EN].lowercase()}?", "इनमें ${shape.name[Lang.HI]} कौन सा है?")
 
-    fun whichSides(sides: Int): Txt = txt("Which shape has $sides sides?", "किस आकार की $sides भुजाएँ हैं?")
+    fun whichSides(sides: Int): Txt =
+        txt("Which shape has $sides sides?", "किस आकार की $sides भुजाएँ हैं?").simpler("Which shape has $sides corners?", "किस आकार के $sides कोने हैं?")
 
     fun whoSays(animal: Animal): Txt = txt("Who says “${animal.sound[Lang.EN]}”?", "कौन बोलता है “${animal.sound[Lang.HI]}”?")
 
@@ -107,14 +117,14 @@ object Phrases {
     fun oddNumber(odd: Int, rule: Txt): Txt = txt("$odd is different: the others are ${rule[Lang.EN]}!", "$odd अलग है: बाकी सब ${rule[Lang.HI]} हैं!")
 
     fun sum(a: Int, op: Op, b: Int): Txt = when (op) {
-        Op.ADD -> txt("What is $a plus $b?", "$a और $b कितने होते हैं?")
-        Op.SUB -> txt("What is $a minus $b?", "$a में से $b गए तो कितने बचे?")
+        Op.ADD -> txt("What is $a plus $b?", "$a और $b कितने होते हैं?").simpler("$a and $b make how many?", "$a और $b कितने होते हैं?")
+        Op.SUB -> txt("What is $a minus $b?", "$a में से $b गए तो कितने बचे?").simpler("$a take away $b leaves how many?", "$a में से $b गए तो कितने बचे?")
         Op.MUL -> txt("What is $a times $b?", "$a गुणा $b कितना होता है?")
     }
 
     fun sumAnswer(a: Int, op: Op, b: Int, c: Int): Txt = when (op) {
-        Op.ADD -> txt("$a plus $b is $c!", "$a और $b, $c होते हैं!")
-        Op.SUB -> txt("$a minus $b is $c!", "$a में से $b गए, $c बचे!")
+        Op.ADD -> txt("$a plus $b is $c!", "$a और $b, $c होते हैं!").simpler("$a and $b make $c!", "$a और $b, $c होते हैं!")
+        Op.SUB -> txt("$a minus $b is $c!", "$a में से $b गए, $c बचे!").simpler("$a take away $b leaves $c!", "$a में से $b गए, $c बचे!")
         Op.MUL -> txt("$a times $b is $c!", "$a गुणा $b, $c होता है!")
     }
 

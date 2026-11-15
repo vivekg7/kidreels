@@ -14,14 +14,23 @@ enum class Lang(val tag: String, val nativeName: String) {
  * One piece of text in every supported language. A reel shows the same line in up to
  * three of them at once, so text is never a single string with a locale picked later.
  */
-class Txt(private val byLang: Map<Lang, String>) {
+class Txt(private val byLang: Map<Lang, String>, private val simple: Txt? = null) {
     init {
         require(Lang.EN in byLang) { "Every Txt needs English, the fallback: $byLang" }
     }
 
     operator fun get(lang: Lang): String = byLang[lang] ?: byLang.getValue(Lang.EN)
 
-    fun has(lang: Lang): Boolean = lang in byLang
+    fun has(lang: Lang): Boolean = lang in byLang && simple?.has(lang) != false
+
+    /**
+     * The same text in the words a little child uses: "तिकोना" for "त्रिभुज", "take away"
+     * for "minus". Older children get the school word they are learning.
+     */
+    fun simpler(en: String, hi: String): Txt = Txt(byLang, txt(en, hi))
+
+    /** The text for a child of [age]: the simpler words, if there are any, up to [SIMPLE_UNTIL]. */
+    fun forAge(age: Int): Txt = if (age <= SIMPLE_UNTIL && simple != null) simple else this
 
     override fun equals(other: Any?): Boolean = other is Txt && other.byLang == byLang
 
@@ -30,6 +39,9 @@ class Txt(private val byLang: Map<Lang, String>) {
     override fun toString(): String = byLang[Lang.EN].orEmpty()
 
     companion object {
+        /** Pre-school: up to this age, words a child hears at home beat the textbook's. */
+        const val SIMPLE_UNTIL = 5
+
         /** Text that reads the same in every language: a numeral, an emoji, a formula. */
         fun same(text: String): Txt = Txt(Lang.entries.associateWith { text })
     }

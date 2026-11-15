@@ -17,21 +17,32 @@ data class ShapeInfo(
     val sides: Int,
     val examples: List<String>,
     val fromAge: Int,
-)
+) {
+    /** With the words for a child of [age]: "तिकोना" up to 5, "त्रिभुज" after. */
+    fun forAge(age: Int) = copy(name = name.forAge(age), fact = fact.forAge(age))
+}
 
 object Shapes {
     val all: List<ShapeInfo> = listOf(
-        ShapeInfo(ShapeKind.CIRCLE, txt("Circle", "वृत्त"), txt("Round, with no corners", "गोल, कोई कोना नहीं"), 0, listOf("🍪", "🕐", "🍩"), 2),
-        ShapeInfo(ShapeKind.SQUARE, txt("Square", "वर्ग"), txt("4 equal sides, 4 corners", "4 बराबर भुजाएँ, 4 कोने"), 4, listOf("🪟", "🧇"), 2),
-        ShapeInfo(ShapeKind.TRIANGLE, txt("Triangle", "त्रिभुज"), txt("3 sides, 3 corners", "3 भुजाएँ, 3 कोने"), 3, listOf("🍕", "⛺", "⚠️"), 2),
-        ShapeInfo(ShapeKind.RECTANGLE, txt("Rectangle", "आयत"), txt("4 sides, 4 corners", "4 भुजाएँ, 4 कोने"), 4, listOf("🚪", "📱", "📺"), 3),
+        ShapeInfo(ShapeKind.CIRCLE, txt("Circle", "वृत्त").simpler("Circle", "गोला"), txt("Round, with no corners", "गोल, कोई कोना नहीं"), 0, listOf("🍪", "🕐", "🍩"), 2),
+        ShapeInfo(ShapeKind.SQUARE, txt("Square", "वर्ग").simpler("Square", "चौकोर"),
+            txt("4 equal sides, 4 corners", "4 बराबर भुजाएँ, 4 कोने").simpler("4 corners, all sides the same", "4 कोने, चारों तरफ़ बराबर"), 4, listOf("🪟", "🧇"), 2),
+        ShapeInfo(ShapeKind.TRIANGLE, txt("Triangle", "त्रिभुज").simpler("Triangle", "तिकोना"),
+            txt("3 sides, 3 corners", "3 भुजाएँ, 3 कोने").simpler("3 sides, 3 corners", "3 किनारे, 3 कोने"), 3, listOf("🍕", "⛺", "⚠️"), 2),
+        ShapeInfo(ShapeKind.RECTANGLE, txt("Rectangle", "आयत").simpler("Rectangle", "लंबा चौकोर"),
+            txt("4 sides, 4 corners", "4 भुजाएँ, 4 कोने").simpler("4 sides, 4 corners", "4 किनारे, 4 कोने"), 4, listOf("🚪", "📱", "📺"), 3),
         ShapeInfo(ShapeKind.STAR, txt("Star", "तारा"), txt("5 points", "5 नोकें"), 0, listOf("🌟", "🎄"), 3),
         ShapeInfo(ShapeKind.HEART, txt("Heart", "दिल"), txt("The shape of love", "प्यार का आकार"), 0, listOf("💌", "🍓"), 3),
-        ShapeInfo(ShapeKind.OVAL, txt("Oval", "अंडाकार"), txt("Like a stretched circle", "खिंचे हुए वृत्त जैसा"), 0, listOf("🥚", "🏉"), 4),
-        ShapeInfo(ShapeKind.DIAMOND, txt("Diamond", "हीरा"), txt("4 equal sides, standing on a corner", "4 बराबर भुजाएँ, कोने पर खड़ा"), 4, listOf("💎", "🪁"), 4),
-        ShapeInfo(ShapeKind.PENTAGON, txt("Pentagon", "पंचभुज"), txt("5 sides, 5 corners", "5 भुजाएँ, 5 कोने"), 5, listOf("🏠"), 5),
-        ShapeInfo(ShapeKind.HEXAGON, txt("Hexagon", "षट्भुज"), txt("6 sides, 6 corners", "6 भुजाएँ, 6 कोने"), 6, listOf("🐝", "🔩"), 5),
-        ShapeInfo(ShapeKind.CRESCENT, txt("Crescent", "अर्धचंद्र"), txt("Like the moon on some nights", "कुछ रातों के चाँद जैसा"), 0, listOf("🌙", "🥐", "🍌"), 5),
+        ShapeInfo(ShapeKind.OVAL, txt("Oval", "अंडाकार").simpler("Oval", "अंडे जैसा"),
+            txt("Like a stretched circle", "खिंचे हुए वृत्त जैसा").simpler("Like a stretched circle", "खिंचे हुए गोले जैसा"), 0, listOf("🥚", "🏉"), 4),
+        ShapeInfo(ShapeKind.DIAMOND, txt("Diamond", "हीरा"),
+            txt("4 equal sides, standing on a corner", "4 बराबर भुजाएँ, कोने पर खड़ा").simpler("Standing on a corner", "कोने पर खड़ा"), 4, listOf("💎", "🪁"), 4),
+        ShapeInfo(ShapeKind.PENTAGON, txt("Pentagon", "पंचभुज").simpler("Pentagon", "पाँच कोनों वाला"),
+            txt("5 sides, 5 corners", "5 भुजाएँ, 5 कोने").simpler("5 sides, 5 corners", "5 किनारे, 5 कोने"), 5, listOf("🏠"), 5),
+        ShapeInfo(ShapeKind.HEXAGON, txt("Hexagon", "षट्भुज").simpler("Hexagon", "छह कोनों वाला"),
+            txt("6 sides, 6 corners", "6 भुजाएँ, 6 कोने").simpler("6 sides, 6 corners", "6 किनारे, 6 कोने"), 6, listOf("🐝", "🔩"), 5),
+        ShapeInfo(ShapeKind.CRESCENT, txt("Crescent", "अर्धचंद्र").simpler("Moon shape", "चाँद"),
+            txt("Like the moon on some nights", "कुछ रातों के चाँद जैसा"), 0, listOf("🌙", "🥐", "🍌"), 5),
         ShapeInfo(ShapeKind.OCTAGON, txt("Octagon", "अष्टभुज"), txt("8 sides, 8 corners", "8 भुजाएँ, 8 कोने"), 8, listOf("🛑"), 6),
     )
 
@@ -48,14 +59,16 @@ data class SolidInfo(
     val fact: Txt,
     val examples: List<String>,
     val fromAge: Int,
-)
+) {
+    fun forAge(age: Int) = copy(name = name.forAge(age), fact = fact.forAge(age))
+}
 
 object Solids {
     val all: List<SolidInfo> = listOf(
-        SolidInfo(SolidKind.CUBE, txt("Cube", "घन"), txt("6 square faces, 12 edges, 8 corners", "6 वर्गाकार फलक, 12 किनारे, 8 कोने"), listOf("🎲", "🧊"), 5),
+        SolidInfo(SolidKind.CUBE, txt("Cube", "घन").simpler("Cube", "डिब्बा"), txt("6 square faces, 12 edges, 8 corners", "6 वर्गाकार फलक, 12 किनारे, 8 कोने"), listOf("🎲", "🧊"), 5),
         SolidInfo(SolidKind.SPHERE, txt("Sphere", "गोला"), txt("Round all over, with no edges", "चारों ओर से गोल, कोई किनारा नहीं"), listOf("⚽", "🌍", "🏀"), 5),
         SolidInfo(SolidKind.CYLINDER, txt("Cylinder", "बेलन"), txt("2 flat circles and 1 curved side", "2 सपाट वृत्त और 1 घुमावदार सतह"), listOf("🥫", "🔋"), 5),
-        SolidInfo(SolidKind.CONE, txt("Cone", "शंकु"), txt("1 flat circle and a pointy top", "1 सपाट वृत्त और एक नुकीली चोटी"), listOf("🍦", "🎉"), 5),
+        SolidInfo(SolidKind.CONE, txt("Cone", "शंकु").simpler("Cone", "कोन"), txt("1 flat circle and a pointy top", "1 सपाट वृत्त और एक नुकीली चोटी"), listOf("🍦", "🎉"), 5),
         SolidInfo(SolidKind.CUBOID, txt("Cuboid", "घनाभ"), txt("6 rectangle faces, 12 edges, 8 corners", "6 आयताकार फलक, 12 किनारे, 8 कोने"), listOf("📦", "🧱"), 6),
         SolidInfo(SolidKind.PYRAMID, txt("Pyramid", "पिरामिड"), txt("A square base and 4 triangle faces", "वर्गाकार आधार और 4 त्रिभुजाकार फलक"), emptyList(), 6),
     )
@@ -169,7 +182,9 @@ enum class Home(val emoji: String, val label: Txt) {
 }
 
 /** [question] and [reveal] are whole sentences: the postposition depends on the home (पेड़ पर, पानी में). */
-data class Dweller(val emoji: String, val home: Home, val question: Txt, val reveal: Txt)
+data class Dweller(val emoji: String, val home: Home, val question: Txt, val reveal: Txt) {
+    fun forAge(age: Int) = copy(question = question.forAge(age), reveal = reveal.forAge(age))
+}
 
 object Habitats {
     val all: List<Dweller> = listOf(
@@ -177,7 +192,8 @@ object Habitats {
         Dweller("🐬", Home.WATER, txt("Where does the dolphin live?", "डॉल्फ़िन कहाँ रहती है?"), txt("The dolphin lives in the sea!", "डॉल्फ़िन समुद्र में रहती है!")),
         Dweller("🐫", Home.DESERT, txt("Where does the camel live?", "ऊँट कहाँ रहता है?"), txt("The camel lives in the desert!", "ऊँट रेगिस्तान में रहता है!")),
         Dweller("🐧", Home.ICE, txt("Where does the penguin live?", "पेंगुइन कहाँ रहता है?"), txt("The penguin lives on the ice!", "पेंगुइन बर्फ़ पर रहता है!")),
-        Dweller("🐻‍❄️", Home.ICE, txt("Where does the polar bear live?", "ध्रुवीय भालू कहाँ रहता है?"), txt("The polar bear lives on the ice!", "ध्रुवीय भालू बर्फ़ पर रहता है!")),
+        Dweller("🐻‍❄️", Home.ICE, txt("Where does the polar bear live?", "ध्रुवीय भालू कहाँ रहता है?").simpler("Where does the polar bear live?", "सफ़ेद भालू कहाँ रहता है?"),
+            txt("The polar bear lives on the ice!", "ध्रुवीय भालू बर्फ़ पर रहता है!").simpler("The polar bear lives on the ice!", "सफ़ेद भालू बर्फ़ पर रहता है!")),
         Dweller("🦁", Home.JUNGLE, txt("Where does the lion live?", "शेर कहाँ रहता है?"), txt("The lion lives in the jungle!", "शेर जंगल में रहता है!")),
         Dweller("🐯", Home.JUNGLE, txt("Where does the tiger live?", "बाघ कहाँ रहता है?"), txt("The tiger lives in the jungle!", "बाघ जंगल में रहता है!")),
         Dweller("🐒", Home.TREE, txt("Where does the monkey live?", "बंदर कहाँ रहता है?"), txt("The monkey lives in trees!", "बंदर पेड़ों पर रहता है!")),
@@ -193,17 +209,19 @@ object Habitats {
  * Groups for "odd one out". [near] names groups that look alike, which make the hard
  * version of the puzzle: picking the vegetable among fruits is harder than the car.
  */
-data class Category(val key: String, val name: Txt, val items: List<String>, val near: Set<String> = emptySet())
+data class Category(val key: String, val name: Txt, val items: List<String>, val near: Set<String> = emptySet()) {
+    fun forAge(age: Int) = copy(name = name.forAge(age))
+}
 
 object Categories {
     val all: List<Category> = listOf(
         Category("fruit", txt("fruits", "फल"), listOf("🍎", "🍌", "🍇", "🍊", "🍉", "🍓", "🍍", "🥭", "🍐", "🍒"), setOf("veg")),
         Category("veg", txt("vegetables", "सब्ज़ियाँ"), listOf("🥕", "🥦", "🌽", "🥔", "🍆", "🧅", "🥒", "🫑"), setOf("fruit")),
         Category("animal", txt("animals", "जानवर"), listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐯", "🦁", "🐮", "🐷", "🐵"), setOf("bird", "sea")),
-        Category("bird", txt("birds", "पक्षी"), listOf("🐦", "🦜", "🦆", "🦉", "🐧", "🦅", "🦚", "🐔"), setOf("animal", "bug")),
-        Category("sea", txt("sea creatures", "समुद्री जीव"), listOf("🐟", "🐠", "🐙", "🦀", "🐬", "🐳", "🦈", "🐡"), setOf("animal")),
-        Category("bug", txt("insects", "कीड़े"), listOf("🐝", "🐞", "🦋", "🐜", "🐛", "🦗"), setOf("bird")),
-        Category("vehicle", txt("vehicles", "गाड़ियाँ"), listOf("🚗", "🚕", "🚌", "🚓", "🚑", "🚒", "🚜", "🚲", "🚂", "✈️", "🚀", "🚢")),
+        Category("bird", txt("birds", "पक्षी").simpler("birds", "चिड़िया"), listOf("🐦", "🦜", "🦆", "🦉", "🐧", "🦅", "🦚", "🐔"), setOf("animal", "bug")),
+        Category("sea", txt("sea animals", "समुद्री जीव").simpler("sea animals", "समुद्र के जानवर"), listOf("🐟", "🐠", "🐙", "🦀", "🐬", "🐳", "🦈", "🐡"), setOf("animal")),
+        Category("bug", txt("insects", "कीड़े").simpler("bugs", "कीड़े"), listOf("🐝", "🐞", "🦋", "🐜", "🐛", "🦗"), setOf("bird")),
+        Category("vehicle", txt("vehicles", "गाड़ियाँ").simpler("things that go", "गाड़ियाँ"), listOf("🚗", "🚕", "🚌", "🚓", "🚑", "🚒", "🚜", "🚲", "🚂", "✈️", "🚀", "🚢")),
         Category("clothes", txt("clothes", "कपड़े"), listOf("👕", "👖", "👗", "🧦", "🧢", "👟", "🧤", "🧣")),
         Category("ball", txt("balls", "गेंदें"), listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐")),
     )

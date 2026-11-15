@@ -16,7 +16,12 @@ class Gen(
     val langs: List<Lang>,
     val id: Long,
     private val cursor: Cursor,
+    /** The child's age, which picks the words; [level] picks the content. */
+    val age: Int = level,
 ) {
+    /** [t] in words for this child: see [Txt.forAge]. */
+    fun words(t: Txt): Txt = t.forAge(age)
+
     /** Two-year-olds pick between 2, three-year-olds between 3, everyone else 4. */
     val optionCount: Int get() = (level).coerceIn(2, 4)
 
@@ -129,14 +134,14 @@ object Templates {
 
         Template(Topic.SHAPES, 2..6, solving = false) { g ->
             val shapes = Shapes.upTo(g.level)
-            ShapeCard(g.id, g.level, g.difficulty, shapes[g.inOrder("shapes", shapes.size)], g.pick(Colours.bright))
+            ShapeCard(g.id, g.level, g.difficulty, shapes[g.inOrder("shapes", shapes.size)].forAge(g.age), g.pick(Colours.bright))
         },
 
         Template(Topic.SHAPE_QUIZ, 3..7, solving = true) { g -> shapeQuiz(g) },
 
         Template(Topic.SOLIDS, 5..10, solving = false) { g ->
             val solids = Solids.upTo(g.level)
-            SolidCard(g.id, g.level, g.difficulty, solids[g.inOrder("solids", solids.size)], g.pick(Colours.bright), showFact = g.level >= 6)
+            SolidCard(g.id, g.level, g.difficulty, solids[g.inOrder("solids", solids.size)].forAge(g.age), g.pick(Colours.bright), showFact = g.level >= 6)
         },
 
         Template(Topic.ANGLES, 7..10, solving = false) { g ->
@@ -195,7 +200,7 @@ object Templates {
         },
 
         Template(Topic.HABITATS, 4..6, solving = true) { g ->
-            val dweller = g.pick(Habitats.all)
+            val dweller = g.pick(Habitats.all).forAge(g.age)
             val (homes, answer) = g.shuffleIn(dweller.home, (Home.entries - dweller.home).shuffled(g.random).take(g.optionCount - 1))
             Quiz(
                 g.id, Topic.HABITATS, g.level, g.difficulty, dweller.question, Stage.Picture(dweller.emoji),
@@ -233,7 +238,7 @@ object Templates {
         val (choices, answer) = g.numberChoices(sum, spread, sticks = aids)
         return Quiz(
             g.id, Topic.ADDITION, g.level, g.difficulty, Phrases.addThem, Stage.Sum(a, Op.ADD, b, aids),
-            choices, answer, reveal = Phrases.sumAnswer(a, Op.ADD, b, sum), say = Phrases.sum(a, Op.ADD, b),
+            choices, answer, reveal = g.words(Phrases.sumAnswer(a, Op.ADD, b, sum)), say = g.words(Phrases.sum(a, Op.ADD, b)),
         )
     }
 
@@ -256,7 +261,7 @@ object Templates {
         val (choices, answer) = g.numberChoices(diff, spread, sticks = aids)
         return Quiz(
             g.id, Topic.SUBTRACTION, g.level, g.difficulty, Phrases.takeAway, Stage.Sum(a, Op.SUB, b, aids),
-            choices, answer, reveal = Phrases.sumAnswer(a, Op.SUB, b, diff), say = Phrases.sum(a, Op.SUB, b),
+            choices, answer, reveal = g.words(Phrases.sumAnswer(a, Op.SUB, b, diff)), say = g.words(Phrases.sum(a, Op.SUB, b)),
         )
     }
 
@@ -322,7 +327,7 @@ object Templates {
         val sticks = g.level == 5
         val choices = listOf(Choice.Number(x, sticks), Choice.Number(y, sticks))
         return Quiz(
-            g.id, Topic.COMPARE, g.level, g.difficulty, if (smaller) Phrases.whichSmaller else Phrases.whichBigger,
+            g.id, Topic.COMPARE, g.level, g.difficulty, g.words(if (smaller) Phrases.whichSmaller else Phrases.whichBigger),
             Stage.None, choices, choices.indexOfFirst { it.n == target },
             reveal = if (smaller) Phrases.less(target, other) else Phrases.more(target, other),
         )
@@ -394,19 +399,21 @@ object Templates {
             val picked = bySides.shuffled(g.random).take(g.optionCount)
             val target = picked.first()
             val shuffled = picked.shuffled(g.random)
+            val said = target.forAge(g.age)
             return Quiz(
-                g.id, Topic.SHAPE_QUIZ, g.level, g.difficulty, Phrases.whichSides(target.sides), Stage.None,
+                g.id, Topic.SHAPE_QUIZ, g.level, g.difficulty, g.words(Phrases.whichSides(target.sides)), Stage.None,
                 shuffled.mapIndexed { i, s -> Choice.Shape(s.kind, colours[i]) }, shuffled.indexOf(target),
-                reveal = txt("${target.name[Lang.EN]}: ${target.fact[Lang.EN]}", "${target.name[Lang.HI]}: ${target.fact[Lang.HI]}"),
+                reveal = txt("${said.name[Lang.EN]}: ${said.fact[Lang.EN]}", "${said.name[Lang.HI]}: ${said.fact[Lang.HI]}"),
             )
         }
         val pool = Shapes.upTo(g.level)
         val target = g.pick(pool)
         val (shapes, answer) = g.shuffleIn(target, (pool - target).shuffled(g.random).take(g.optionCount - 1))
+        val said = target.forAge(g.age)
         return Quiz(
-            g.id, Topic.SHAPE_QUIZ, g.level, g.difficulty, Phrases.whichShape(target), Stage.None,
+            g.id, Topic.SHAPE_QUIZ, g.level, g.difficulty, Phrases.whichShape(said), Stage.None,
             shapes.mapIndexed { i, s -> Choice.Shape(s.kind, colours[i]) }, answer,
-            reveal = txt("That is the ${target.name[Lang.EN].lowercase()}!", "यह ${target.name[Lang.HI]} है!"),
+            reveal = txt("That is the ${said.name[Lang.EN].lowercase()}!", "यह ${said.name[Lang.HI]} है!"),
         )
     }
 
@@ -470,7 +477,7 @@ object Templates {
         val (items, answer) = g.shuffleIn(odd, members)
         return Quiz(
             g.id, Topic.ODD_ONE_OUT, g.level, g.difficulty, Phrases.oddOneOut, Stage.None,
-            items.map { Choice.Token(it) }, answer, reveal = Phrases.notInGroup(main),
+            items.map { Choice.Token(it) }, answer, reveal = Phrases.notInGroup(main.forAge(g.age)),
         )
     }
 
@@ -490,7 +497,7 @@ object Templates {
         val values = if (size == 4) (0 until 4).toList() else ((0 until size).filter { it != value }.shuffled(g.random).take(3) + value).sorted()
         val (boxRows, boxCols) = Sudoku.boxes(size)
         return Quiz(
-            g.id, Topic.SUDOKU, g.level, g.difficulty, if (g.level == 5) Phrases.sudokuPicture else Phrases.sudokuNumber,
+            g.id, Topic.SUDOKU, g.level, g.difficulty, g.words(if (g.level == 5) Phrases.sudokuPicture else Phrases.sudokuNumber),
             Stage.Grid(size, boxRows, boxCols, cells, blank, symbols, hint = g.level <= 6 || g.difficulty <= 2),
             values.map { Choice.Token(symbols[it]) }, values.indexOf(value),
         )

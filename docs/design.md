@@ -68,7 +68,9 @@ clock with its hands read the wrong way round, the vegetable among fruits at the
 
 1. Add it to `Lang`. Every `Txt` falls back to English, so the app runs at once.
 2. Fill in its text: `txt(...)` takes one string per language, so the
-   test `everyTextHasEveryLanguage` lists everything still missing.
+   test `everyTextHasEveryLanguage` lists everything still missing. Where the
+   language has a homely word for little children beside the school one, put it in
+   `.simpler(...)`.
 3. Add its alphabet to `Alphabets` (word, emoji, and the word in every other language).
 4. Map it to a TTS locale in `AndroidSpeaker`.
 
@@ -146,6 +148,14 @@ long. It guards settings, the check-in and the "10 more minutes" button.
 
 ## Small decisions worth knowing
 
+- **Words follow age.** Up to age 5 a child hears the words used at home, not the
+  textbook's: "तिकोना" not "त्रिभुज", "नंबर" not "संख्या", "take away" not "minus".
+  From 6 they hear the school word their class uses. A `Txt` can carry a simpler
+  version (`txt(...).simpler(...)`), and the template picks one for the child's age
+  (`Gen.words`, or `forAge` on a shape, solid, category or animal home). Lines every
+  reel can say (praise, "try again", openers) are kept simple for all ages; easy words
+  suit a nine-year-old too. `littleChildrenHearHomeWordsNotSchoolWords` fails if a
+  school word reaches a child of 5 or under.
 - **Option count follows age:** 2 choices at age 2, 3 at age 3, 4 from age 4. More is
   noise for a toddler.
 - **Swipe threshold is a quarter page**, not the default half: small hands drag short
