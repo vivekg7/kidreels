@@ -91,7 +91,19 @@ class FeedTest {
     @Test
     fun hindiLetterSpeaksHindiWhateverTheMainLanguage() {
         val card = feed(3, langs = listOf(Lang.EN, Lang.HI)).take(300).filterIsInstance<LetterCard>().first { it.lang == Lang.HI }
-        assertEquals(listOf(Say(card.letter.phrase, Lang.HI)), card.intro(Lang.EN))
+        val intro = card.intro(Lang.EN)
+        assertTrue(intro.all { it.lang == Lang.HI }, "$intro")
+        assertTrue(Say(card.letter.phrase, Lang.HI) in intro, "$intro")
+    }
+
+    @Test
+    fun hearingAReelAgainRepeatsItWithoutTheOpener() {
+        for (reel in feed(5).take(200)) {
+            val first = reel.intro(Lang.EN)
+            assertEquals(first, reel.intro(Lang.EN), "the opener should not change between calls")
+            val again = reel.intro(Lang.EN, greet = false)
+            if (reel is TimeUp) assertEquals(first, again) else assertEquals(first.drop(1), again)
+        }
     }
 
     @Test

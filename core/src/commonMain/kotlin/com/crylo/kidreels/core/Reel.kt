@@ -1,5 +1,7 @@
 package com.crylo.kidreels.core
 
+import kotlin.random.Random
+
 /** The "channel" a reel appears to come from in the familiar-looking skins. */
 enum class Channel(val handle: Txt, val emoji: String) {
     MATHS(txt("Maths", "गणित"), "🔢"),
@@ -233,15 +235,35 @@ data class TimeUp(override val id: Long) : Reel {
     override val voice: Lang? get() = null
 }
 
-/** Whatever is spoken when a reel comes on screen, in the right voice. */
-fun Reel.intro(main: Lang): List<Say> {
+/**
+ * Whatever is spoken when a reel comes on screen, in the right voice: a friendly opener,
+ * the reel's own line, then what to do with it. With [greet] false (the child asked to
+ * hear it again) the opener is left out and the rest is repeated.
+ */
+fun Reel.intro(main: Lang, greet: Boolean = true): List<Say> {
     val lang = voice ?: main
-    return when (this) {
-        is LetterCard -> listOf(Say(letter.phrase, lang))
-        is Quiz -> listOf(Say((say ?: prompt)[lang], lang))
-        is TimeUp -> listOf(Say(Phrases.allDone[lang], lang), Say(Phrases.allDoneBody[lang], lang))
-        else -> listOfNotNull(prompt?.let { Say(it[lang], lang) })
+    fun line(t: Txt, tone: Tone = Tone.TALK) = Say(t[lang], lang, tone)
+    if (this is TimeUp) return listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
+    val openers = when (this) {
+        is Quiz -> Phrases.askOpeners
+        is CountAlong, is AngleLab -> Phrases.playOpeners
+        else -> Phrases.lookOpeners
     }
+    val own = when (this) {
+        is LetterCard -> Say(letter.phrase, lang)
+        is Quiz -> line(say ?: prompt)
+        else -> prompt?.let { line(it) }
+    }
+    val hint = when (this) {
+        // From age 4 children know to tap an answer; younger ones are told.
+        is Quiz -> Phrases.tapTheAnswer.takeIf { level <= 3 }
+        is ShapeCard -> Phrases.tapAndSee
+        is SolidCard -> Phrases.spinIt
+        is CurveLab -> Phrases.stretchIt
+        else -> null
+    }
+    val opener = if (greet) line(Phrases.pick(openers, Random(id))) else null
+    return listOfNotNull(opener, own, hint?.let { line(it) })
 }
 
 /** Hard reels are followed by an easy one: see Feed. */

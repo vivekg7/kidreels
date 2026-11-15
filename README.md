@@ -74,8 +74,10 @@ add a reel type or a language, and why things are the way they are.
 Speech uses Android's built-in `TextToSpeech`: Indian English (`en-IN`, falling back to
 `en-GB`/`en-US`) and Hindi (`hi-IN`). No audio files are bundled. If a voice is not
 installed, reels in that language stay silent rather than being read by the wrong voice,
-and settings shows an **Install voice** button. Sound effects are synthesised on the
-device at start-up.
+and settings shows an **Install voice** button. The voice is slower and a little higher
+than the engine's default, introduces each reel ("Ooh, look!"), and sounds brighter for
+praise and softer for "try again". Sound effects are synthesised on the device at
+start-up.
 
 ## Build
 

@@ -15,6 +15,7 @@ import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.ShapeCard
 import com.crylo.kidreels.core.SolidCard
 import com.crylo.kidreels.core.TimeUp
+import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
@@ -37,14 +38,14 @@ class ReelEnv(
     fun say(line: Say) = say(listOf(line))
 
     /** [text] in the main language, or in [voice] for a reel about that language. */
-    fun say(text: Txt, voice: Lang? = null) = say(Say(text[voice ?: main], voice ?: main))
+    fun say(text: Txt, voice: Lang? = null, tone: Tone = Tone.TALK) = say(Say(text[voice ?: main], voice ?: main, tone))
 
     fun sfx(s: Sfx) {
         if (active) play(s)
     }
 
     fun praise(reveal: Txt?, voice: Lang?) {
-        val lines = mutableListOf(Say(Phrases.pick(Phrases.praise, Random)[main], main))
+        val lines = mutableListOf(Say(Phrases.pick(Phrases.praise, Random)[main], main, Tone.CHEER))
         reveal?.let { lines += Say(it[voice ?: main], voice ?: main) }
         say(lines)
     }

@@ -42,6 +42,7 @@ import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Picture
 import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.ShapeCard
+import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.Confetti
@@ -87,7 +88,7 @@ fun CountAlongView(reel: CountAlong, padding: PaddingValues) {
                                             counted += i
                                             if (counted.size == reel.n) {
                                                 env.sfx(Sfx.CORRECT)
-                                                env.say(Phrases.counted(reel.n))
+                                                env.say(Phrases.counted(reel.n), tone = Tone.CHEER)
                                             } else {
                                                 env.sfx(Sfx.TICK)
                                                 env.say(NumberWords.of(counted.size))

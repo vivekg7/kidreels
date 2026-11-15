@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Say
+import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.ui.Speaker
 import java.util.Locale
 
@@ -24,7 +25,7 @@ class AndroidSpeaker(context: Context) : Speaker {
     private var noEngine by mutableStateOf(false)
     private val readyLangs = mutableStateMapOf<Lang, Boolean>()
     private var englishLocale: Locale = Locale.ENGLISH
-    private var rate = 1f
+    private var rate = NORMAL_RATE
     private var utterance = 0
     private val tts = TextToSpeech(context.applicationContext) { onInit(it) }
 
@@ -58,13 +59,32 @@ class AndroidSpeaker(context: Context) : Speaker {
     override fun speak(lines: List<Say>) {
         if (!started) return
         tts.stop()
-        tts.setSpeechRate(rate)
+        var first = true
         for (line in lines) {
             if (readyLangs[line.lang] == false) continue
-            // The language is fixed per call to speak(), so queued lines can each have their own.
+            // Language, pitch and pace are fixed per call to speak(), so queued lines can
+            // each have their own.
             if (tts.setLanguage(locale(line.lang)) < TextToSpeech.LANG_AVAILABLE) continue
+            // A breath between lines: run together, "Ooh, look! A for Apple" sounds read out.
+            if (!first) tts.playSilentUtterance(PAUSE_MILLIS, TextToSpeech.QUEUE_ADD, "p${utterance++}")
+            first = false
+            val (pitch, pace) = sound(line.tone)
+            tts.setPitch(pitch)
+            tts.setSpeechRate(rate * pace)
             tts.speak(line.text, TextToSpeech.QUEUE_ADD, null, "u${utterance++}")
         }
+    }
+
+    /**
+     * Pitch and pace for each tone. The engine has no emotions, so this borrows the way
+     * adults talk to toddlers: a little higher and slower than usual, brighter for praise,
+     * softer for a miss. Small steps: much past these, the voice turns cartoonish.
+     */
+    private fun sound(tone: Tone): Pair<Float, Float> = when (tone) {
+        Tone.TALK -> 1.1f to 1f
+        Tone.CHEER -> 1.25f to 1.08f
+        Tone.GENTLE -> 1.05f to 0.9f
+        Tone.CALM -> 0.95f to 0.85f
     }
 
     override fun stop() {
@@ -72,7 +92,7 @@ class AndroidSpeaker(context: Context) : Speaker {
     }
 
     override fun setSlow(slow: Boolean) {
-        rate = if (slow) 0.75f else 1f
+        rate = if (slow) SLOW_RATE else NORMAL_RATE
     }
 
     fun shutdown() = tts.shutdown()
@@ -112,6 +132,11 @@ class AndroidSpeaker(context: Context) : Speaker {
 
     companion object {
         val HINDI: Locale = Locale.forLanguageTag("hi-IN")
+
+        /** Below the engine's 1.0: that pace is for adults, and young children need time to follow. */
+        private const val NORMAL_RATE = 0.85f
+        private const val SLOW_RATE = 0.7f
+        private const val PAUSE_MILLIS = 300L
         private val ENGLISH_PREFERENCE = listOf("en-IN", "en-GB", "en-US").map(Locale::forLanguageTag)
     }
 }

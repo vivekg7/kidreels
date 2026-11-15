@@ -144,7 +144,7 @@ fun FeedScreen(app: AppState) {
                             settings.look,
                             FrameInfo(reel, page, state.liked, state.hearts, settings.langs, timeFraction),
                             onLike = { model.like(reel) },
-                            onAgain = { env.say(reel.intro(settings.main)) },
+                            onAgain = { env.say(reel.intro(settings.main, greet = false)) },
                             extraTop = extraTop,
                         ) { padding ->
                             ReelView(

@@ -45,6 +45,7 @@ import com.crylo.kidreels.core.Op
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Quiz
 import com.crylo.kidreels.core.Stage
+import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.MultiText
@@ -81,7 +82,7 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
             shaking = i
             shake++
             env.sfx(Sfx.WRONG)
-            env.say(Phrases.pick(Phrases.tryAgain, Random))
+            env.say(Phrases.pick(Phrases.tryAgain, Random), tone = Tone.GENTLE)
         }
     }
 

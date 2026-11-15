@@ -6,18 +6,53 @@ import kotlin.random.Random
 object Phrases {
     val praise: List<Txt> = listOf(
         txt("Well done!", "शाबाश!"),
-        txt("Super!", "बहुत बढ़िया!"),
-        txt("You got it!", "सही जवाब!"),
-        txt("Yay!", "वाह!"),
+        txt("Super! You got it!", "बहुत बढ़िया! सही जवाब!"),
+        txt("Yay! That's right!", "वाह! बिल्कुल सही!"),
         txt("Great job!", "बहुत अच्छे!"),
+        txt("Wow, you did it!", "अरे वाह, तुमने कर दिखाया!"),
     )
 
     /** Never "wrong": a pre-schooler hears that as "you are bad". */
     val tryAgain: List<Txt> = listOf(
-        txt("Try again!", "फिर से कोशिश करो!"),
+        txt("Oops! Try again.", "उफ़! फिर से कोशिश करो।"),
         txt("Almost! Try another one.", "लगभग! दूसरा देखो।"),
-        txt("Have another go!", "एक बार और!"),
+        txt("Hmm, not that one. Have another go!", "हम्म, वो नहीं। एक बार और!"),
     )
+
+    /*
+     * Said before a reel's own line, the way a grown-up would introduce it, so the voice
+     * talks to the child instead of reading the screen at them. Each reel keeps its opener
+     * (it is picked from the reel's id), so hearing a reel again sounds the same.
+     */
+
+    /** Before a question. */
+    val askOpeners: List<Txt> = listOf(
+        txt("Ooh, here's a fun one!", "अरे वाह, एक मज़ेदार सवाल!"),
+        txt("Ready? Let's play!", "तैयार? चलो खेलें!"),
+        txt("Hmm, can you help me?", "हम्म, मेरी मदद करोगे?"),
+        txt("Here's a puzzle for you!", "तुम्हारे लिए एक पहेली!"),
+        txt("Let's see if you know this one!", "देखें, तुम्हें यह आता है?"),
+    )
+
+    /** Before something to look at: a letter, a shape, a solid, a curve. */
+    val lookOpeners: List<Txt> = listOf(
+        txt("Ooh, look!", "अरे, देखो!"),
+        txt("Wow, look at this!", "वाह, यह देखो!"),
+        txt("Look what I found!", "देखो, मुझे क्या मिला!"),
+        txt("What's this?", "यह क्या है?"),
+    )
+
+    /** Before something to do: counting along, opening an angle. */
+    val playOpeners: List<Txt> = listOf(
+        txt("Ready? Let's play!", "तैयार? चलो खेलें!"),
+        txt("Ooh, this one is fun!", "अरे, यह तो मज़ेदार है!"),
+        txt("Come on, let's try!", "आओ, करके देखें!"),
+    )
+
+    /** After the line, what to do with the reel. Spoken, since the youngest cannot read. */
+    val tapTheAnswer = txt("Tap the right one!", "सही वाले को छुओ!")
+    val tapAndSee = txt("Tap it and see!", "छूकर देखो!")
+    val spinIt = txt("Spin it with your finger!", "उँगली से घुमाओ!")
 
     /** Shown, not spoken, when a puzzle is swiped past: the next reel is already talking. */
     val skipped = txt("Aww, you didn't try that one!", "अरे, वो तो किया ही नहीं!")

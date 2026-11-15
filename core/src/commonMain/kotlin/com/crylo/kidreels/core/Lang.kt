@@ -38,4 +38,22 @@ class Txt(private val byLang: Map<Lang, String>) {
 fun txt(en: String, hi: String): Txt = Txt(mapOf(Lang.EN to en, Lang.HI to hi))
 
 /** One stretch of speech, in one voice. A reel's speech is a list of these. */
-data class Say(val text: String, val lang: Lang)
+data class Say(val text: String, val lang: Lang, val tone: Tone = Tone.TALK)
+
+/**
+ * How a line should sound. Speech engines offer no "happy" switch, so each platform turns
+ * a tone into pitch and pace: the sing-song, slower speech adults use with small children.
+ */
+enum class Tone {
+    /** Questions and explanations: warm and unhurried. */
+    TALK,
+
+    /** Praise: brighter and a little quicker, like a real "yay!". */
+    CHEER,
+
+    /** "Try again": soft and slow, so a miss never sounds like a telling-off. */
+    GENTLE,
+
+    /** The goodbye reel: low and slow, winding down. */
+    CALM,
+}

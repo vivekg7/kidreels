@@ -130,6 +130,18 @@ long. It guards settings, the check-in and the "10 more minutes" button.
   solid is convex.
 - Speech is the phone's TTS engine, so no voice recordings ship. A missing voice means
   silence for that language, never Devanagari read by an English voice.
+- **The voice talks to the child, not at them.** Read out flat and at adult pace, the
+  screen text sounded curt. So each reel opens with a line a grown-up would say ("Ooh,
+  look!", "Hmm, can you help me?"), then its own line, then what to do ("Tap the right
+  one!" up to age 3, "Spin it with your finger!"). The opener is picked from the reel's
+  id, so a reel swiped back to sounds the same; the speaker button repeats the reel
+  without it.
+- **Tone is pitch and pace.** Engines have no emotion setting, so each spoken line
+  carries a `Tone` that the platform turns into the way adults talk to toddlers. Speech
+  is a little slower (0.85, or 0.7 with slow speech) and higher than the engine default.
+  Praise is brighter, "try again" is softer and slower, and the goodbye reel is low and
+  calm. Lines are separated by a 300 ms pause. Pushed further, the voice sounds
+  cartoonish.
 - Sound effects are a few notes synthesised into `AudioTrack`s at start-up.
 
 ## Small decisions worth knowing
