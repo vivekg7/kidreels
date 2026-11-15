@@ -10,6 +10,7 @@ enum class Channel(val handle: Txt, val emoji: String) {
     THINKING(txt("Thinking", "सोचो"), "🧠"),
     MEMORY(txt("Memory", "याददाश्त"), "💭"),
     WORDS(txt("Words", "शब्द"), "📝"),
+    SCIENCE(txt("Science", "विज्ञान"), "🔬"),
 }
 
 enum class Topic(val channel: Channel, val title: Txt) {
@@ -79,6 +80,15 @@ enum class Topic(val channel: Channel, val title: Txt) {
     WORD_CARDS(Channel.WORDS, txt("Words in a sentence", "वाक्य में शब्द")),
     WORD_KINDS(Channel.WORDS, txt("Naming, doing, describing", "संज्ञा, क्रिया, विशेषण")),
     MATRAS(Channel.WORDS, txt("Hindi vowel signs", "मात्राएँ")),
+    PLANT_PARTS(Channel.SCIENCE, txt("Parts of a plant", "पौधे के भाग")),
+    PLANT_TAP(Channel.SCIENCE, txt("Find it on the plant", "पौधे पर ढूँढो")),
+    PHOTOSYNTHESIS(Channel.SCIENCE, txt("How plants make food", "पौधे खाना कैसे बनाते हैं")),
+    WATER_CYCLE(Channel.SCIENCE, txt("The water cycle", "जल चक्र")),
+    FLOAT_SINK(Channel.SCIENCE, txt("Float or sink", "तैरेगा या डूबेगा")),
+    MAGNETS(Channel.SCIENCE, txt("Magnets", "चुंबक")),
+    STATES(Channel.SCIENCE, txt("Solid, liquid, gas", "ठोस, द्रव, गैस")),
+    ALIVE(Channel.SCIENCE, txt("Living or not", "सजीव या निर्जीव")),
+    PLANETS(Channel.SCIENCE, txt("The solar system", "सौर मंडल")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
 
@@ -189,6 +199,12 @@ sealed interface Stage {
      * [missing], with a "?" in its place, or in a new order when [reshuffle] is set.
      */
     data class Memory(val items: List<String>, val missing: Int, val lookMillis: Long, val reshuffle: Boolean) : Stage
+
+    /** A tank of water: once answered, the picture drops in and floats or sinks. */
+    data class Tank(val emoji: String, val floats: Boolean) : Stage
+
+    /** A magnet over a picture: once answered, the picture jumps to it, or stays put. */
+    data class Magnet(val emoji: String, val sticks: Boolean) : Stage
 
     /** [n] dots in pairs, for "even or odd?": an odd number leaves one without a partner. */
     data class Pairs(val n: Int) : Stage
@@ -406,12 +422,14 @@ fun Reel.intro(main: Lang): List<Say> {
         is OrderGame -> listOf(line(Memory.orderSay))
         is MazeGame -> listOf(line(Mazes.say(runner)))
         // Named, then named again with the child, as on the picture cards.
-        is BodyCard -> listOfNotNull(
-            line(Body.thisIs(part)), line(Phrases.sayWithMe), Say(part.name[lang], lang, pauseMillis = Letter.PART_PAUSE),
+        is DiagramCard -> listOfNotNull(
+            line(Diagrams.thisIs(diagram, part)), line(Phrases.sayWithMe), Say(part.name[lang], lang, pauseMillis = Letter.PART_PAUSE),
             part.fact.takeIf { showFact }?.let { line(it) },
         )
-        is BodyTap -> listOf(line(Body.tapSay(part)))
+        is DiagramTap -> listOf(line(Diagrams.tapSay(part)))
         is WordUseCard -> listOf(line(word.word), line(Grammar.cardSay(word, level)))
+        is LabReel -> listOf(line(lab.intro))
+        is PlanetCard -> listOf(line(Science.planetSay(planet)))
         // Named, then named again with the child, as on the alphabet card.
         is WordCard -> listOfNotNull(
             line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),

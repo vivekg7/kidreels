@@ -169,6 +169,8 @@ private fun StageView(quiz: Quiz, state: ReelState, looking: Boolean, onLooked: 
         is Stage.Fold -> FoldStage(stage)
         is Stage.Pairs -> PairsStage(stage)
         is Stage.Memory -> MemoryStage(stage, quiz.id, looking, state.solved, onLooked)
+        is Stage.Tank -> TankStage(stage, state.solved)
+        is Stage.Magnet -> MagnetStage(stage, state.solved)
     }
 }
 

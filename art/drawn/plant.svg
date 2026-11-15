@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360">
+  <!--
+    A plant with the ground cut away, so the roots show: for "Tap the root!" and for the
+    photosynthesis animation, which draws the sun, water and air over it. Where each part
+    is lives in core/Diagrams.kt, in this drawing's units.
+  -->
+  <!-- Soil, cut away -->
+  <path fill="#8D6E63" d="M0,262 L240,262 L240,360 L0,360 Z"/>
+  <path fill="#7CB342" d="M0,256 C40,250 80,262 120,256 C160,250 200,262 240,256 L240,266 L0,266 Z"/>
+  <g fill="#A1887F">
+    <ellipse cx="30" cy="300" rx="6" ry="3"/><ellipse cx="200" cy="320" rx="7" ry="3.5"/>
+    <ellipse cx="60" cy="340" rx="5" ry="2.5"/><ellipse cx="180" cy="290" rx="4" ry="2"/>
+  </g>
+  <!-- Roots -->
+  <path fill="#D7B98E" d="M117,262 L123,262 C124,290 130,312 140,336 L136,338 C126,316 120,294 118,276 C112,300 100,320 84,334 L81,331 C98,314 110,294 117,262 Z"/>
+  <path fill="#D7B98E" d="M119,280 C134,292 150,296 166,300 L165,304 C148,300 132,296 118,286 Z"/>
+  <path fill="#D7B98E" d="M118,290 C104,300 88,304 72,306 L72,302 C88,300 102,296 117,286 Z"/>
+  <path fill="#D7B98E" d="M120,300 L123,300 C122,320 122,336 120,350 L117,350 C119,336 119,320 120,300 Z"/>
+  <!-- Stem and a branch -->
+  <path fill="#558B2F" d="M115,262 L125,262 L124,92 L116,92 Z"/>
+  <path fill="#558B2F" d="M120,170 C136,160 152,150 162,132 L167,135 C156,155 140,166 122,178 Z"/>
+  <!-- Leaves -->
+  <path fill="#43A047" d="M116,220 C96,204 70,204 50,214 C70,230 98,232 116,224 Z"/>
+  <path fill="#66BB6A" d="M116,222 C96,214 74,212 52,214 C74,218 96,220 116,224 Z"/>
+  <path fill="#43A047" d="M124,196 C144,180 170,180 190,190 C170,206 142,208 124,200 Z"/>
+  <path fill="#66BB6A" d="M124,198 C144,190 166,188 188,190 C166,194 144,196 124,200 Z"/>
+  <path fill="#43A047" d="M116,150 C98,134 76,132 58,140 C76,156 100,158 116,154 Z"/>
+  <path fill="#66BB6A" d="M116,152 C98,144 78,142 60,140 C78,146 98,150 116,154 Z"/>
+  <!-- Fruit, hanging from the branch -->
+  <path fill="#558B2F" d="M163,134 L165,148 L161,148 Z"/>
+  <ellipse fill="#E53935" cx="163" cy="160" rx="14" ry="13"/>
+  <ellipse fill="#EF9A9A" cx="157" cy="155" rx="4" ry="3"/>
+  <path fill="#7CB342" d="M155,148 C160,144 166,144 171,148 C166,150 160,150 155,148 Z"/>
+  <!-- Flower on top -->
+  <g fill="#F06292">
+    <ellipse cx="120" cy="58" rx="11" ry="18"/><ellipse cx="120" cy="98" rx="11" ry="18"/>
+    <ellipse cx="100" cy="78" rx="18" ry="11"/><ellipse cx="140" cy="78" rx="18" ry="11"/>
+    <ellipse cx="106" cy="64" rx="12" ry="12"/><ellipse cx="134" cy="64" rx="12" ry="12"/>
+    <ellipse cx="106" cy="92" rx="12" ry="12"/><ellipse cx="134" cy="92" rx="12" ry="12"/>
+  </g>
+  <circle fill="#FFCA28" cx="120" cy="78" r="12"/>
+  <circle fill="#FFB300" cx="120" cy="78" r="6"/>
+</svg>

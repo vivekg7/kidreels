@@ -36,12 +36,15 @@ class Art(val width: Float, val height: Float, val parts: List<ArtPart>) {
 /** [art] scaled to fit this draw area and centred in it. */
 fun DrawScope.drawArt(art: Art) {
     val scale = minOf(size.width / art.width, size.height / art.height)
-    translate((size.width - art.width * scale) / 2, (size.height - art.height * scale) / 2) {
-        withTransform({ scale(scale, scale, pivot = androidx.compose.ui.geometry.Offset.Zero) }) {
-            art.paths.forEachIndexed { i, (path, clip) ->
-                val colour = Color(art.parts[i].fill)
-                if (clip == null) drawPath(path, colour) else clipPath(clip) { drawPath(path, colour) }
-            }
+    translate((size.width - art.width * scale) / 2, (size.height - art.height * scale) / 2) { drawArt(art, scale) }
+}
+
+/** [art] at [scale] times its own size, its top left corner at the origin. */
+fun DrawScope.drawArt(art: Art, scale: Float) {
+    withTransform({ scale(scale, scale, pivot = androidx.compose.ui.geometry.Offset.Zero) }) {
+        art.paths.forEachIndexed { i, (path, clip) ->
+            val colour = Color(art.parts[i].fill)
+            if (clip == null) drawPath(path, colour) else clipPath(clip) { drawPath(path, colour) }
         }
     }
 }

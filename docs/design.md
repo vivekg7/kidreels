@@ -66,7 +66,7 @@ Reels are not stored; they are generated. Each `Template` (`core/Templates.kt`) 
 which ages it serves and turns a _level_ (an age, 2–12) and a _difficulty_ (1–5 within
 that age) into concrete numbers, letters or shapes. "Addition at age 5, difficulty 2"
 becomes, say, `3 + 2` with sticks. This is how there are effectively endless reels from
-66 templates, and why the tests can check every template at every age and difficulty.
+75 templates, and why the tests can check every template at every age and difficulty.
 
 Wrong options are chosen to be instructive: near the answer (off by one, off by ten), the
 clock with its hands read the wrong way round, the vegetable among fruits at the hard end.
@@ -216,7 +216,7 @@ the square furthest from the start along the paths, so the whole maze is used. F
 ### The body, drawn
 
 A drawn child (`art/drawn/body.svg`) in short sleeves, shorts and bare feet, so elbows,
-knees and toes all show. `core/Body.kt` holds where each of 23 parts is on the drawing,
+knees and toes all show. `core/Diagrams.kt` holds where each of 23 parts is on the drawing,
 in its own units: one spot per side and a radius, from which a tap is told apart (the
 nearest spot it lands inside) and the part is ringed. A test taps every spot and checks
 it lands on its own part, so two parts never sit too close to tell apart.
@@ -262,6 +262,37 @@ kinds, so it is content more than code.
 - **School words from 6.** "संज्ञा, क्रिया, विशेषण" and "विलोम" are what a class uses; a
   five-year-old hears "नाम बताने वाला शब्द" and "उल्टा", as everywhere else.
 - **A मात्रा on its own shows on a dotted circle** (ि), the way Hindi textbooks print it.
+
+### Science
+
+A channel of its own (`core/Science.kt`, `ui/reels/ScienceViews.kt`).
+
+- **Processes are animations a child steps through**, not films: "Tap the sun", and its
+  light runs to the leaves; "Tap the cloud", and water rises through the roots and the
+  stem; then the air, then a leaf, and sugar runs down the stem while oxygen bubbles
+  out. The water cycle goes sun, sky, cloud, river. Only the next thing to tap does
+  anything, ringed so it can be found, as in the prime sieve, and each step keeps moving
+  once started, so the whole process is on screen at the end. Every step's word is
+  pinned by what it names. Nothing to watch passively, still.
+- **Science words from the age a class uses them**: carbon dioxide, oxygen and
+  photosynthesis from 10, evaporation and condensation from 9; before that the same
+  steps in plain words ("the leaves take in air", "the water makes a cloud").
+- **The plant is a diagram like the child** (`Diagram.PLANT`): the same ring-and-tap
+  code, so "Parts of a plant" and "Find it on the plant" came for the price of a drawing
+  and five spots. Its roots show through the cut-away soil, which is also where the
+  photosynthesis water starts.
+- **Float or sink, and magnets, answer with the picture.** Once answered, the thing drops
+  into the tank and bobs at the top or settles on the bottom, or jumps up to the magnet
+  or only wobbles, and the line says why ("A coconut has air inside"). Only iron and
+  steel things are magnetic here: a "metal" spoon or coin may be stainless steel that a
+  magnet does not pull, and the app should not be wrong in front of a child testing it.
+- **Solid, liquid or gas** is three fixed choices with the rule for each: a wrong tap
+  says that state's rule and asks if it fits.
+- **Living or not** says what living things do (grow, eat, breathe) rather than
+  listing animals.
+- **Planets are cards**, in order from the Sun, with the Moon after the Earth: drawn
+  balls, Saturn with its rings, each with its place ("the 4th planet from the Sun") and
+  one fact.
 
 ### Adding a reel type
 

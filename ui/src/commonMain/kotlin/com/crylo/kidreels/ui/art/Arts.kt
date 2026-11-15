@@ -99,6 +99,34 @@ object Arts {
         ),
     )
 
+    val plant = Art(
+        240f, 360f,
+        listOf(
+            ArtPart(0xFF8D6E63, "M0 262h240v98H0Z"),
+            ArtPart(0xFF7CB342, "M0 256c40-6 80 6 120 0s80 6 120 0v10H0Z"),
+            ArtPart(0xFFA1887F, "M30 297a6 3 0 1 0 0 6 6 3 0 1 0 0-6m170 19.5a7 3.5 0 1 0 0 7 7 3.5 0 1 0 0-7m-140 21a5 2.5 0 1 0 0 5 5 2.5 0 1 0 0-5M180 288a4 2 0 1 0 0 4 4 2 0 1 0 0-4"),
+            ArtPart(0xFFD7B98E, "M117 262h6c1 28 7 50 17 74l-4 2c-10-22-16-44-18-62-6 24-18 44-34 58l-3-3c17-17 29-37 36-69"),
+            ArtPart(0xFFD7B98E, "M119 280c15 12 31 16 47 20l-1 4c-17-4-33-8-47-18Zm-1 10c-14 10-30 14-46 16v-4c16-2 30-6 45-16Zm2 10h3c-1 20-1 36-3 50h-3c2-14 2-30 3-50"),
+            ArtPart(0xFF558B2F, "M115 262h10l-1-170h-8Z"),
+            ArtPart(0xFF558B2F, "M120 170c16-10 32-20 42-38l5 3c-11 20-27 31-45 43Z"),
+            ArtPart(0xFF43A047, "M116 220c-20-16-46-16-66-6 20 16 48 18 66 10Z"),
+            ArtPart(0xFF66BB6A, "M116 222c-20-8-42-10-64-8 22 4 44 6 64 10Z"),
+            ArtPart(0xFF43A047, "M124 196c20-16 46-16 66-6-20 16-48 18-66 10Z"),
+            ArtPart(0xFF66BB6A, "M124 198c20-8 42-10 64-8-22 4-44 6-64 10Z"),
+            ArtPart(0xFF43A047, "M116 150c-18-16-40-18-58-10 18 16 42 18 58 14Z"),
+            ArtPart(0xFF66BB6A, "M116 152c-18-8-38-10-56-12 18 6 38 10 56 14Z"),
+            ArtPart(0xFF558B2F, "m163 134 2 14h-4Z"),
+            ArtPart(0xFFE53935, "M163 147a14 13 0 1 0 0 26 14 13 0 1 0 0-26"),
+            ArtPart(0xFFEF9A9A, "M157 152a4 3 0 1 0 0 6 4 3 0 1 0 0-6"),
+            ArtPart(0xFF7CB342, "M155 148c5-4 11-4 16 0-5 2-11 2-16 0"),
+            ArtPart(0xFFF06292, "M120 40a11 18 0 1 0 0 36 11 18 0 1 0 0-36m0 40a11 18 0 1 0 0 36 11 18 0 1 0 0-36"),
+            ArtPart(0xFFF06292, "M100 67a18 11 0 1 0 0 22 18 11 0 1 0 0-22m40 0a18 11 0 1 0 0 22 18 11 0 1 0 0-22"),
+            ArtPart(0xFFF06292, "M106 52a12 12 0 1 0 0 24 12 12 0 1 0 0-24m28 0a12 12 0 1 0 0 24 12 12 0 1 0 0-24m-28 28a12 12 0 1 0 0 24 12 12 0 1 0 0-24m28 0a12 12 0 1 0 0 24 12 12 0 1 0 0-24"),
+            ArtPart(0xFFFFCA28, "M120 66a12 12 0 1 0 0 24 12 12 0 1 0 0-24"),
+            ArtPart(0xFFFFB300, "M120 72a6 6 0 1 0 0 12 6 6 0 1 0 0-12"),
+        ),
+    )
+
     val pumpkin = Art(
         128f, 128f,
         listOf(
@@ -205,6 +233,7 @@ object Arts {
         "bottle-gourd" to bottleGourd,
         "cauliflower" to cauliflower,
         "okra" to okra,
+        "plant" to plant,
         "pumpkin" to pumpkin,
         "radish" to radish,
         "spinach" to spinach,

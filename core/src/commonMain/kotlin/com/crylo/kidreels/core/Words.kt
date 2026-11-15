@@ -280,6 +280,7 @@ n("🦴", "bone", "हड्डी"), n("🥛", "milk", "दूध", article = "
         n("⚠️", "warning sign", "ख़तरे का निशान"), n("🛑", "stop sign", "रुकने का निशान"), n("🎄", "Christmas tree", "क्रिसमस ट्री"),
         n("💌", "love letter", "प्यार भरी चिट्ठी"), n("💎", "diamond", "हीरा"), n("🪁", "kite", "पतंग"), n("🔩", "nut and bolt", "नट-बोल्ट"),
         n("🎲", "dice", "पासा"), n("🎉", "party popper", "पार्टी पॉपर"), n("📦", "box", "डिब्बा"),
+n("🌵", "cactus", "नागफनी"), n("🪨", "stone", "पत्थर"),
         n("🧱", "brick", "ईंट"), n("🎡", "big wheel", "बड़ा झूला"), n("🪀", "yo-yo", "यो-यो"), n("🥁", "drum", "ढोल"),
         n("🏹", "bow and arrow", "धनुष-बाण"), n("🚰", "tap", "नल"), n("👜", "bag", "थैला"), n("🐚", "conch", "शंख"),
         n("🇮🇳", "flag of India", "भारत का झंडा", article = "the"), n("🔱", "trident", "त्रिशूल"), n("☔", "umbrella", "छाता", article = "an"),

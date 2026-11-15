@@ -1,15 +1,16 @@
 package com.crylo.kidreels.core
 
 /**
- * A part of the body on the drawn child (art/drawn/body.svg, 240 × 440 units): where it
- * is ([spots], one per side, and [radius] around each), so a tap can be told apart and
- * the part lit up. Emoji show an eye or a hand well, but not an elbow, a knee or a
- * shoulder: on the whole child every part is where it really is.
+ * A part of a drawn diagram (the child in art/drawn/body.svg, the plant in plant.svg):
+ * where it is, in the drawing's own units ([spots], one per side, and [radius] around
+ * each), so a tap can be told apart and the part lit up. Emoji show an eye or a hand
+ * well, but not an elbow, a knee or a plant's roots: on a whole drawing every part is
+ * where it really is.
  *
  * [whom] is the Hindi object form ("घुटने को"); [plural] and [pluralHi] are separate, as
  * "hair" takes "is" and "बाल" takes "हैं".
  */
-data class BodyPart(
+data class DiagramPart(
     val key: String,
     val name: Txt,
     val whom: String,
@@ -21,46 +22,55 @@ data class BodyPart(
     val pluralHi: Boolean = plural,
 )
 
-/** "This is your knee": a part lit up on the child, named, and from age 4 what it does. */
-data class BodyCard(
+/** A drawing with parts to name and find: [art] is its file in art/drawn/. [yours] says "your knee", not "the knee". */
+enum class Diagram(val art: String, val width: Float, val height: Float, val yours: Boolean) {
+    BODY("body", 240f, 440f, true),
+    PLANT("plant", 240f, 360f, false),
+    ;
+
+    val parts: List<DiagramPart> get() = if (this == BODY) Body.parts else Plant.parts
+}
+
+/** "This is your knee": a part lit up on the drawing, named, and from age 4 what it does. */
+data class DiagramCard(
     override val id: Long,
+    override val topic: Topic,
     override val level: Int,
     override val difficulty: Int,
-    val part: BodyPart,
+    val diagram: Diagram,
+    val part: DiagramPart,
     val showFact: Boolean,
 ) : Reel {
-    override val topic get() = Topic.BODY_PARTS
     override val needsSolving get() = false
-    override val prompt: Txt get() = Body.title(part)
+    override val prompt: Txt get() = Diagrams.title(part)
     override val voice: Lang? get() = null
 }
 
-/** "Tap the knee!": find [part] on the child. */
-data class BodyTap(
+/** "Tap the knee!": find [part] on the drawing. */
+data class DiagramTap(
     override val id: Long,
+    override val topic: Topic,
     override val level: Int,
     override val difficulty: Int,
-    val part: BodyPart,
+    val diagram: Diagram,
+    val part: DiagramPart,
 ) : Reel {
-    override val topic get() = Topic.BODY_TAP
     override val needsSolving get() = true
-    override val prompt: Txt get() = Body.tapThe(part)
+    override val prompt: Txt get() = Diagrams.tapThe(part)
     override val voice: Lang? get() = null
 }
 
+private fun part(
+    key: String, en: String, hi: String, whom: String, factEn: String, factHi: String,
+    spots: List<Pair<Float, Float>>, radius: Float, fromAge: Int, plural: Boolean = false, pluralHi: Boolean = plural,
+) = DiagramPart(key, txt(en, hi), whom, txt(factEn, factHi), spots, radius, fromAge, plural, pluralHi)
+
+/** The drawn child, 240 × 440: short sleeves, shorts and bare feet, so elbows, knees and toes show. */
 object Body {
-    const val WIDTH = 240f
-    const val HEIGHT = 440f
-
-    private fun both(x: Float, y: Float) = listOf(x to y, WIDTH - x to y)
-
-    private fun part(
-        key: String, en: String, hi: String, whom: String, factEn: String, factHi: String,
-        spots: List<Pair<Float, Float>>, radius: Float, fromAge: Int, plural: Boolean = false, pluralHi: Boolean = plural,
-    ) = BodyPart(key, txt(en, hi), whom, txt(factEn, factHi), spots, radius, fromAge, plural, pluralHi)
+    private fun both(x: Float, y: Float) = listOf(x to y, 240f - x to y)
 
     /** In teaching order: what a two-year-old points to first, joints and the finer parts later. */
-    val parts: List<BodyPart> = listOf(
+    val parts: List<DiagramPart> = listOf(
         part("hair", "hair", "बाल", "बालों", "Hair grows on our head.", "बाल हमारे सिर पर उगते हैं।", listOf(120f to 38f), 24f, 2, pluralHi = true),
         part("eye", "eye", "आँख", "आँख", "We see with our eyes.", "हम आँखों से देखते हैं।", both(104f, 84f), 10f, 2),
         part("nose", "nose", "नाक", "नाक", "We smell with our nose.", "हम नाक से सूँघते हैं।", listOf(120f to 98f), 8f, 2),
@@ -85,53 +95,67 @@ object Body {
         part("thumb", "thumb", "अँगूठा", "अँगूठे", "The thumb helps us hold a pencil.", "अँगूठे से हम पेंसिल पकड़ते हैं।", both(70f, 293f), 6f, 6),
         part("ankle", "ankle", "टखना", "टखने", "The ankle joins the foot to the leg.", "टखना पैर को टाँग से जोड़ता है।", both(101f, 389f), 7f, 6),
     )
+}
 
-    fun upTo(age: Int) = parts.filter { it.fromAge <= age }
+/** The plant with the ground cut away, 240 × 360, so its roots show. */
+object Plant {
+    val parts: List<DiagramPart> = listOf(
+        part("root", "root", "जड़", "जड़", "Roots hold the plant in the soil and drink water.", "जड़ें पौधे को मिट्टी में पकड़े रखती हैं और पानी पीती हैं।", listOf(120f to 306f), 24f, 2),
+        part("stem", "stem", "तना", "तने", "The stem holds the plant up and carries water to the leaves.", "तना पौधे को सीधा रखता है और पत्तियों तक पानी पहुँचाता है।", listOf(120f to 242f), 9f, 2),
+        part("leaf", "leaf", "पत्ती", "पत्ती", "Leaves make food for the plant from sunlight.", "पत्तियाँ धूप से पौधे का खाना बनाती हैं।", listOf(84f to 216f, 158f to 194f, 88f to 146f), 15f, 2),
+        part("flower", "flower", "फूल", "फूल", "Flowers turn into fruits with seeds.", "फूल से फल और बीज बनते हैं।", listOf(120f to 78f), 26f, 2),
+        part("fruit", "fruit", "फल", "फल", "The fruit keeps the seeds inside it.", "फल के अंदर बीज होते हैं।", listOf(163f to 160f), 15f, 2),
+    )
+}
 
+object Diagrams {
     /** The part a tap at ([x], [y]) in drawing units lands on: the nearest spot it is inside. */
-    fun at(x: Float, y: Float): BodyPart? = parts
+    fun at(d: Diagram, x: Float, y: Float): DiagramPart? = d.parts
         .flatMap { p -> p.spots.map { (sx, sy) -> p to ((sx - x) * (sx - x) + (sy - y) * (sy - y)) / ((p.radius + 4) * (p.radius + 4)) } }
         .filter { it.second <= 1f }
         .minByOrNull { it.second }?.first
 
-    fun title(p: BodyPart) = txt(p.name[Lang.EN].replaceFirstChar { it.uppercase() }, p.name[Lang.HI])
+    fun title(p: DiagramPart) = txt(p.name[Lang.EN].replaceFirstChar { it.uppercase() }, p.name[Lang.HI])
 
-    fun thisIs(p: BodyPart) = txt(
-        if (p.plural) "These are your ${p.name[Lang.EN]}!" else "This is your ${p.name[Lang.EN]}!",
-        if (p.pluralHi) "ये ${p.name[Lang.HI]} हैं!" else "यह ${p.name[Lang.HI]} है!",
-    )
+    fun thisIs(d: Diagram, p: DiagramPart): Txt {
+        val whose = if (d.yours) "your" else "the"
+        return txt(
+            if (p.plural) "These are $whose ${p.name[Lang.EN]}!" else "This is $whose ${p.name[Lang.EN]}!",
+            if (p.pluralHi) "ये ${p.name[Lang.HI]} हैं!" else "यह ${p.name[Lang.HI]} है!",
+        )
+    }
 
-    fun tapThe(p: BodyPart) = txt("Tap the ${p.name[Lang.EN]}!", "${p.whom} को छुओ!")
+    fun tapThe(p: DiagramPart) = txt("Tap the ${p.name[Lang.EN]}!", "${p.whom} को छुओ!")
 
-    fun tapSay(p: BodyPart) = txt(
+    fun tapSay(p: DiagramPart) = txt(
         "Where ${if (p.plural) "are" else "is"} the ${p.name[Lang.EN]}? Tap it on the picture!",
         "${p.name[Lang.HI]} कहाँ ${if (p.pluralHi) "हैं" else "है"}? तस्वीर पर छूकर बताओ!",
     )
 
-    fun found(p: BodyPart) = txt(
+    fun found(p: DiagramPart) = txt(
         "Yes! ${if (p.plural) "Those are" else "That is"} the ${p.name[Lang.EN]}!",
         "हाँ! ${if (p.pluralHi) "ये" else "यह"} ${p.name[Lang.HI]} ${if (p.pluralHi) "हैं" else "है"}!",
     )
 
     /** A tap on another part: what that one is, and the question again. */
-    fun notThis(tapped: BodyPart, wanted: BodyPart) = txt(
+    fun notThis(tapped: DiagramPart, wanted: DiagramPart) = txt(
         "${if (tapped.plural) "Those are" else "That is"} the ${tapped.name[Lang.EN]}. " +
             "Where ${if (wanted.plural) "are" else "is"} the ${wanted.name[Lang.EN]}?",
         "${if (tapped.pluralHi) "ये" else "यह"} ${tapped.name[Lang.HI]} ${if (tapped.pluralHi) "हैं" else "है"}। " +
             "${wanted.name[Lang.HI]} कहाँ ${if (wanted.pluralHi) "हैं" else "है"}?",
     )
 
-    fun card(g: Gen): BodyCard {
-        val shown = upTo(g.level)
-        val part = if (g.ordered) shown[g.inOrder("body", shown.size)] else g.pick(shown)
-        return BodyCard(g.id, g.level, g.difficulty, part, showFact = g.level >= 4)
+    fun card(g: Gen, topic: Topic, d: Diagram): DiagramCard {
+        val shown = d.parts.filter { it.fromAge <= g.level }
+        val part = if (g.ordered) shown[g.inOrder("diagram.${d.name}", shown.size)] else g.pick(shown)
+        return DiagramCard(g.id, topic, g.level, g.difficulty, d, part, showFact = g.level >= 4)
     }
 
     /** Mostly the parts newest at this age, so a six-year-old is asked about wrists, not noses. */
-    fun tap(g: Gen): BodyTap {
-        val known = upTo(g.level)
+    fun tap(g: Gen, topic: Topic, d: Diagram): DiagramTap {
+        val known = d.parts.filter { it.fromAge <= g.level }
         val newest = known.filter { it.fromAge >= known.maxOf { k -> k.fromAge } }
         val part = if (g.difficulty >= 3 && g.chance(0.7)) g.pick(newest) else g.pick(known)
-        return BodyTap(g.id, g.level, g.difficulty, part)
+        return DiagramTap(g.id, topic, g.level, g.difficulty, d, part)
     }
 }

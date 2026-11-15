@@ -56,6 +56,11 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   describing words with each used in a sentence, and, in the language they are about,
   one and many ("one mouse, many mice", "एक लड़का, कई लड़के"), male and female
   ("lion and lioness", "शेर और शेरनी"), English rhymes and Hindi मात्राएँ ("क + ा = का").
+- **Science**: how a plant makes food and where rain comes from, as animations a child
+  steps through by tapping the sun, the cloud and the air; the parts of a plant on a
+  drawn plant; will it float or sink, will a magnet pull it (and then it does, or does
+  not); solid, liquid or gas; living or not; and a card for each body of the solar
+  system.
 - **Reasoning with figures**, in the style of the Jawahar Navodaya Vidyalaya entrance
   test: the same figure and the odd one out from age 4, then pattern completion, figure
   series, mirror images, analogies, completing a square, hidden figures and paper

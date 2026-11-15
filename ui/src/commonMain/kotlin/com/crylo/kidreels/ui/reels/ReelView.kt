@@ -14,8 +14,8 @@ import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.tap
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.crylo.kidreels.core.AngleLab
-import com.crylo.kidreels.core.BodyCard
-import com.crylo.kidreels.core.BodyTap
+import com.crylo.kidreels.core.DiagramCard
+import com.crylo.kidreels.core.DiagramTap
 import com.crylo.kidreels.core.CountAlong
 import com.crylo.kidreels.core.CupGame
 import com.crylo.kidreels.core.OrderGame
@@ -23,7 +23,9 @@ import com.crylo.kidreels.core.PairsGame
 import com.crylo.kidreels.core.CurveLab
 import com.crylo.kidreels.core.DragGame
 import com.crylo.kidreels.core.Lang
+import com.crylo.kidreels.core.LabReel
 import com.crylo.kidreels.core.LetterCard
+import com.crylo.kidreels.core.PlanetCard
 import com.crylo.kidreels.core.MazeGame
 import com.crylo.kidreels.core.NumberCard
 import com.crylo.kidreels.core.SieveLab
@@ -119,9 +121,11 @@ fun ReelView(
         is PairsGame -> PairsView(reel, state, padding, onSolved)
         is OrderGame -> OrderView(reel, state, padding, onSolved)
         is MazeGame -> MazeView(reel, state, padding, onSolved)
-        is BodyCard -> BodyCardView(reel, padding)
-        is BodyTap -> BodyTapView(reel, state, padding, onSolved)
+        is DiagramCard -> DiagramCardView(reel, padding)
+        is DiagramTap -> DiagramTapView(reel, state, padding, onSolved)
         is WordUseCard -> WordUseView(reel, padding)
+        is LabReel -> LabView(reel, padding)
+        is PlanetCard -> PlanetView(reel, padding)
         is DragGame -> DragView(reel, state, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }

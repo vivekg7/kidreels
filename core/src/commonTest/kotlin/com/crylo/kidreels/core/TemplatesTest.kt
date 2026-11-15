@@ -35,6 +35,8 @@ class TemplatesTest {
                     Topic.COMPARE -> 2
                     Topic.SUDOKU -> 4
                     Topic.EVEN_ODD -> if (reel.level <= 7) 2 else 4
+                    Topic.FLOAT_SINK, Topic.MAGNETS -> 2
+                    Topic.STATES -> 3
                     else -> reel.level.coerceIn(2, 4)
                 }
                 assertEquals(expected, reel.choices.size, "${reel.topic} at ${reel.level}: ${reel.choices}")

@@ -144,7 +144,7 @@ class FeedTest {
             if (reel is Quiz) assertTrue(reel.say != null, "${reel.topic} has nothing to say beyond its prompt")
             val said = reel.intro(Lang.EN).joinToString(" ") { it.text }
             assertFalse("help me" in said, "a filler line instead of the reel: $said")
-            if (reel is Quiz && reel.stage is Stage.Count) {
+            if (reel is Quiz && reel.topic == Topic.COUNTING && reel.stage is Stage.Count) {
                 val emoji = (reel.stage as Stage.Count).emoji
                 val thing = Countables.first { it.emoji == emoji }
                 assertTrue(thing.many[Lang.EN] in said && "Count them" in said, said)

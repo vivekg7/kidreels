@@ -296,8 +296,19 @@ object Templates {
             )
         },
         // The whole child, drawn: parts emoji cannot show, where they really are.
-        Template(Topic.BODY_PARTS, 2..6, solving = false, weight = 0.6) { g -> Body.card(g) },
-        Template(Topic.BODY_TAP, 3..8, solving = true) { g -> Body.tap(g) },
+        Template(Topic.BODY_PARTS, 2..6, solving = false, weight = 0.6) { g -> Diagrams.card(g, Topic.BODY_PARTS, Diagram.BODY) },
+        Template(Topic.BODY_TAP, 3..8, solving = true) { g -> Diagrams.tap(g, Topic.BODY_TAP, Diagram.BODY) },
+        // Science.
+        Template(Topic.PLANT_PARTS, 4..8, solving = false, weight = 0.6) { g -> Diagrams.card(g, Topic.PLANT_PARTS, Diagram.PLANT) },
+        Template(Topic.PLANT_TAP, 5..9, solving = true) { g -> Diagrams.tap(g, Topic.PLANT_TAP, Diagram.PLANT) },
+        Template(Topic.PHOTOSYNTHESIS, 7..12, solving = false, weight = 0.6) { g -> Science.lab(g, Topic.PHOTOSYNTHESIS, Lab.PHOTOSYNTHESIS) },
+        Template(Topic.WATER_CYCLE, 6..12, solving = false, weight = 0.6) { g -> Science.lab(g, Topic.WATER_CYCLE, Lab.WATER_CYCLE) },
+        Template(Topic.FLOAT_SINK, 4..8, solving = true) { g -> Science.floatSink(g) },
+        Template(Topic.MAGNETS, 6..10, solving = true) { g -> Science.magnet(g) },
+        Template(Topic.STATES, 6..10, solving = true) { g -> Science.state(g) },
+        Template(Topic.ALIVE, 4..7, solving = true) { g -> Science.alive(g) },
+        Template(Topic.PLANETS, 7..12, solving = false, weight = 0.6) { g -> Science.planet(g) },
+
         // Words and grammar. A topic about one language says so in `langs`.
         Template(Topic.OPPOSITES, 5..10, solving = true) { g -> Grammar.opposite(g) },
         Template(Topic.PLURALS, 5..8, solving = true, langs = setOf(Lang.EN, Lang.HI)) { g -> Grammar.plural(g) },

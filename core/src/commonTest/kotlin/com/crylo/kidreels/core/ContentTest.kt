@@ -83,6 +83,8 @@ class ContentTest {
             Countables.forEach { add(it.emoji) }
             Numbers.things.forEach { add(it.emoji) }
             Mazes.runners.forEach { add(it.emoji); add(it.goal) }
+            addAll(Science.living)
+            addAll(Science.notLiving)
             PatternSets.flatten().forEach { add(it.emoji) }
             Categories.all.forEach { addAll(it.items) }
             AnimalSounds.all.forEach { add(it.emoji) }
@@ -98,14 +100,16 @@ class ContentTest {
         assertTrue(missing.isEmpty(), "No name for $missing")
     }
 
-    /** Every spot on the drawn child is inside the drawing and taps as its own part. */
+    /** Every spot on every drawing is inside it and taps as its own part. */
     @Test
-    fun bodyPartsCanEachBeTapped() {
-        for (p in Body.parts) for ((x, y) in p.spots) {
-            assertTrue(x in 0f..Body.WIDTH && y in 0f..Body.HEIGHT, "${p.key} is off the picture")
-            assertEquals(p, Body.at(x, y), "a tap on the ${p.key} lands on ${Body.at(x, y)?.key}")
+    fun diagramPartsCanEachBeTapped() {
+        for (d in Diagram.entries) {
+            for (p in d.parts) for ((x, y) in p.spots) {
+                assertTrue(x in 0f..d.width && y in 0f..d.height, "${d.name} ${p.key} is off the picture")
+                assertEquals(p, Diagrams.at(d, x, y), "a tap on the ${p.key} lands on ${Diagrams.at(d, x, y)?.key}")
+            }
+            assertEquals(d.parts.size, d.parts.map { it.key }.distinct().size)
         }
-        assertEquals(Body.parts.size, Body.parts.map { it.key }.distinct().size)
     }
 
     @Test
