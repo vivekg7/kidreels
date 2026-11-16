@@ -24,7 +24,7 @@ import kotlin.math.sin
  */
 
 /** [NEXT] and [DOWN] are chevrons: a row that opens a page, a group that opens in place. */
-enum class Icon { HEART, SPEAKER, GEAR, BACK, NEXT, DOWN }
+enum class Icon { HEART, SPEAKER, RESTART, GEAR, BACK, NEXT, DOWN }
 
 @Composable
 fun DrawnIcon(icon: Icon, color: Color, modifier: Modifier, filled: Boolean = false) {
@@ -32,6 +32,7 @@ fun DrawnIcon(icon: Icon, color: Color, modifier: Modifier, filled: Boolean = fa
         when (icon) {
             Icon.HEART -> heart(color, filled)
             Icon.SPEAKER -> speaker(color)
+            Icon.RESTART -> restart(color)
             Icon.GEAR -> gear(color)
             Icon.BACK -> back(color)
             Icon.NEXT -> chevron(color, down = false)
@@ -75,6 +76,27 @@ private fun DrawScope.speaker(color: Color) {
     val stroke = Stroke(w * 0.08f, cap = StrokeCap.Round)
     drawArc(color, -45f, 90f, false, topLeft = Offset(w * 0.42f, h * 0.32f), size = Size(w * 0.28f, h * 0.36f), style = stroke)
     drawArc(color, -50f, 100f, false, topLeft = Offset(w * 0.4f, h * 0.18f), size = Size(w * 0.5f, h * 0.64f), style = stroke)
+}
+
+/** A circle that is nearly closed, with an arrowhead at the top going round: start over. */
+private fun DrawScope.restart(color: Color) {
+    val w = size.width
+    val h = size.height
+    val r = size.minDimension * 0.32f
+    val c = center
+    drawArc(
+        color, -30f, 300f, false,
+        topLeft = Offset(c.x - r, c.y - r), size = Size(r * 2, r * 2),
+        style = Stroke(w * 0.09f, cap = StrokeCap.Round),
+    )
+    // At the top the arc is heading right, and so does the arrow.
+    val tip = Path().apply {
+        moveTo(c.x + w * 0.15f, c.y - r)
+        lineTo(c.x - w * 0.03f, c.y - r - h * 0.14f)
+        lineTo(c.x - w * 0.03f, c.y - r + h * 0.14f)
+        close()
+    }
+    drawPath(tip, color)
 }
 
 private fun DrawScope.gear(color: Color) {

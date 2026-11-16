@@ -20,6 +20,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -159,24 +160,36 @@ fun FeedScreen(app: AppState) {
                             FrameInfo(reel, page, state.liked, state.hearts, settings.langs, timeFraction),
                             onLike = { model.like(reel) },
                             onAgain = { env.say(reel.intro(settings.main)) },
+                            // The question again too: a memory game's timing waits for it.
+                            onRestart = if (reel.needsSolving) {
+                                {
+                                    model.restart(reel)
+                                    env.say(reel.intro(settings.main))
+                                }
+                            } else {
+                                null
+                            },
                             extraTop = extraTop,
                             hint = if (page < HINTED_REELS && reel !is TimeUp) {
-                                { SwipeHintFor(page, done = !reel.needsSolving || state.solved, main = settings.main) }
+                                { SwipeHintFor(page, done = !reel.needsSolving || state.counted, main = settings.main) }
                             } else {
                                 null
                             },
                         ) { padding ->
-                            ReelView(
-                                reel, state, padding,
-                                onSolved = { model.solved(reel) },
-                                onMoreTime = {
-                                    model.addTime(10)
-                                    scope.launch {
-                                        delay(150)
-                                        pager.animateScrollToPage(page + 1)
-                                    }
-                                },
-                            )
+                            // A new round remounts the view, so everything it remembers starts over.
+                            key(state.round) {
+                                ReelView(
+                                    reel, state, padding,
+                                    onSolved = { model.solved(reel) },
+                                    onMoreTime = {
+                                        model.addTime(10)
+                                        scope.launch {
+                                            delay(150)
+                                            pager.animateScrollToPage(page + 1)
+                                        }
+                                    },
+                                )
+                            }
                         }
                         Confetti(state.celebrate)
                     }

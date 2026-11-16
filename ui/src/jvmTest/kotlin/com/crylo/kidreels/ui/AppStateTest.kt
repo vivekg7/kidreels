@@ -282,6 +282,57 @@ class AppStateTest {
         assertEquals(2, app.feed.reels.size)
     }
 
+    /** The first reel in the feed that has an answer. */
+    private fun puzzle(app: AppState) = app.feed.run {
+        fill(5)
+        reels.first { it.needsSolving }
+    }
+
+    @Test
+    fun aSolvedPuzzleStartedOverIsNeitherASkipNorCountedTwice() {
+        children(Settings())
+        val app = AppState(host)
+        val reel = puzzle(app)
+        val state = app.feed.state(reel)
+        app.feed.solved(reel)
+        assertEquals(1, app.progress.stats(reel.level).tried)
+
+        app.feed.restart(reel)
+        assertFalse(state.solved)
+        assertEquals(1, state.round)
+        app.feed.solved(reel)
+        // Celebrated again, as it was solved again, but counted once.
+        assertEquals(2, state.celebrate)
+        assertEquals(1, app.progress.stats(reel.level).tried)
+
+        // Started over and swiped past half done: no sad face.
+        app.feed.restart(reel)
+        app.feed.left(reel, forward = true)
+        assertEquals(0, app.feed.skippedPuzzle)
+    }
+
+    @Test
+    fun startingOverBeforeTheFirstSolveIsASecondTry() {
+        children(Settings())
+        val app = AppState(host)
+        val reel = puzzle(app)
+        app.feed.restart(reel)
+        app.feed.solved(reel)
+        val stats = app.progress.stats(reel.level)
+        assertEquals(1, stats.tried)
+        assertEquals(0, stats.firstTry)
+    }
+
+    @Test
+    fun startingOverIsNoWayPastTheSadFace() {
+        children(Settings())
+        val app = AppState(host)
+        val reel = puzzle(app)
+        app.feed.restart(reel)
+        app.feed.left(reel, forward = true)
+        assertEquals(1, app.feed.skippedPuzzle)
+    }
+
     @Test
     fun aKeptCrashShowsUntilDeleted() {
         children(Settings())

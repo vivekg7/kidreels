@@ -265,4 +265,5 @@ object S {
     val moreTime = txt("Grown-ups: hold for 10 more minutes", "बड़े: 10 मिनट और के लिए दबाए रखें")
     val like = txt("Like", "पसंद")
     val again = txt("Again", "फिर से")
+    val restart = txt("Start over", "शुरू से")
 }

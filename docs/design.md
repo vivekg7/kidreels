@@ -24,6 +24,15 @@ apps hard to put down:
 - **Nothing to watch passively.** Every reel needs a tap, a drag or a count.
 - **No feeling of failure.** Wrong answers shake and fade; the word "wrong" never
   appears. Skipping a puzzle shows a short sad face, not a penalty.
+- **Any puzzle can start over.** A puzzle reel has a start-over button beside the
+  speaker, for a child who wants to play a game they liked again or who is stuck
+  halfway. It brings back the same puzzle, says the question again (a memory game's
+  timing waits for it) and keeps that it was solved: no sad face on the way out, and the
+  second solve is celebrated but not counted again, or replaying an easy game would
+  push its topic's difficulty up. Started over before the first solve, the puzzle can no
+  longer be solved first time: a memory game watched twice is a second look. It is a
+  button of its own rather than the speaker's job because children tap the speaker
+  mid-game to hear the question, and that must not wipe the board.
 - **A miss is explained.** "Try again" alone teaches nothing, so a wrong tap says why
   it is not the answer (`Quiz.whyNot`, one line per choice). Where the question already
   names the answer, the line names it too: "That is green, not blue. Find blue and tap
@@ -35,8 +44,8 @@ apps hard to put down:
 ### Familiar, not a copy
 
 The Classic look puts things where children expect them (a right-hand rail with a heart
-and a speaker, a channel avatar and hashtags at the bottom, a spinning disc, a progress
-line), because a reels-trained toddler accepts that layout at once. It does not use any
+and a speaker, plus a start-over arrow on puzzles, a channel avatar and hashtags at the
+bottom, a spinning disc, a progress line), because a reels-trained toddler accepts that layout at once. It does not use any
 real app's name, logo, icons or colours: those would be trade-dress trouble and a Play
 Store impersonation rejection, and a child recognises the gesture and rhythm, not the
 logo. The progress line along the bottom shows today's time used.

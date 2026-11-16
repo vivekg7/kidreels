@@ -319,7 +319,19 @@ class AppState(val host: Host) {
 
 /** What happened on one reel; kept outside the pager so it survives the page being recycled. */
 class ReelState {
+    /** This round's board is finished: what the views draw. [restart] clears it. */
     var solved by mutableStateOf(false)
+
+    /**
+     * Solved in any round. Kept through [restart], so a replayed game is never a skip, and
+     * a second solve is celebrated but not counted again.
+     */
+    var counted by mutableStateOf(false)
+        private set
+
+    /** Bumped by [restart]; the feed remounts the reel's view on it, from its opening state. */
+    var round by mutableIntStateOf(0)
+        private set
     var wrongTries by mutableIntStateOf(0)
     val wrong = mutableStateListOf<Int>()
 
@@ -332,6 +344,25 @@ class ReelState {
 
     /** Bumped on every right answer, to restart the celebration. */
     var celebrate by mutableIntStateOf(0)
+
+    /** Marks the first solve. Returns false when an earlier round already counted. */
+    fun count(): Boolean {
+        if (counted) return false
+        counted = true
+        return true
+    }
+
+    /**
+     * The same puzzle again, from the start. Before the first solve it is a second try, so
+     * that solve is not a first-try one: a memory game restarted is a second look.
+     */
+    fun restart() {
+        if (!counted) wrongTries++
+        solved = false
+        wrong.clear()
+        placed.clear()
+        round++
+    }
 }
 
 class FeedModel(private val app: AppState, private val child: Child) {
@@ -407,7 +438,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
     /** Called when the child moves off [reel]. */
     fun left(reel: Reel, forward: Boolean) {
         val s = state(reel)
-        if (!reel.needsSolving || s.solved) return
+        if (!reel.needsSolving || s.counted) return
         if (forward) {
             engine.record(reel, Outcome.SKIPPED)
             child.history.record(reel.topic, Outcome.SKIPPED)
@@ -421,10 +452,14 @@ class FeedModel(private val app: AppState, private val child: Child) {
         if (s.solved) return
         s.solved = true
         s.celebrate++
+        if (!s.count()) return
         val outcome = if (s.wrongTries == 0) Outcome.SOLVED_FIRST_TRY else Outcome.SOLVED
         engine.record(reel, outcome)
         child.history.record(reel.topic, outcome)
     }
+
+    /** The reel on screen from the start, keeping that it was solved. */
+    fun restart(reel: Reel) = state(reel).restart()
 
     fun like(reel: Reel) {
         val s = state(reel)

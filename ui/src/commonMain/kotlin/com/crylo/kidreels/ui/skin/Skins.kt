@@ -182,6 +182,11 @@ fun ReelFrame(
     info: FrameInfo,
     onLike: () -> Unit,
     onAgain: () -> Unit,
+    /**
+     * The puzzle from the start, kept apart from [onAgain]: a child taps that mid-game to
+     * hear the question, and it must not wipe the board. Null on reels with nothing to solve.
+     */
+    onRestart: (() -> Unit)?,
     /** More room at the top while the feed shows a banner there (time almost up, check-in). */
     extraTop: Dp = 0.dp,
     /**
@@ -205,9 +210,9 @@ fun ReelFrame(
         }
         Box(Modifier.fillMaxSize().padding(insets)) {
             when (look) {
-                Look.CLASSIC -> ClassicChrome(info, onLike, onAgain)
-                Look.CANDY -> CandyChrome(info, onLike, onAgain)
-                Look.CALM -> CalmChrome(onAgain)
+                Look.CLASSIC -> ClassicChrome(info, onLike, onAgain, onRestart)
+                Look.CANDY -> CandyChrome(info, onLike, onAgain, onRestart)
+                Look.CALM -> CalmChrome(onAgain, onRestart)
             }
         }
     }
@@ -265,7 +270,7 @@ private fun tags(info: FrameInfo): String =
     info.langs.map { "#" + info.reel.topic.title[it].replace(" ", "") }.distinct().joinToString("  ")
 
 @Composable
-private fun ClassicChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Unit) {
+private fun ClassicChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Unit, onRestart: (() -> Unit)?) {
     val main = info.langs.first()
     Box(Modifier.fillMaxSize()) {
         // The action rail on the right, the way short-video apps put it.
@@ -281,6 +286,7 @@ private fun ClassicChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Un
                 }
             }
             RailButton(S.again[main], onAgain) { DrawnIcon(Icon.SPEAKER, Color.White, Modifier.size(32.dp)) }
+            onRestart?.let { RailButton(S.restart[main], it) { DrawnIcon(Icon.RESTART, Color.White, Modifier.size(32.dp)) } }
             SpinningDisc(info.reel.topic.channel)
         }
         Column(
@@ -326,7 +332,7 @@ private fun SpinningDisc(channel: Channel) {
 }
 
 @Composable
-private fun CandyChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Unit) {
+private fun CandyChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Unit, onRestart: (() -> Unit)?) {
     val main = info.langs.first()
     Box(Modifier.fillMaxSize()) {
         Row(
@@ -346,6 +352,7 @@ private fun CandyChrome(info: FrameInfo, onLike: () -> Unit, onAgain: () -> Unit
         ) {
             BubbleButton(if (info.liked) "❤️" else "🤍", S.like[main], onLike, info.likeBurst)
             BubbleButton("🔊", S.again[main], onAgain, 0)
+            onRestart?.let { BubbleButton("🔄", S.restart[main], it, 0) }
         }
         info.timeFraction?.let {
             ProgressLine(it, Color.White, Modifier.align(Alignment.BottomCenter).padding(horizontal = 40.dp, vertical = 8.dp))
@@ -368,14 +375,21 @@ private fun BubbleButton(emoji: String, label: String, onClick: () -> Unit, burs
 }
 
 @Composable
-private fun CalmChrome(onAgain: () -> Unit) {
+private fun CalmChrome(onAgain: () -> Unit, onRestart: (() -> Unit)?) {
     Box(Modifier.fillMaxSize()) {
-        Box(
-            Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp).size(58.dp)
-                .shadow(3.dp, CircleShape).clip(CircleShape).background(Color.White).pressable(onAgain),
-            contentAlignment = Alignment.Center,
-        ) { DrawnIcon(Icon.SPEAKER, Color(0xFF2E2A3A), Modifier.size(28.dp)) }
+        Row(Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+            CalmButton(Icon.SPEAKER, onAgain)
+            onRestart?.let { CalmButton(Icon.RESTART, it) }
+        }
     }
+}
+
+@Composable
+private fun CalmButton(icon: Icon, onClick: () -> Unit) {
+    Box(
+        Modifier.size(58.dp).shadow(3.dp, CircleShape).clip(CircleShape).background(Color.White).pressable(onClick),
+        contentAlignment = Alignment.Center,
+    ) { DrawnIcon(icon, Color(0xFF2E2A3A), Modifier.size(28.dp)) }
 }
 
 /** A miniature of [look] for the picker in setup and settings. */
