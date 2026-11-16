@@ -417,15 +417,19 @@ fun LookPreview(look: Look, modifier: Modifier = Modifier) {
                 }
             }
         }
+        // The buttons as they are on a puzzle, which the sum is: start-over included.
         when (look) {
             Look.CLASSIC -> Column(Modifier.align(Alignment.BottomEnd).padding(6.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 DrawnIcon(Icon.HEART, Color.White, Modifier.size(12.dp))
                 DrawnIcon(Icon.SPEAKER, Color.White, Modifier.size(12.dp))
+                DrawnIcon(Icon.RESTART, Color.White, Modifier.size(12.dp))
             }
             Look.CANDY -> Row(Modifier.align(Alignment.BottomCenter).padding(6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(3) { Box(Modifier.size(14.dp).clip(CircleShape).background(Color.White)) }
+            }
+            Look.CALM -> Row(Modifier.align(Alignment.BottomCenter).padding(6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(2) { Box(Modifier.size(14.dp).clip(CircleShape).background(Color.White)) }
             }
-            Look.CALM -> Box(Modifier.align(Alignment.BottomCenter).padding(6.dp).size(14.dp).clip(CircleShape).background(Color.White))
         }
     }
 }
