@@ -197,8 +197,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCup() {
 
 /**
  * Find the pairs: cards face down, two turned at a time. A turned card says what it is,
- * so the name helps the memory. A miss counts as a slip only when the partner of one of
- * the two had been seen before: missing a card never seen is luck, not memory.
+ * so the name helps the memory. A miss counts as a slip only when the child could have
+ * known better (Memory.pairsSlip): missing a card never seen is luck, not memory.
  */
 @Composable
 fun PairsView(game: PairsGame, state: ReelState, padding: PaddingValues, onSolved: () -> Unit) {
@@ -239,8 +239,7 @@ fun PairsView(game: PairsGame, state: ReelState, padding: PaddingValues, onSolve
                 env.sfx(Sfx.TICK)
             }
         } else {
-            val partnerSeen = listOf(a, b).any { k -> seen.any { it != k && game.cards[it] == game.cards[k] } }
-            if (partnerSeen) state.wrongTries++
+            if (Memory.pairsSlip(game.cards, seen, a, b)) state.wrongTries++
             seen += i
             scope.launch {
                 delay(1000)

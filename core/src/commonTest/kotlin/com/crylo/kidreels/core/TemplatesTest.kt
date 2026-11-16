@@ -153,6 +153,20 @@ class TemplatesTest {
     }
 
     @Test
+    fun aPairsMissIsASlipOnlyWhenItCouldHaveBeenRemembered() {
+        val (cat, dog, cow) = Memory.things.take(3)
+        val cards = listOf(cat, dog, cow, cat, dog, cow)
+        // Nothing seen: luck.
+        assertFalse(Memory.pairsSlip(cards, setOf(0), first = 0, second = 1))
+        // The first card's partner was seen: it could have been turned instead.
+        assertTrue(Memory.pairsSlip(cards, setOf(3, 0), first = 0, second = 1))
+        // The second card's partner was seen, but the second card was not: still luck.
+        assertFalse(Memory.pairsSlip(cards, setOf(4, 0), first = 0, second = 1))
+        // The second card had been seen, so the child knew it was not a cat.
+        assertTrue(Memory.pairsSlip(cards, setOf(1, 0), first = 0, second = 1))
+    }
+
+    @Test
     fun memoryGamesAreFair() {
         for ((_, reel) in everyReel()) {
             when (reel) {

@@ -183,10 +183,12 @@ Each game has a part to watch that runs by itself and a part to answer that wait
 - **A swap is an arc, one cup over and one under**, never the same two cups twice
   running (which only undoes the move), except with two cups, where there is no other
   move. A wrong cup lifts to show it is empty.
-- **A miss in find-the-pairs is a slip only when the partner had been seen.** Turning
-  two cards nobody has seen yet is luck, not memory, so only a pair the child could have
-  remembered counts against the topic's skill. A turned card says its name, which helps
-  the memory.
+- **A miss in find-the-pairs is a slip only when the child could have known better**:
+  the first card's partner had been seen, or the second card had been seen and so was
+  known not to match. A second card never seen is luck, not memory, even if its own
+  partner was seen earlier: the child could not know what it was until it turned. Only
+  a pair the child could have remembered counts against the topic's skill. A turned
+  card says its name, which helps the memory.
 - **The pads are colours, not sounds.** The app has a handful of sound effects, not a
   note per pad, and four colours a child can name are easy to tell apart. A wrong pad
   shows the whole order again.

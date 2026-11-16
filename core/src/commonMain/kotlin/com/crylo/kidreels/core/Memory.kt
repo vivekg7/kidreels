@@ -65,6 +65,16 @@ object Memory {
     /** Things to hide, pair and remember: named, with a Hindi gender for the sentences about them. */
     val things: List<Thing> = (Countables + Numbers.things).distinctBy { it.emoji }
 
+    /**
+     * Whether turning [first] then [second] of [cards], a miss, is a slip of memory: the
+     * partner of [first] had been seen ([seen] holds every card turned so far), so the child
+     * could have turned it, or [second] itself had been seen, so they knew it was not the
+     * one. A [second] never seen is luck, even if its own partner was seen: the child could
+     * not know what it was before turning it.
+     */
+    fun pairsSlip(cards: List<Thing>, seen: Collection<Int>, first: Int, second: Int): Boolean =
+        second in seen || seen.any { it != first && cards[it] == cards[first] }
+
     /** The pads of "copy the order": colours a child can name, each with its own place. */
     val padColours: List<Colour> get() = Colours.all.take(4)
 
