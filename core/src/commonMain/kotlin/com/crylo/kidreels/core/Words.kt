@@ -234,6 +234,9 @@ object Words {
         "🔋" to txt("Which one keeps electricity inside it?", "किसके अंदर बिजली भरी रहती है?"),
     )
 
+    /** The desktop and the laptop: when "What is it for?" asks for one, the other is not a choice. */
+    val twoComputers = setOf("🖥️", "💻")
+
     /** Which list each picture-card topic shows. */
     val byTopic: Map<Topic, List<Word>> = mapOf(
         Topic.ANIMALS to animals,

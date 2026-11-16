@@ -245,6 +245,18 @@ class TemplatesTest {
     }
 
     @Test
+    fun computerQuizHasOneRightComputer() {
+        // "Which one is a computer with a screen?" fits the laptop too, so when a computer is
+        // the answer the other one is not a choice. Asking for the mouse, both may show.
+        for ((_, reel) in everyReel()) {
+            if (reel !is Quiz || reel.topic != Topic.COMPUTER_USE) continue
+            val shown = reel.choices.map { (it as Choice.Token).text }
+            if (shown[reel.answer] !in Words.twoComputers) continue
+            assertFalse(shown.containsAll(Words.twoComputers), "both computers in $shown")
+        }
+    }
+
+    @Test
     fun numberCardsSpellTheirNumber() {
         assertEquals(listOf("O", "N", "E"), Numbers.spelling(1))
         assertEquals("TWENTY", Numbers.spelling(20).joinToString(""))

@@ -534,8 +534,9 @@ the feed, and picking another child once the last one's time is up.
   puzzles at ages 2 to 5. Computer parts are the exception in age, 4 to 8: a toddler has
   no use for "printer", and an older child sees a grown-up's computer every day. "What
   is it for?" (5 to 9) asks them the other way round, and a wrong tap says what the
-  tapped part does, so every miss teaches a part. The plug's fact adds "never touch it
-  with wet hands".
+  tapped part does, so every miss teaches a part. When the answer is the desktop or
+  the laptop, the other is not a choice: both are computers with a screen, so a question
+  for one fits the other too. The plug's fact adds "never touch it with wet hands".
 - **Capital letters only.** The alphabet card shows "A", not "A a": two shapes side by
   side read as two different letters to a child just starting. The first-letter quiz uses
   capitals too.

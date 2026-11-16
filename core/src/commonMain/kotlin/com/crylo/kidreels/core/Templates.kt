@@ -322,7 +322,10 @@ object Templates {
         Template(Topic.COMPUTER_USE, 5..9, solving = true, weight = 0.6) { g ->
             val parts = Words.computer
             val word = g.pick(parts)
-            val (choices, answer) = g.shuffleIn(word, parts.filter { it != word }.shuffled(g.random).take(g.optionCount - 1))
+            // A laptop is a computer with a screen too: never offered beside the desktop, so
+            // only one choice can fit the question.
+            val others = parts.filter { it != word && setOf(word.emoji, it.emoji) != Words.twoComputers }
+            val (choices, answer) = g.shuffleIn(word, others.shuffled(g.random).take(g.optionCount - 1))
             val question = Words.computerUses.getValue(word.emoji)
             Quiz(
                 g.id, Topic.COMPUTER_USE, g.level, g.difficulty, question, Stage.None,
