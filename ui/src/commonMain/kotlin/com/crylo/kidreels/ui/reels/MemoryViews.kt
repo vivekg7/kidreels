@@ -96,6 +96,8 @@ fun CupView(game: CupGame, state: ReelState, padding: PaddingValues, onSolved: (
         // Swiped away mid-shuffle: start again from the top.
         phase = Phase.SHOW
         xs.forEachIndexed { i, x -> x.snapTo(i.toFloat()) }
+        // A swap cut short leaves its two cups up and down in the air.
+        arcs.forEach { it.snapTo(0f) }
         lifts.forEachIndexed { i, l -> l.snapTo(if (i == game.start) 1f else 0f) }
         delay(2600)
         lifts[game.start].animateTo(0f, tween(350))
