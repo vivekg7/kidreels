@@ -105,7 +105,9 @@ AI-generated assets: none.
 While a production release is still in review, the next one goes to **internal
 testing** instead: it reaches the testers' phones within minutes, without waiting
 behind the review, and is promoted to production from there once the review is done.
-1.2 (3) went this way while 1.1 (2) was in review. The track's testers are the
-account's "Galla testers" email list; they join at
+1.2 (3) went this way while 1.1 (2) was in review, and 1.3 (4) after it. The store
+listing is shared by every track, so a changed `full_description.txt` is pasted into it
+when the release is promoted to production, not when it goes to internal testing. The
+track's testers are the account's "Galla testers" email list; they join at
 https://play.google.com/apps/internaltest/4699901465540780758. Until the app's first
 review is done, Play shows them the app as "com.crylo.kidreels (unreviewed)".
