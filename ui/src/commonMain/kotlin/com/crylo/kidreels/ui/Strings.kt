@@ -209,30 +209,27 @@ object S {
         "$minutes मिनट, $days ${if (days == 1) "दिन" else "दिनों"} में",
     )
 
-    fun weekPuzzles(tried: Int, percent: Int): Txt = txt(
-        "$tried ${if (tried == 1) "puzzle" else "puzzles"}, $percent% right first time",
-        "$tried ${if (tried == 1) "पहेली" else "पहेलियाँ"}, $percent% पहली बार में सही",
-    )
+    /** The week's puzzles, said like [levelLine] and for the same reason. */
+    fun weekPuzzles(tried: Int, percent: Int, skipped: Int): Txt = puzzles("", "", tried, percent, skipped)
 
     val doingWell = txt("Doing well at:", "इनमें अच्छा कर रहे हैं:")
     val findsHard = txt("Finds hard (try one together):", "इनमें मुश्किल हो रही है (साथ में करके देखें):")
     val likesMost = txt("Likes most:", "सबसे ज़्यादा पसंद:")
+    val oftenSkips = txt("Often swipes past:", "अक्सर छोड़ देते हैं:")
 
     /**
      * How the child did at one age. Swiped-past puzzles count as tried and not right first
      * time, so their number is said too: a low share can be skipping, not wrong answers.
      */
-    fun levelLine(level: Int, stats: LevelStats): Txt {
-        val n = stats.tried
-        val pct = stats.firstTryPercent
-        val skips = stats.skipped
-        return txt(
-            "Age $level reels: $n ${if (n == 1) "puzzle" else "puzzles"}, $pct% right first time" +
-                if (skips > 0) ", $skips swiped past" else "",
-            "$level साल की रील्स: $n ${if (n == 1) "पहेली" else "पहेलियाँ"}, $pct% पहली बार में सही" +
-                if (skips > 0) ", $skips छोड़ दी ${if (skips == 1) "गई" else "गईं"}" else "",
-        )
-    }
+    fun levelLine(level: Int, stats: LevelStats): Txt =
+        puzzles("Age $level reels: ", "$level साल की रील्स: ", stats.tried, stats.firstTryPercent, stats.skipped)
+
+    private fun puzzles(en: String, hi: String, n: Int, pct: Int, skips: Int): Txt = txt(
+        "$en$n ${if (n == 1) "puzzle" else "puzzles"}, $pct% right first time" +
+            if (skips > 0) ", $skips swiped past" else "",
+        "$hi$n ${if (n == 1) "पहेली" else "पहेलियाँ"}, $pct% पहली बार में सही" +
+            if (skips > 0) ", $skips छोड़ दी ${if (skips == 1) "गई" else "गईं"}" else "",
+    )
 
     val about = txt("About", "जानकारी")
 

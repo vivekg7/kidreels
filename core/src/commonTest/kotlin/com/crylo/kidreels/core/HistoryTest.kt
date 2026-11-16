@@ -26,7 +26,7 @@ class HistoryTest {
         clock.day = 101
         history.addTime(20 * TimeBudget.MINUTE)
         history.solve(Topic.COUNTING, first = 3, later = 1)
-        history.solve(Topic.MIRROR, first = 1, later = 2, skipped = 2)
+        history.solve(Topic.MIRROR, first = 1, later = 3, skipped = 2)
         history.like(Topic.ANIMALS)
         history.like(Topic.ANIMALS)
         history.like(Topic.SHAPES)
@@ -37,11 +37,13 @@ class HistoryTest {
         val week = history.week()
         assertEquals(32, week.minutes)
         assertEquals(2, week.days)
-        assertEquals(14, week.tried)
+        assertEquals(15, week.tried)
         assertEquals(9, week.firstTry)
-        assertEquals(64, week.firstTryPercent)
+        assertEquals(60, week.firstTryPercent)
+        assertEquals(2, week.skipped)
         assertEquals(listOf(Topic.COUNTING), week.strong)
         assertEquals(listOf(Topic.MIRROR), week.hard)
+        assertTrue(week.skips.isEmpty())
         assertEquals(listOf(Topic.ANIMALS, Topic.SHAPES), week.liked)
     }
 
@@ -53,6 +55,36 @@ class HistoryTest {
         val week = history.week()
         assertTrue(week.hard.isEmpty())
         assertTrue(week.strong.isEmpty())
+    }
+
+    @Test
+    fun aTopicMostlySwipedPastIsNotCalledHard() {
+        val history = History(MapStore(), DayClock(100))
+        // Every one answered was right first time; most were never answered at all.
+        history.solve(Topic.CLOCK, first = 2, skipped = 6)
+        val week = history.week()
+        assertEquals(listOf(Topic.CLOCK), week.skips)
+        assertTrue(week.hard.isEmpty())
+        assertTrue(week.strong.isEmpty(), "2 answered is too few to call it either")
+    }
+
+    @Test
+    fun skipsAreJudgedOnAllTheTopicsPuzzlesAndNeedEnoughOfThem() {
+        val history = History(MapStore(), DayClock(100))
+        history.solve(Topic.SHAPES, first = 0, skipped = History.MIN_TRIES - 1)
+        history.solve(Topic.MIRROR, first = 4, skipped = 2)
+        assertTrue(history.week().skips.isEmpty())
+    }
+
+    @Test
+    fun aDayWrittenBeforeSkipsWereKeptStillCounts() {
+        val kv = MapStore()
+        kv.put("day.100.COUNTING", "5,3,1")
+        val week = History(kv, DayClock(100)).week()
+        assertEquals(5, week.tried)
+        assertEquals(3, week.firstTry)
+        assertEquals(0, week.skipped)
+        assertEquals(listOf(Topic.COUNTING), week.liked)
     }
 
     @Test

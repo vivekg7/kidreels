@@ -450,18 +450,26 @@ explore reels carry on at their age-10 hardest, which the Navodaya test itself (
 at 10 or 11) does not go past. Play's target audience was already every age group, so
 nothing there changed.
 
-Each child's page also has a note about the last 7 days: minutes, days played, puzzles and
-the share right first time, then topics the child does well at (80% or more right first
-time), finds hard (under 50%) and likes most. A topic needs 4 tries before it is called
-either, so one unlucky puzzle is not a verdict. The running totals in `Progress` cannot
-say how this week went, so `History` keeps the last 14 days separately, one key per day
-and topic, and sweeps older days once a day. "Finds hard" says "try one together"
-because the point is a parent sitting with the child, not a score.
+Each child's page also has a note about the last 7 days: minutes, days played, puzzles,
+the share right first time and how many were swiped past, then topics the child does well
+at (80% or more right first time), finds hard (under 50%), often swipes past (half or
+more) and likes most. A topic needs 4 tries before it is called any of these, so one
+unlucky puzzle is not a verdict. The running totals in `Progress` cannot say how this
+week went, so `History` keeps the last 14 days separately, one key per day and topic, and
+sweeps older days once a day. "Finds hard" says "try one together" because the point is
+a parent sitting with the child, not a score.
+
+**A skip is not a wrong answer.** A skip counts as tried and not right first time, so
+without its number a child who mostly scrolls on reads like one who gets everything
+wrong. Every puzzles line says how many were swiped past, and "does well at" and "finds
+hard" look only at the puzzles answered: "try one together" for a topic the child never
+starts would send the parent after the wrong thing. A topic mostly swiped past gets its
+own line instead, which may mean too hard to start or just not their thing; the parent
+can tell which, the app cannot. Days stored before skips were kept read as none skipped,
+and are out of the week within seven days.
 
 Below the note, a line per age (the child's and the ones either side) gives the running
-totals: puzzles tried, the share right first time, and how many were swiped past
-unsolved. A skip counts as tried and not right first time, so without its number a child
-who mostly scrolls on reads like one who gets everything wrong.
+totals the same way: puzzles tried, the share right first time and the number swiped past.
 
 ## Parent gate
 

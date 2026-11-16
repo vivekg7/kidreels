@@ -115,9 +115,9 @@ choice below, and each row opens that choice:
 - **Error report**: if the app ever crashes, settings says so and offers the report to copy
   (to email, or paste into a GitHub issue) or delete. The app has no internet access, so
   it never sends it.
-- **Progress**: the last 7 days in a few lines: minutes and days played, puzzles and how
-  many were right first time, and which topics the child does well at, finds hard (worth
-  trying one together) and likes most.
+- **Progress**: the last 7 days in a few lines: minutes and days played, puzzles, how
+  many were right first time and how many were swiped past, and which topics the child
+  does well at, finds hard (worth trying one together), often swipes past and likes most.
 
 ## Project layout
 

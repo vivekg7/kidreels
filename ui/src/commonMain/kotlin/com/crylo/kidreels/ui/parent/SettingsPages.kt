@@ -356,10 +356,11 @@ private fun WeekNote(app: AppState, child: Child) {
             return@Column
         }
         Body(S.weekTime(week.minutes, week.days)[main])
-        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent)[main])
+        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent, week.skipped)[main])
         val names = { topics: List<Topic> -> topics.joinToString(", ") { it.title[main] } }
         if (week.strong.isNotEmpty()) Body(S.doingWell[main] + " " + names(week.strong))
         if (week.hard.isNotEmpty()) Body(S.findsHard[main] + " " + names(week.hard))
+        if (week.skips.isNotEmpty()) Body(S.oftenSkips[main] + " " + names(week.skips))
         if (week.liked.isNotEmpty()) Body(S.likesMost[main] + " " + names(week.liked))
     }
 }
