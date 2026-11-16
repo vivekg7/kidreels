@@ -3,6 +3,7 @@ package com.crylo.kidreels.core
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ContentTest {
@@ -118,6 +119,16 @@ class ContentTest {
         assertTrue(all.all { it.fact != null })
         assertEquals(all.size, all.map { it.emoji }.toSet().size, "a picture is in two groups")
         assertTrue(Words.byTopic.keys.all { !Templates.of(it).solving })
+    }
+
+    @Test
+    fun aPlanetNeverSaysItsNameTwiceInARow() {
+        // The Sun's and Moon's facts start with their name, so the card says only the fact.
+        for (p in Science.planets) for (lang in Lang.entries) {
+            val said = Science.planetSay(p)[lang]
+            assertFalse("${p.name[lang]} ${p.name[lang]}" in said, said)
+        }
+        assertEquals("The Sun is a star. It gives us light and heat.", Science.planetSay(Science.planets.first { it.key == "sun" })[Lang.EN])
     }
 
     @Test

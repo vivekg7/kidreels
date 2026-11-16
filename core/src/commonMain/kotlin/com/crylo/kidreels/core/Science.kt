@@ -200,7 +200,8 @@ object Science {
     fun planet(g: Gen): PlanetCard =
         PlanetCard(g.id, g.level, g.difficulty, if (g.ordered) planets[g.inOrder("planets", planets.size)] else g.pick(planets))
 
-    fun planetSay(p: Planet): Txt = (p.order?.let { o -> p.name + txt("is ${o[Lang.EN]}.", "${o[Lang.HI]} है।") } ?: p.name) + p.fact
+    /** "Earth is the 3rd planet from the Sun." and the fact; the Sun's and Moon's facts already start with their name. */
+    fun planetSay(p: Planet): Txt = p.order?.let { o -> p.name + txt("is ${o[Lang.EN]}.", "${o[Lang.HI]} है।") + p.fact } ?: p.fact
 
     private fun Item.agree(m: String, f: String) = if (feminine) f else m
 
