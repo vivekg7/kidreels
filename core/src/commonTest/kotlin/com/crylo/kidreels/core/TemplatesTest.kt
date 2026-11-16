@@ -232,10 +232,15 @@ class TemplatesTest {
                 else -> Unit
             }
         }
-        // Each plural quiz has enough wrong guesses that are not real words.
-        for (p in Grammar.pluralsEn + Grammar.pluralsHi) {
-            val gen = Gen(5, 1, Random(1), listOf(if (p in Grammar.pluralsEn) Lang.EN else Lang.HI), 1, cursor)
-            repeat(5) { Grammar.plural(gen) }
+        // Every plural has three different wrong guesses, none of them the answer or another
+        // word from the lists (लड़कियाँ is not a wrong लड़का, it is girls).
+        for (list in listOf(Grammar.pluralsEn, Grammar.pluralsHi)) {
+            val real = list.flatMap { listOf(it.one, it.many) }.toSet()
+            for (p in list) {
+                assertEquals(3, p.wrong.distinct().size, p.one)
+                assertTrue(p.many !in p.wrong, p.one)
+                assertTrue(p.wrong.none { it != p.one && it in real }, "${p.wrong} holds a real word")
+            }
         }
     }
 

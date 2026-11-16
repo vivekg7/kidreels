@@ -255,8 +255,11 @@ kinds, so it is content more than code.
   show every chosen language like any quiz.
 - **Wrong plurals are the mistakes children make**: the usual ending where it does not
   belong ("foots", "कुर्सीयाँ"), an ending on an irregular plural ("mices",
-  "childrens"), or no change at all. Never a real word from the lists: लड़कियाँ is not
-  a wrong plural of लड़का, it is girls.
+  "childrens"), or no change at all. They are written out by hand, three for each word:
+  made by rule, an ending turns into a real word as often as a mistake ("applies";
+  पत्तियाँ are leaves too, घोड़ियाँ are mares) or into spellings no child would guess
+  ("caies"). Never a real word from the lists either: लड़कियाँ is not a wrong plural of
+  लड़का, it is girls.
 - **Every miss teaches another pair**: "Sad is the opposite of happy. What is the
   opposite of sweet?", "Queen is the female of king. What about lion?".
 - **School words from 6.** "संज्ञा, क्रिया, विशेषण" and "विलोम" are what a class uses; a
