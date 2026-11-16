@@ -1,6 +1,7 @@
 package com.crylo.kidreels.ui
 
 import com.crylo.kidreels.core.Lang
+import com.crylo.kidreels.core.LevelStats
 import com.crylo.kidreels.core.Look
 import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.core.txt
@@ -217,8 +218,21 @@ object S {
     val findsHard = txt("Finds hard (try one together):", "इनमें मुश्किल हो रही है (साथ में करके देखें):")
     val likesMost = txt("Likes most:", "सबसे ज़्यादा पसंद:")
 
-    fun levelLine(level: Int, tried: Int, percent: Int): Txt =
-        txt("Age $level reels: $tried ${if (tried == 1) "puzzle" else "puzzles"}, $percent% right first time", "$level साल की रील्स: $tried ${if (tried == 1) "पहेली" else "पहेलियाँ"}, $percent% पहली बार में सही")
+    /**
+     * How the child did at one age. Swiped-past puzzles count as tried and not right first
+     * time, so their number is said too: a low share can be skipping, not wrong answers.
+     */
+    fun levelLine(level: Int, stats: LevelStats): Txt {
+        val n = stats.tried
+        val pct = stats.firstTryPercent
+        val skips = stats.skipped
+        return txt(
+            "Age $level reels: $n ${if (n == 1) "puzzle" else "puzzles"}, $pct% right first time" +
+                if (skips > 0) ", $skips swiped past" else "",
+            "$level साल की रील्स: $n ${if (n == 1) "पहेली" else "पहेलियाँ"}, $pct% पहली बार में सही" +
+                if (skips > 0) ", $skips छोड़ दी ${if (skips == 1) "गई" else "गईं"}" else "",
+        )
+    }
 
     val about = txt("About", "जानकारी")
 

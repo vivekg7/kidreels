@@ -458,6 +458,11 @@ say how this week went, so `History` keeps the last 14 days separately, one key 
 and topic, and sweeps older days once a day. "Finds hard" says "try one together"
 because the point is a parent sitting with the child, not a score.
 
+Below the note, a line per age (the child's and the ones either side) gives the running
+totals: puzzles tried, the share right first time, and how many were swiped past
+unsolved. A skip counts as tried and not right first time, so without its number a child
+who mostly scrolls on reads like one who gets everything wrong.
+
 ## Parent gate
 
 Press and hold for three seconds. Toddlers tap and swipe; they rarely hold one spot that

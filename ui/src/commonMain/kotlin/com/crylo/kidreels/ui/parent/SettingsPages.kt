@@ -188,7 +188,7 @@ private fun ChildPage(app: AppState, child: Child) {
         WeekNote(app, child)
         val levels = (s.age - 1..s.age + 1).filter { it in Settings.AGES }.map { it to child.progress.stats(it) }.filter { it.second.tried > 0 }
         if (levels.isEmpty()) Body(S.noProgress[main])
-        levels.forEach { (level, st) -> Body(S.levelLine(level, st.tried, st.firstTryPercent)[main]) }
+        levels.forEach { (level, st) -> Body(S.levelLine(level, st)[main]) }
 
         if (app.all.size > 1) {
             val label = p.label(main)

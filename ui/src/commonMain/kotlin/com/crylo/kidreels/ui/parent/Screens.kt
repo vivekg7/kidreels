@@ -177,7 +177,7 @@ fun CheckInContent(app: AppState, child: Child, onDone: () -> Unit) {
     val stats = child.progress.stats(s.age)
     Title(S.checkInQuestion[main])
     Body(S.checkInSince(months, s.age)[main])
-    if (stats.tried > 0) Body(S.levelLine(s.age, stats.tried, stats.firstTryPercent)[main])
+    if (stats.tried > 0) Body(S.levelLine(s.age, stats)[main])
     if (s.age < Settings.AGES.last) PrimaryButton(S.moveUp(s.age + 1)[main], { app.update(s.copy(age = s.age + 1), child); onDone() }, Modifier.fillMaxWidth())
     SecondaryButton(S.keep(s.age)[main], { app.update(s.copy(ageSetDay = today), child); onDone() }, Modifier.fillMaxWidth())
     SecondaryButton(S.later[main], { app.update(CheckIn.snooze(s, today), child); onDone() }, Modifier.fillMaxWidth())
