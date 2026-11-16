@@ -132,6 +132,13 @@ class ContentTest {
     }
 
     @Test
+    fun sieveNeverCrossesOutThePrime() {
+        // "Every number 2 goes into" would take in 2 itself.
+        assertTrue("other numbers 2 goes into" in NumberKinds.sieveStep(2, 3)[Lang.EN])
+        assertTrue("बाक़ी गुणज" in NumberKinds.sieveStep(2, 3)[Lang.HI])
+    }
+
+    @Test
     fun tappingAPictureSaysWhatItIs() {
         fun say(emoji: String) = Words.of(emoji)!!.thisIs().let { it[Lang.EN] to it[Lang.HI] }
         assertEquals("This is an elephant!" to "यह हाथी है!", say("🐘"))

@@ -221,8 +221,8 @@ object NumberKinds {
 
     /** Said as [p]'s multiples are crossed out, then which number to tap next. */
     fun sieveStep(p: Int, next: Int?) = txt(
-        "$p is prime! Every number $p goes into is not: cross them out." + (next?.let { " Now tap $it." } ?: ""),
-        "$p अभाज्य है! $p के सारे गुणज अभाज्य नहीं हैं: उन्हें काट दो।" + (next?.let { " अब $it को छुओ।" } ?: ""),
+        "$p is prime! The other numbers $p goes into are not: cross them out." + (next?.let { " Now tap $it." } ?: ""),
+        "$p अभाज्य है! $p के बाक़ी गुणज अभाज्य नहीं हैं: उन्हें काट दो।" + (next?.let { " अब $it को छुओ।" } ?: ""),
     )
 
     fun sieveDone(top: Int, count: Int) = txt(
