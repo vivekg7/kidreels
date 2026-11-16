@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
 import com.crylo.kidreels.ui.common.T
 
 /**
@@ -65,6 +65,8 @@ fun Picture(key: String, size: TextUnit, modifier: Modifier = Modifier) {
     if (art == null) {
         T(key, modifier, size = size)
     } else {
-        Canvas(modifier.size((size.value * 1.17f).dp)) { drawArt(art) }
+        // Through the density, so the phone's text size grows a drawing as it grows an emoji.
+        val side = with(LocalDensity.current) { (size * 1.17f).toDp() }
+        Canvas(modifier.size(side)) { drawArt(art) }
     }
 }
