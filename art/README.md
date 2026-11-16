@@ -11,7 +11,11 @@ python3 scripts/art.py   # after adding or changing an SVG; writes ui/.../ui/art
 
 The script flattens each SVG with svgo (shapes to paths, transforms applied) and reads
 only filled paths and clip paths. A gradient, a stroke or a leftover transform stops it
-with the file's name, so draw with fills, or flatten those in the source first.
+with the file's name, so draw with fills, or flatten those in the source first. So do
+three things it would otherwise draw subtly wrong: a clip inside another clip (each path
+keeps one clip, so the inner would replace the outer), a clip in `objectBoundingBox`
+units, and opacity on a group of several shapes (fading each shape on its own shows
+where they overlap). Put the opacity on each shape instead.
 
 ## Where each picture comes from
 

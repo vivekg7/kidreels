@@ -9,8 +9,9 @@ and clip path, and written to ui/.../ui/art/Arts.kt as one `Art` per file, named
 the file: art/drawn/bottle-gourd.svg becomes `Arts.bottleGourd`, key "bottle-gourd".
 
 No image library is needed and every platform draws the same thing. Only what the art
-here uses is supported; anything else (a gradient, a leftover transform, a stroke) stops
-the script with the file and element, rather than drawing something quietly wrong.
+here uses is supported; anything else (a gradient, a leftover transform, a stroke, a clip
+inside a clip, a see-through group) stops the script with the file and element, rather
+than drawing something quietly wrong.
 """
 
 import re
@@ -103,12 +104,20 @@ def read(file: Path) -> tuple[float, float, list[dict]]:
             fail(file, f"odd clip-path {ref!r}")
         cid = cid.group(1)
         if cid not in clips:
+            box = by_id[cid]
+            units = box.get("clipPathUnits", "userSpaceOnUse")
+            if units != "userSpaceOnUse":
+                fail(file, f"clip {cid!r}: clipPathUnits={units!r} is not supported")
             parts = []
-            for child in by_id[cid].iter():
-                if child is by_id[cid]:
-                    continue
+            for child in box.iter():
+                for el in (child, by_id.get(child.get(XLINK, child.get("href", "#")).lstrip("#"))):
+                    if el is not None and el.get("transform"):
+                        tag = el.tag.removeprefix(NS)
+                        fail(file, f"clip {cid!r}: a transform was left on <{tag}>")
                 if child.tag == NS + "use":
                     child = by_id[child.get(XLINK, child.get("href", "#")).lstrip("#")]
+                if child is box:
+                    continue
                 d = shape_path(child)
                 if d:
                     parts.append(d)
@@ -127,8 +136,16 @@ def read(file: Path) -> tuple[float, float, list[dict]]:
             fail(file, f"strokes are not supported (<{tag}>)")
         if el.get("fill") is not None:
             fill = colour(file, el.get("fill"))
-        alpha *= float(el.get("opacity", "1")) * float(el.get("fill-opacity", "1"))
+        opacity = float(el.get("opacity", "1"))
+        if opacity != 1 and tag in ("svg", "g") and sum(1 for c in el.iter() if shape_path(c)) > 1:
+            # A see-through group is drawn whole, then faded: fading each shape instead
+            # shows where they overlap. Put the opacity on each shape in the source.
+            fail(file, f"opacity on a <{tag}> of several shapes is not supported")
+        alpha *= opacity * float(el.get("fill-opacity", "1"))
         if el.get("clip-path"):
+            if clip is not None:
+                # Each path carries one clip, so an inner one would replace the outer.
+                fail(file, f"a clip inside a clip is not supported (<{tag}>)")
             clip = clip_data(el.get("clip-path"))
         if el.get("fill-rule") is not None:
             evenodd = el.get("fill-rule") == "evenodd"
