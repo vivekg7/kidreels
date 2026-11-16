@@ -110,7 +110,8 @@ def read(file: Path) -> tuple[float, float, list[dict]]:
                 fail(file, f"clip {cid!r}: clipPathUnits={units!r} is not supported")
             parts = []
             for child in box.iter():
-                for el in (child, by_id.get(child.get(XLINK, child.get("href", "#")).lstrip("#"))):
+                used = by_id.get(child.get(XLINK, child.get("href", "#")).lstrip("#"))
+                for el in (child, used):
                     if el is not None and el.get("transform"):
                         tag = el.tag.removeprefix(NS)
                         fail(file, f"clip {cid!r}: a transform was left on <{tag}>")
