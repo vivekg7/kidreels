@@ -135,7 +135,9 @@ proves nothing Android-only has crept in. An iOS or desktop app would be a sibli
 `androidApp/` implementing the `Host` interface in `ui/…/Host.kt`.
 
 See [`docs/design.md`](docs/design.md) for how the feed decides what comes next, how to
-add a reel type or a language, and why things are the way they are.
+add a reel type or a language, and why things are the way they are. What comes next
+(classes 6 to 12, general knowledge and exam prep) is planned in
+[`docs/plan-classes-6-12.md`](docs/plan-classes-6-12.md).
 
 ## Speech
 
