@@ -256,15 +256,23 @@ object Bubbles {
     }
 }
 
-/** How the drawn child moves while a step is done: a hop, a wobble, a spin. */
-enum class CopyMotion { STILL, BOUNCE, WOBBLE, SHAKE, HOP, SPIN }
+/**
+ * What the drawn child does for a move, as a puppet: where its hands go, how its head,
+ * face and legs move. Each move has its own, so the child on screen does what the voice
+ * says rather than bouncing for every one.
+ */
+enum class CopyAct {
+    NOSE, EARS, HAIR, EYES, PAT_TUMMY, HANDS_UP, TONGUE, SHAKE_HEAD, CLAP, PAT_HEAD, WIGGLE,
+    SHOULDERS, KNEES, ELBOWS, BLINK, CHIN, PUFF_CHEEKS, JUMP, STOMP, ONE_LEG, TURN, TOES, SIT_DOWN,
+}
 
 /**
  * One thing to copy: what to say, which part of the drawn child to ring ([Body] keys),
- * how many beats to count with the drum (claps, pats, jumps), and whether it needs the
- * child to stand: those come only with the parent's jumping-games switch.
+ * what the child does, how many beats to count with the drum (claps, pats, jumps), and
+ * whether it needs the child to stand: those come only with the parent's jumping-games
+ * switch.
  */
-data class CopyMove(val say: Txt, val part: String?, val beats: Int = 0, val motion: CopyMotion = CopyMotion.BOUNCE, val standing: Boolean = false, val fromAge: Int = 2)
+data class CopyMove(val say: Txt, val part: String?, val act: CopyAct, val beats: Int = 0, val standing: Boolean = false, val fromAge: Int = 2)
 
 /** A step of a game: the move, and in Simon says whether Simon said it. */
 data class CopyStep(val move: CopyMove, val simonSays: Boolean = true)
@@ -294,23 +302,23 @@ object CopyMoves {
     fun sitting(level: Int): List<CopyMove> {
         val claps = if (level <= 3) 2 else if (level <= 5) 3 else 4
         return listOf(
-            CopyMove(txt("Touch your nose!", "अपनी नाक छुओ!"), "nose"),
-            CopyMove(txt("Touch your ears!", "अपने कान छुओ!"), "ear"),
-            CopyMove(txt("Touch your hair!", "अपने बाल छुओ!"), "hair"),
-            CopyMove(txt("Point to your eyes!", "अपनी आँखें दिखाओ!"), "eye"),
-            CopyMove(txt("Pat your tummy!", "अपना पेट थपथपाओ!"), "tummy", motion = CopyMotion.WOBBLE),
-            CopyMove(txt("Hands up high!", "हाथ ऊपर करो!"), "hand", motion = CopyMotion.HOP),
-            CopyMove(txt("Stick out your tongue!", "अपनी जीभ बाहर निकालो!"), "mouth", motion = CopyMotion.WOBBLE),
-            CopyMove(txt("Shake your head!", "अपना सिर हिलाओ!"), "hair", motion = CopyMotion.SHAKE),
-            CopyMove(beats(claps, "Clap # times!", "# बार ताली बजाओ!"), "hand", beats = claps),
-            CopyMove(beats(claps, "Pat your head # times!", "अपने सिर पर # बार थपकी दो!"), "hair", beats = claps, fromAge = 3),
-            CopyMove(txt("Wiggle your fingers!", "अपनी उँगलियाँ हिलाओ!"), "finger", motion = CopyMotion.SHAKE, fromAge = 4),
-            CopyMove(txt("Touch your shoulders!", "अपने कंधे छुओ!"), "shoulder", fromAge = 4),
-            CopyMove(txt("Touch your knees!", "अपने घुटने छुओ!"), "knee", fromAge = 4),
-            CopyMove(txt("Touch your elbows!", "अपनी कोहनियाँ छुओ!"), "elbow", fromAge = 4),
-            CopyMove(txt("Blink your eyes!", "अपनी आँखें झपकाओ!"), "eye", fromAge = 4),
-            CopyMove(txt("Touch your chin!", "अपनी ठुड्डी छुओ!"), "chin", fromAge = 6),
-            CopyMove(txt("Puff out your cheeks!", "अपने गाल फुलाओ!"), "cheek", motion = CopyMotion.WOBBLE, fromAge = 6),
+            CopyMove(txt("Touch your nose!", "अपनी नाक छुओ!"), "nose", CopyAct.NOSE),
+            CopyMove(txt("Touch your ears!", "अपने कान छुओ!"), "ear", CopyAct.EARS),
+            CopyMove(txt("Touch your hair!", "अपने बाल छुओ!"), "hair", CopyAct.HAIR),
+            CopyMove(txt("Point to your eyes!", "अपनी आँखें दिखाओ!"), "eye", CopyAct.EYES),
+            CopyMove(txt("Pat your tummy!", "अपना पेट थपथपाओ!"), "tummy", CopyAct.PAT_TUMMY),
+            CopyMove(txt("Hands up high!", "हाथ ऊपर करो!"), "hand", CopyAct.HANDS_UP),
+            CopyMove(txt("Stick out your tongue!", "अपनी जीभ बाहर निकालो!"), "mouth", CopyAct.TONGUE),
+            CopyMove(txt("Shake your head!", "अपना सिर हिलाओ!"), "hair", CopyAct.SHAKE_HEAD),
+            CopyMove(beats(claps, "Clap # times!", "# बार ताली बजाओ!"), "hand", CopyAct.CLAP, beats = claps),
+            CopyMove(beats(claps, "Pat your head # times!", "अपने सिर पर # बार थपकी दो!"), "hair", CopyAct.PAT_HEAD, beats = claps, fromAge = 3),
+            CopyMove(txt("Wiggle your fingers!", "अपनी उँगलियाँ हिलाओ!"), "finger", CopyAct.WIGGLE, fromAge = 4),
+            CopyMove(txt("Touch your shoulders!", "अपने कंधे छुओ!"), "shoulder", CopyAct.SHOULDERS, fromAge = 4),
+            CopyMove(txt("Touch your knees!", "अपने घुटने छुओ!"), "knee", CopyAct.KNEES, fromAge = 4),
+            CopyMove(txt("Touch your elbows!", "अपनी कोहनियाँ छुओ!"), "elbow", CopyAct.ELBOWS, fromAge = 4),
+            CopyMove(txt("Blink your eyes!", "अपनी आँखें झपकाओ!"), "eye", CopyAct.BLINK, fromAge = 4),
+            CopyMove(txt("Touch your chin!", "अपनी ठुड्डी छुओ!"), "chin", CopyAct.CHIN, fromAge = 6),
+            CopyMove(txt("Puff out your cheeks!", "अपने गाल फुलाओ!"), "cheek", CopyAct.PUFF_CHEEKS, fromAge = 6),
         ).filter { it.fromAge <= level }
     }
 
@@ -318,16 +326,16 @@ object CopyMoves {
     fun standing(level: Int): List<CopyMove> {
         val jumps = if (level <= 3) 2 else if (level <= 5) 3 else 5
         return listOf(
-            CopyMove(beats(jumps, "Stand up and jump # times!", "खड़े हो जाओ और # बार कूदो!"), "foot", beats = jumps, motion = CopyMotion.HOP, standing = true),
-            CopyMove(beats(jumps, "Stomp your feet # times!", "# बार पैर पटको!"), "foot", beats = jumps, standing = true),
-            CopyMove(txt("Stand on one leg!", "एक पैर पर खड़े हो जाओ!"), "leg", motion = CopyMotion.WOBBLE, standing = true, fromAge = 4),
-            CopyMove(txt("Turn all the way round!", "पूरा गोल घूम जाओ!"), null, motion = CopyMotion.SPIN, standing = true),
-            CopyMove(txt("Touch your toes!", "अपने पैर की उँगलियाँ छुओ!"), "toes", standing = true, fromAge = 4),
+            CopyMove(beats(jumps, "Stand up and jump # times!", "खड़े हो जाओ और # बार कूदो!"), "foot", CopyAct.JUMP, beats = jumps, standing = true),
+            CopyMove(beats(jumps, "Stomp your feet # times!", "# बार पैर पटको!"), "foot", CopyAct.STOMP, beats = jumps, standing = true),
+            CopyMove(txt("Stand on one leg!", "एक पैर पर खड़े हो जाओ!"), "leg", CopyAct.ONE_LEG, standing = true, fromAge = 4),
+            CopyMove(txt("Turn all the way round!", "पूरा गोल घूम जाओ!"), null, CopyAct.TURN, standing = true),
+            CopyMove(txt("Touch your toes!", "अपने पैर की उँगलियाँ छुओ!"), "toes", CopyAct.TOES, standing = true, fromAge = 4),
         ).filter { it.fromAge <= level }
     }
 
     /** After standing moves, back down: the app is often used at meals. */
-    val sitDown = CopyMove(txt("Now sit down again!", "अब फिर से बैठ जाओ!"), null, motion = CopyMotion.STILL)
+    val sitDown = CopyMove(txt("Now sit down again!", "अब फिर से बैठ जाओ!"), null, CopyAct.SIT_DOWN)
 
     fun make(g: Gen): CopyMe {
         val count = if (g.level <= 3) 4 else 5

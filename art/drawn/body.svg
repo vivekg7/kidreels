@@ -2,7 +2,8 @@
   <!--
     A child facing us, for "Tap the knee!". Short sleeves, shorts and bare feet, so
     elbows, knees and toes all show. Where each part is (for tapping and lighting up)
-    lives in core/Body.kt, in this drawing's units.
+    lives in core/Body.kt, in this drawing's units. Copy me draws this same child as a
+    puppet in code (ui/.../reels/CopyKid.kt), so it can bend: change one, change both.
   -->
   <!-- Legs and feet -->
   <path fill="#D9A06F" d="M86,276 L114,276 L111,392 L91,392 Z"/>

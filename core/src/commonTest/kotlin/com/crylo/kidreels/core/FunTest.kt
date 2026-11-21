@@ -281,6 +281,14 @@ class FunTest {
         }
     }
 
+    /** The drawn child acts out every move its own way: two moves sharing a pose would show the wrong one. */
+    @Test
+    fun everyCopyMoveHasItsOwnAct() {
+        val moves = CopyMoves.sitting(10) + CopyMoves.standing(10) + CopyMoves.sitDown
+        assertEquals(CopyAct.entries.toSet(), moves.map { it.act }.toSet(), "an act no move uses")
+        assertEquals(moves.size, moves.map { it.act }.distinct().size, "two moves share an act")
+    }
+
     /** Each drawing's parts are where its taps land: a nose tap that tickled would be no joke. */
     @Test
     fun sillyAnimalPartsAreWhereTheDrawingHasThem() {

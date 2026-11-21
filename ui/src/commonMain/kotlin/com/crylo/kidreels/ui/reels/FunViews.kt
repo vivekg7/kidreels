@@ -64,7 +64,7 @@ import com.crylo.kidreels.core.BubbleGame
 import com.crylo.kidreels.core.BubblePop
 import com.crylo.kidreels.core.Bubbles
 import com.crylo.kidreels.core.CopyMe
-import com.crylo.kidreels.core.CopyMotion
+import com.crylo.kidreels.core.CopyAct
 import com.crylo.kidreels.core.CopyMoves
 import com.crylo.kidreels.core.Diagram
 import com.crylo.kidreels.core.Diagrams
@@ -552,9 +552,8 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
     var at by remember(reel.id) { mutableIntStateOf(-1) }
     var beat by remember(reel.id) { mutableIntStateOf(0) }
     var lit by remember(reel.id) { mutableStateOf<String?>(null) }
-    var bounce by remember(reel.id) { mutableIntStateOf(0) }
+    var act by remember(reel.id) { mutableStateOf<CopyAct?>(null) }
     var wobble by remember(reel.id) { mutableIntStateOf(0) }
-    var shake by remember(reel.id) { mutableIntStateOf(0) }
     var hop by remember(reel.id) { mutableIntStateOf(0) }
     var spin by remember(reel.id) { mutableIntStateOf(0) }
     var caught by remember(reel.id) { mutableStateOf(false) }
@@ -570,26 +569,25 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
             caught = false
             val doIt = !reel.simon || step.simonSays
             lit = step.move.part.takeIf { doIt }
+            act = step.move.act.takeIf { doIt }
             val said = CopyMoves.said(step, reel.simon)[env.main]
             env.say(Say(said, env.main))
             delay(speakingMillis(said))
             if (doIt && step.move.beats > 0) {
                 for (b in 1..step.move.beats) {
                     beat = b
-                    bounce++
                     env.sfx(Sfx.DRUM)
                     env.say(NumberWords.of(b), tone = Tone.CHEER)
                     delay(850)
                 }
                 delay(500)
             } else if (doIt) {
-                when (step.move.motion) {
-                    CopyMotion.WOBBLE -> wobble++
-                    CopyMotion.SHAKE -> shake++
-                    CopyMotion.HOP -> hop++
-                    CopyMotion.SPIN -> spin++
-                    CopyMotion.BOUNCE -> bounce++
-                    CopyMotion.STILL -> Unit
+                // The puppet does the move itself; a few take the whole child with them.
+                when (step.move.act) {
+                    CopyAct.HANDS_UP -> hop++
+                    CopyAct.ONE_LEG -> wobble++
+                    CopyAct.TURN -> spin++
+                    else -> Unit
                 }
                 delay(2600)
             } else {
@@ -603,6 +601,7 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
             }
         }
         lit = null
+        act = null
         at = -1
         phase = CopyPhase.DONE
         env.say(CopyMoves.done, tone = Tone.CHEER)
@@ -613,12 +612,10 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
         MultiText(reel.prompt, env.langs, colors.ink, Modifier.fillMaxWidth(), size = 28.sp, say = { env.say(it) })
         val part = lit?.let { key -> Diagram.BODY.parts.firstOrNull { it.key == key } }
         Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-            DiagramFigure(
-                Diagram.BODY, part, null,
+            CopyKid(
+                act, beat, part,
                 Modifier.fillMaxSize()
-                    .moveOn(bounce, Motion.SQUASH, millis = 300)
                     .moveOn(wobble, Motion.WOBBLE, times = 2)
-                    .moveOn(shake, Motion.SHAKE, times = 2)
                     .moveOn(hop, Motion.HOP, times = 2)
                     .moveOn(spin, Motion.SPIN, millis = 900),
             ) { tapped ->

@@ -380,14 +380,23 @@ where **the same songs and toys come back** and **nothing is kept**.
   jump as they change. All of it is over in under a second and takes no taps.
 - **Copy me waits for nothing once Go is tapped**: the point is to look away and copy,
   so the moves go on by the clock, timed to roughly how long each line takes to say (the
-  engine does not report when it is done). The part is ringed on the drawn child from the
-  body reels, which bounces, wobbles or hops with the move, and claps and pats are
-  counted to a drum. **Sitting moves only**, unless a parent turns on Jumping games: the
-  app is often used at meals, and a child told to jump at the table is a spilt plate.
-  With it on, two standing moves come last and the game ends "Now sit down again!". In
-  Simon says, one or two moves (never the first) come without "Simon says", the drawn
-  child stays still, and the voice says "Gotcha!". Swiped away and back, it waits for
-  Go again: a game half seen is no game.
+  engine does not report when it is done). The drawn child from the body reels **does
+  each move**: hands to the nose or ears, palms meeting on each drum beat, fingers
+  wiggling, a squat to the knees, a foot up for standing on one leg, the tongue out, and
+  the part is ringed where it now is. Claps, pats, stomps and jumps are counted to the
+  drum. A child copies what they see far more readily than what they hear, and a child
+  bouncing for every move showed nothing to copy. It is a puppet drawn in code
+  (`ui/.../reels/CopyKid.kt`), not through the picture pipeline, which flattens a drawing
+  and cannot bend an elbow; standing still it matches `art/drawn/body.svg`, so the two are
+  changed together. A move's pose is just where the fingertips go (`CopyAct` in core);
+  elbows and knees are worked out from that, half bent towards the viewer, as straight
+  out sideways made wings of every move near the face. Hands and limbs have a thin
+  darker edge, or a hand over the face vanished into it. **Sitting moves only**, unless a
+  parent turns on Jumping games: the app is often used at meals, and a child told to jump
+  at the table is a spilt plate. With it on, two standing moves come last and the game
+  ends "Now sit down again!". In Simon says, one or two moves (never the first) come
+  without "Simon says", the drawn child stays still, and the voice says "Gotcha!". Swiped
+  away and back, it waits for Go again: a game half seen is no game.
 - **The voice may be cartoonish here, and only here.** `Tone.TINY` and `Tone.GIANT` push
   pitch and pace past the four learning tones, which stay as they are. Engines clamp
   pitch differently, so a silly voice is less silly on some phones; it never sounds wrong.
