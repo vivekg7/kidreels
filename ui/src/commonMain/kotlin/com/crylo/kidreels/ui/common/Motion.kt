@@ -34,15 +34,20 @@ import kotlin.random.Random
 enum class Motion { HOP, SQUASH, WOBBLE, SPIN, SHAKE, WAG }
 
 /**
- * Moves [times] times each time [key] changes (not on first show), after [delayMillis]: a
- * hop, a squash and stretch, a wobble, a spin, a shake or a wag. On top of [popOn], for
- * the things in a puzzle to come alive when it is solved and for the fun reels' toys.
+ * Moves [times] times each time [key] changes, after [delayMillis]: a hop, a squash and
+ * stretch, a wobble, a spin, a shake or a wag. On top of [popOn], for the things in a
+ * puzzle to come alive when it is solved and for the fun reels' toys.
+ *
+ * Never for the key it first shows with, even when that is not 0: a puzzle started over
+ * is a new view of a page whose celebration count is already up, and its right answer
+ * hopping as it appears would give the answer away.
  */
 @Composable
 fun Modifier.moveOn(key: Int, motion: Motion, delayMillis: Int = 0, times: Int = 1, millis: Int = 520): Modifier {
     val p = remember { Animatable(0f) }
+    val first = remember { key }
     LaunchedEffect(key) {
-        if (key == 0) return@LaunchedEffect
+        if (key == first) return@LaunchedEffect
         if (delayMillis > 0) delay(delayMillis.toLong())
         p.snapTo(0f)
         p.animateTo(times.toFloat(), tween(millis * times, easing = LinearEasing))

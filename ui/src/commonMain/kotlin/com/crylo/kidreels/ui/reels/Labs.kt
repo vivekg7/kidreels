@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -79,6 +80,11 @@ fun SolidView(reel: SolidCard, padding: PaddingValues) {
     var yaw by remember(reel.id) { mutableFloatStateOf(0.6f) }
     var pitch by remember(reel.id) { mutableFloatStateOf(0.45f) }
     var dragging by remember(reel.id) { mutableStateOf(false) }
+    // The tap handler below is made once per reel, while the page may still be off screen
+    // and muted: it calls through to the latest voice.
+    val sayIt by rememberUpdatedState {
+        env.say(listOfNotNull(Say(solid.name[env.main], env.main), Say(solid.fact[env.main], env.main).takeIf { reel.showFact }))
+    }
 
     LaunchedEffect(env.active, dragging) {
         if (!env.active || dragging) return@LaunchedEffect
@@ -112,7 +118,7 @@ fun SolidView(reel: SolidCard, padding: PaddingValues) {
                 }
                 .pointerInput(reel.id) {
                     // The fact is said only where it is shown: faces and edges are beyond a five-year-old.
-                    detectTapGestures { env.say(listOfNotNull(Say(solid.name[env.main], env.main), Say(solid.fact[env.main], env.main).takeIf { reel.showFact })) }
+                    detectTapGestures { sayIt() }
                 },
         ) {
             drawMesh(mesh, yaw, pitch, Color(reel.argb), Color(0xFF2D2440))
@@ -151,6 +157,9 @@ fun AngleView(reel: AngleLab, state: ReelState, padding: PaddingValues, onSolved
             env.say(listOf(Say("$shown°", env.main), Say(k.title[env.main], env.main)))
         }
     }
+    // The drag handler below is made once per reel, while the page may still be off screen
+    // and muted: it calls through to the latest release and its voice.
+    val onRelease by rememberUpdatedState(::released)
 
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -161,7 +170,7 @@ fun AngleView(reel: AngleLab, state: ReelState, padding: PaddingValues, onSolved
             MultiText(reel.prompt, env.langs, colors.ink, size = 26.sp, say = { env.say(it) })
             Canvas(
                 Modifier.fillMaxWidth().aspectRatio(1f).pointerInput(reel.id) {
-                    detectDragGestures(onDragEnd = { released() }) { change, _ ->
+                    detectDragGestures(onDragEnd = { onRelease() }) { change, _ ->
                         change.consume()
                         val c = Offset(size.width / 2f, size.height / 2f)
                         val p = change.position - c
@@ -307,12 +316,14 @@ private fun DrawScope.curvePath(steps: Int, upTo: Float, point: (Float) -> Offse
 @Composable
 fun KidSlider(value: Float, onChange: (Float) -> Unit, color: Color, modifier: Modifier = Modifier) {
     val env = LocalReelEnv.current
+    // The drag handler is made once, so it calls through to the latest onChange.
+    val moved by rememberUpdatedState(onChange)
     BoxWithConstraints(modifier.height(48.dp)) {
         Canvas(
             Modifier.fillMaxSize().pointerInput(Unit) {
                 detectHorizontalDragGestures { change, _ ->
                     change.consume()
-                    onChange((change.position.x / size.width).coerceIn(0f, 1f))
+                    moved((change.position.x / size.width).coerceIn(0f, 1f))
                 }
             },
         ) {

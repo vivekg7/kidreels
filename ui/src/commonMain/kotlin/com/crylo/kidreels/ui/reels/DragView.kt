@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -232,6 +233,10 @@ private fun Draggable(onTap: () -> Unit, onDrop: (Offset) -> Boolean, content: @
     var coords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var dragging by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    // The gesture handlers below are made once and outlive this composition, and the page is
+    // first made off screen, muted: they call through to the latest drop and its voice.
+    val tapped by rememberUpdatedState(onTap)
+    val dropped by rememberUpdatedState(onDrop)
     Box(
         Modifier.zIndex(if (dragging) 10f else 0f)
             .offset { IntOffset(offset.value.x.roundToInt(), offset.value.y.roundToInt()) }
@@ -247,7 +252,7 @@ private fun Draggable(onTap: () -> Unit, onDrop: (Offset) -> Boolean, content: @
                     onDragEnd = {
                         dragging = false
                         val center = coords?.boundsInRoot()?.center
-                        if (center == null || !onDrop(center)) scope.launch { offset.animateTo(Offset.Zero, spring(Spring.DampingRatioMediumBouncy)) }
+                        if (center == null || !dropped(center)) scope.launch { offset.animateTo(Offset.Zero, spring(Spring.DampingRatioMediumBouncy)) }
                     },
                     onDragCancel = {
                         dragging = false
@@ -258,7 +263,7 @@ private fun Draggable(onTap: () -> Unit, onDrop: (Offset) -> Boolean, content: @
                     scope.launch { offset.snapTo(offset.value + drag) }
                 }
             }
-            .pointerInput(Unit) { detectTapGestures { onTap() } },
+            .pointerInput(Unit) { detectTapGestures { tapped() } },
     ) { content() }
 }
 

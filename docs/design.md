@@ -402,6 +402,9 @@ fanfare of its own after the chime (`Burst` in `Motion.kt`).
   last minutes get no new excitement.
 - **Never in the way.** A burst takes no taps, so the next swipe is never held up, and no
   sparkle flashes more than once, well under three flashes a second.
+- **Only on a change, never on arrival.** `moveOn` skips the value it first shows with: a
+  puzzle started over is a new view of a page already celebrated, and its right answer
+  hopping as it appears would give the answer away.
 - Celebrations belong to every puzzle, so they stay when fun reels are turned off.
 
 #### Gappu
