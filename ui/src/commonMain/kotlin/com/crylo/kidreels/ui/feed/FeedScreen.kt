@@ -101,7 +101,7 @@ fun FeedScreen(app: AppState) {
             snapshotFlow { onScreenNow }.first { it }
             val main = app.settings.main
             val hello = model.takeGreeting()?.let { listOf(Say(it[main], main, Tone.CHEER)) }.orEmpty()
-            speaker.speak(hello + reel.intro(main))
+            speaker.speak(hello + reel.intro(app.settings.langs))
         }
     }
     LaunchedEffect(pager) {
@@ -163,12 +163,12 @@ fun FeedScreen(app: AppState) {
                             settings.look,
                             FrameInfo(reel, page, state.liked, state.hearts, settings.langs, timeFraction),
                             onLike = { model.like(reel) },
-                            onAgain = { env.say(reel.intro(settings.main)) },
+                            onAgain = { env.say(reel.intro(settings.langs)) },
                             // The question again too: a memory game's timing waits for it.
                             onRestart = if (reel.needsSolving) {
                                 {
                                     model.restart(reel)
-                                    env.say(reel.intro(settings.main))
+                                    env.say(reel.intro(settings.langs))
                                 }
                             } else {
                                 null

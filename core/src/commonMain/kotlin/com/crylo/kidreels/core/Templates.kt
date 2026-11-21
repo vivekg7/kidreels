@@ -191,6 +191,8 @@ object Templates {
                 glyphs.map { Choice.Token(it) }, answer,
                 reveal = Txt.same(target.phrase), say = Phrases.startsWithSay(target), voice = lang,
                 revealSaid = target.spoken(), whyNot = whyNot(glyphs, answer) { Phrases.notLetter(it, target) },
+                // As on the card, once the letter is found: "B for Ball" · "Ball means" … "गेंद".
+                bridge = target.meaning,
             )
         },
 
@@ -272,7 +274,7 @@ object Templates {
             Quiz(
                 g.id, Topic.COLOURS, g.level, g.difficulty, Phrases.whichColour(target), Stage.None,
                 colours.map { Choice.Colour(it.argb) }, answer, reveal = Phrases.yesColour(target), say = Phrases.whichColourSay(target),
-                whyNot = whyNot(colours, answer) { Phrases.notColour(it, target) },
+                whyNot = whyNot(colours, answer) { Phrases.notColour(it, target) }, bridge = target.name,
             )
         },
 
@@ -282,7 +284,7 @@ object Templates {
             Quiz(
                 g.id, Topic.ANIMAL_SOUNDS, g.level, g.difficulty, Phrases.whoSays(target), Stage.None,
                 animals.map { Choice.Token(it.emoji) }, answer, reveal = target.reveal, say = Phrases.whoSaysSay(target),
-                whyNot = whyNot(animals, answer) { Phrases.notAnimal(it, target) },
+                whyNot = whyNot(animals, answer) { Phrases.notAnimal(it, target) }, bridge = Words.of(target.emoji)?.name,
             )
         },
 
@@ -292,7 +294,7 @@ object Templates {
             Quiz(
                 g.id, Topic.HABITATS, g.level, g.difficulty, dweller.question, Stage.Picture(dweller.emoji),
                 homes.map { Choice.Token(it.emoji, it.label) }, answer, reveal = dweller.reveal, say = dweller.question + Phrases.tapItsHome,
-                whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) },
+                whyNot = whyNot(homes, answer) { Phrases.notHome(dweller, it) }, bridge = dweller.home.label,
             )
         },
         // The whole child, drawn: parts emoji cannot show, where they really are.
@@ -330,7 +332,7 @@ object Templates {
             Quiz(
                 g.id, Topic.COMPUTER_USE, g.level, g.difficulty, question, Stage.None,
                 choices.map { Choice.Token(it.emoji) }, answer, reveal = word.fact, say = question + Phrases.tapIt,
-                whyNot = whyNot(choices, answer) { it.thisIs() + it.fact!! },
+                whyNot = whyNot(choices, answer) { it.thisIs() + it.fact!! }, bridge = word.name,
             )
         },
     ) + Words.byTopic.map { (topic, words) ->
@@ -562,6 +564,7 @@ object Templates {
                 reveal = txt("${said.name[Lang.EN]}: ${said.fact[Lang.EN]}", "${said.name[Lang.HI]}: ${said.fact[Lang.HI]}"),
                 say = g.words(Phrases.whichSidesSay(target.sides)),
                 whyNot = whyNot(shuffled, shuffled.indexOf(target)) { g.words(Phrases.notSides(it, target.sides)) },
+                bridge = said.name,
             )
         }
         val pool = Shapes.upTo(g.level)
@@ -573,7 +576,7 @@ object Templates {
             shapes.mapIndexed { i, s -> Choice.Shape(s.kind, colours[i]) }, answer,
             reveal = txt("That is the ${said.name[Lang.EN].lowercase()}!", "यह ${said.name[Lang.HI]} है!"),
             say = Phrases.whichShape(said) + Phrases.findAndTap,
-            whyNot = whyNot(shapes, answer) { Phrases.notShape(it.forAge(g.age), said) },
+            whyNot = whyNot(shapes, answer) { Phrases.notShape(it.forAge(g.age), said) }, bridge = said.name,
         )
     }
 

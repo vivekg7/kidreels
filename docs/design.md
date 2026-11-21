@@ -327,7 +327,10 @@ A channel of its own (`core/Science.kt`, `ui/reels/ScienceViews.kt`).
    language has a homely word for little children beside the school one, put it in
    `.simpler(...)`.
 3. Add its alphabet to `Alphabets` (word, emoji, and the word in every other language).
-4. Map it to a TTS locale in `AndroidSpeaker`.
+4. Add its bridge frame to `Phrases.means` ("Apple means", "सेब यानी"). `Bridge.borrowed`
+   only compares Latin letters with Devanagari, so a borrowed word in a new script is
+   bridged until it learns that script's sounds.
+5. Map it to a TTS locale in `AndroidSpeaker`.
 
 ## How the feed picks the next reel
 
@@ -427,7 +430,52 @@ before: age, languages, look, limit, check-in, slow speech, progress, today's ti
 Every `Txt` holds all languages. A reel shows its text in each chosen language, main one
 first and large. Speech follows one rule: **speak the main language, unless the reel is
 about another language** (its alphabet, its first-letter quiz), which is spoken in that
-language (`Reel.voice`). Tapping any line speaks it in that line's own language.
+language (`Reel.voice`), **and bridge the one word the reel names into the others**.
+Tapping any line speaks it in that line's own language.
+
+- **The bridge is how Indian schools teach across languages**: "A for Apple, apple
+  means सेब", "हाथी को अंग्रेज़ी में elephant कहते हैं". Before it, a child with English
+  and Hindi saw सेब under "Apple" but never heard it: the second language was only on
+  screen, for a child who mostly cannot read yet. Now, after a reel names its thing, it
+  says it once more in each other language, in that language's own voice, in the
+  child's language order (`Bridge.lines`): "A" "for" "Apple" · "Apple means" … "सेब" ·
+  "Say it with me!" · "A" "for" "Apple". Where a teacher would put it: after the name,
+  before "say it with me", once per reel, so reels do not get longer than one line.
+- **Two lines, two voices.** "Apple means" is the English voice and "सेब" the Hindi
+  one, 200 ms apart (`Bridge.PAUSE`, under the usual 300 so it sounds like one phrase
+  across the change of voice), never Devanagari in an English line. Each half carries
+  the other's language (`Say.alsoNeeds`), and the speaker drops both when either voice
+  is missing: "Apple means" with nothing after it is worse than no bridge.
+- **The frame is the reel's voice's**: "Apple means", "सेब यानी" (`Phrases.means`), word
+  first, so the word just heard leads into the new one. The Hindi alphabet heard by an
+  English-first child bridges in Hindi too ("अ से अनानास" · "अनानास यानी" … "pineapple"),
+  as the card is spoken in Hindi. "यानी" is how Hindi glosses a word aloud and is as short
+  as "means"; the textbook "सेब को अंग्रेज़ी में … कहते हैं" switches voice twice in one
+  phrase and sounds chopped. Neither frame names the language, so a third language
+  only adds its own frame.
+- **What is bridged**: the alphabet, number, picture, body and plant, shape, solid, curve
+  and planet cards and "words in a sentence"; a right answer that names one thing (a
+  colour, the animal that made the sound, the animal's home, a shape, the first letter's
+  word, a part found on the body or plant, the opposite, the kind-of-word word, solid,
+  liquid or gas, "alive"); and a tapped picture ("This is an elephant!" · "elephant
+  means" … "हाथी"). The word is the one the child's age hears: तिकोना at 4, त्रिभुज
+  at 7.
+- **What is not**: a reel about one language's grammar (plurals, male and female,
+  rhymes, मात्राएँ: they do not translate), counting, sums and number puzzles (the word is
+  a numeral the voice already reads), figure reasoning, memory games, mazes, processes
+  and the other puzzles whose answer is a reason rather than a name (float or sink,
+  magnets, odd one out, sizes). Nor the first-letter quiz's picture before it is
+  answered: "ball means गेंद" before "Ball starts with which letter?" sends the child to
+  ग. Angles are named as the arm moves, too often to bridge each time.
+- **Nor a word that is the same in both.** A `Txt.same`, a missing translation, or a
+  borrowed word: "Bus means बस" and "कंप्यूटर यानी computer" teach nothing, and a quarter of
+  the picture cards' words are borrowed. `Bridge.borrowed` tells them by sound rather than a
+  list, so a new picture needs no flag: both words boiled down to their consonants (ph
+  and फ़ are f, m and ं one nasal, vowels left out), equal, or one sound apart in a long
+  word ("croissant" / "क्रोसाँ"). `BridgeTest` pins words it must catch and translations
+  it must leave ("bucket" / "बाल्टी", "Parabola" / "परवलय").
+- **With one language nothing changes**, and there is no setting: a parent who chose two
+  languages chose this.
 
 **What a grown-up reads is in the app's language; what is said or shown to the child is
 in the child's.** The app's language is one setting for the whole phone
@@ -506,7 +554,8 @@ the feed, and picking another child once the last one's time is up.
   KB. Sources, licences and what the script accepts are in `art/README.md`. Speech stays
   the phone's TTS for now; recordings may be bundled later where a voice falls short.
 - **Every picture has a name** (`core/Words.kt`), so tapping any picture says "This is an
-  elephant" / "यह हाथी है" in the reel's voice. One table covers every emoji the app
+  elephant" / "यह हाथी है" in the reel's voice, then bridges the name into the child's
+  other language ("elephant means" … "हाथी"). One table covers every emoji the app
   shows, and `everyPictureHasAName` fails when a new one is added without a name: a
   picture that does nothing when tapped teaches a child that tapping is pointless. Answer
   cards are the exception: a tap there is the answer, and a wrong one already names what
@@ -540,7 +589,8 @@ the feed, and picking another child once the last one's time is up.
   Praise is brighter, "try again" is softer and slower, and the goodbye reel is low and
   calm. Lines are separated by a 300 ms pause; "A", "for", "Apple" are three lines with
   500 ms between them, on the card and in the first-letter quiz's answer, so the letter
-  stands apart from the word. Pushed further, the voice sounds cartoonish.
+  stands apart from the word; a bridge's "Apple means" … "सेब" has 200 ms, so it sounds
+  like one phrase. Pushed further, the voice sounds cartoonish.
 - Sound effects are a few notes synthesised into `AudioTrack`s at start-up.
 
 ## Small decisions worth knowing

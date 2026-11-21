@@ -108,15 +108,16 @@ class FeedTest {
     @Test
     fun hindiLetterSpeaksHindiWhateverTheMainLanguage() {
         val card = feed(3, langs = listOf(Lang.EN, Lang.HI)).take(300).filterIsInstance<LetterCard>().first { it.lang == Lang.HI }
-        val intro = card.intro(Lang.EN)
-        assertTrue(intro.all { it.lang == Lang.HI }, "$intro")
+        val intro = card.intro(listOf(Lang.EN, Lang.HI))
+        // Only the bridged word is in English: "अनानास यानी" … "pineapple".
+        assertTrue(intro.all { it.lang == Lang.HI || it.alsoNeeds == Lang.HI }, "$intro")
         val parts = intro.take(3).map { it.text }
         assertEquals(listOf(card.letter.glyph, if (card.letter.like) "जैसे" else "से", card.letter.word), parts, "the letter, then a pause, then the word")
     }
 
     /** Everything a reel says or shows in Hindi, as one string to search. */
     private fun Reel.hindi(): String = buildString {
-        intro(Lang.HI).forEach { append(it.text).append(' ') }
+        intro(listOf(Lang.HI, Lang.EN)).filter { it.lang == Lang.HI }.forEach { append(it.text).append(' ') }
         prompt?.let { append(it[Lang.HI]).append(' ') }
         if (this@hindi is Quiz) reveal?.let { append(it[Lang.HI]).append(' ') }
         if (this@hindi is Quiz) whyNot.filterNotNull().forEach { append(it[Lang.HI]).append(' ') }
@@ -142,7 +143,7 @@ class FeedTest {
     fun theVoiceSaysWhatIsOnScreenAndWhatToDo() {
         for (reel in feed(4).take(300)) {
             if (reel is Quiz) assertTrue(reel.say != null, "${reel.topic} has nothing to say beyond its prompt")
-            val said = reel.intro(Lang.EN).joinToString(" ") { it.text }
+            val said = reel.intro(listOf(Lang.EN)).joinToString(" ") { it.text }
             assertFalse("help me" in said, "a filler line instead of the reel: $said")
             if (reel is Quiz && reel.topic == Topic.COUNTING && reel.stage is Stage.Count) {
                 val emoji = (reel.stage as Stage.Count).emoji

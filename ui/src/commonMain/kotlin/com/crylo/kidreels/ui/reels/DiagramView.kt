@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.crylo.kidreels.core.Bridge
 import com.crylo.kidreels.core.Diagram
 import com.crylo.kidreels.core.DiagramCard
 import com.crylo.kidreels.core.DiagramPart
@@ -99,7 +100,10 @@ fun DiagramCardView(reel: DiagramCard, padding: PaddingValues) {
         DiagramFigure(reel.diagram, shown, null, Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) { part ->
             shown = part
             env.sfx(Sfx.POP)
-            env.say(listOfNotNull(Diagrams.thisIs(reel.diagram, part), part.fact.takeIf { reel.showFact }).map { Say(it[env.main], env.main) })
+            env.say(
+                listOf(Say(Diagrams.thisIs(reel.diagram, part)[env.main], env.main)) + Bridge.lines(part.name, env.main, env.langs) +
+                    listOfNotNull(part.fact.takeIf { reel.showFact }?.let { Say(it[env.main], env.main) }),
+            )
         }
         Box(Modifier.fillMaxWidth().height(70.dp), contentAlignment = Alignment.Center) {
             if (reel.showFact) MultiText(shown.fact, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
@@ -123,7 +127,7 @@ fun DiagramTapView(reel: DiagramTap, state: ReelState, padding: PaddingValues, o
             } else if (part == reel.part) {
                 missed = null
                 env.sfx(Sfx.CORRECT)
-                env.praise(Diagrams.found(part) + part.fact, null)
+                env.praise(null, null, Diagrams.foundLines(part, env.langs))
                 onSolved()
             } else {
                 state.wrongTries++

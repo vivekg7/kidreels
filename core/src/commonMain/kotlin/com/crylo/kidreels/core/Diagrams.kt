@@ -137,6 +137,12 @@ object Diagrams {
         "हाँ! ${if (p.pluralHi) "ये" else "यह"} ${p.name[Lang.HI]} ${if (p.pluralHi) "हैं" else "है"}!",
     )
 
+    /** Said once [part] is found, after the cheer: "Yes! That is the knee!", what it does, then "knee means" … "घुटना". */
+    fun foundLines(p: DiagramPart, langs: List<Lang>): List<Say> {
+        val main = langs.first()
+        return listOf(Say((found(p) + p.fact)[main], main)) + Bridge.lines(p.name, main, langs)
+    }
+
     /** A tap on another part: what that one is, and the question again. */
     fun notThis(tapped: DiagramPart, wanted: DiagramPart) = txt(
         "${if (tapped.plural) "Those are" else "That is"} the ${tapped.name[Lang.EN]}. " +

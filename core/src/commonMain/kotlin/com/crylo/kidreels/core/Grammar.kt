@@ -218,6 +218,8 @@ object Grammar {
             whyNot = whyNot(choices, answer) {
                 g.words(txt("${it.b[Lang.EN].replaceFirstChar(Char::uppercase)} is the opposite of ${it.a[Lang.EN]}.", "${it.b[Lang.HI]}, ${it.a[Lang.HI]} का विलोम है।").simpler("${it.b[Lang.EN].replaceFirstChar(Char::uppercase)} is the opposite of ${it.a[Lang.EN]}.", "${it.b[Lang.HI]}, ${it.a[Lang.HI]} का उल्टा है।")) + oppositeOf(pair.a)
             },
+            // The pair is one idea in every language, so the answer is bridged like any word.
+            bridge = pair.b,
         )
     }
 
@@ -308,6 +310,7 @@ object Grammar {
                 val theirs = g.words(it.kind.one)
                 txt("${it.word[Lang.EN].replaceFirstChar(Char::uppercase)} is ${theirs[Lang.EN]}. Find ${one[Lang.EN]}!", "${it.word[Lang.HI]} ${theirs[Lang.HI]} है। ${one[Lang.HI]} ढूँढो!")
             },
+            bridge = right.word,
         )
     }
 

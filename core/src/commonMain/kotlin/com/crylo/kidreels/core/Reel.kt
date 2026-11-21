@@ -148,6 +148,12 @@ data class Quiz(
      * not blue. Find blue!". Null at [answer]; empty for a quiz with nothing to explain.
      */
     val whyNot: List<Txt?> = emptyList(),
+    /**
+     * The one thing the right answer names ("red", "knee", "Ball"), said again after the
+     * reveal in the child's other languages: "red means" … "लाल". Null where the answer
+     * is a number, a figure or a rule. See [Bridge].
+     */
+    val bridge: Txt? = null,
 ) : Reel {
     override val needsSolving: Boolean get() = true
 
@@ -385,32 +391,49 @@ data class TimeUp(override val id: Long, val bedtime: Boolean = false) : Reel {
  * What the voice says when a reel comes on screen, in the right voice: what is on the
  * screen and what to do with it, the way a grown-up beside the child would say it. The
  * speaker button says the same again.
+ *
+ * [langs] are the child's languages, main first. A reel that names one thing says it once
+ * more in each of the others, in that language's voice ("A for Apple" · "Apple means" …
+ * "सेब"), before "say it with me" where there is one: see [Bridge]. With one language
+ * there is nothing to bridge, and the reel says what it always did.
  */
-fun Reel.intro(main: Lang): List<Say> {
-    val lang = voice ?: main
+fun Reel.intro(langs: List<Lang>): List<Say> {
+    val lang = voice ?: langs.first()
     fun line(t: Txt, tone: Tone = Tone.TALK) = Say(t[lang], lang, tone)
+    fun bridge(word: Txt) = Bridge.lines(word, lang, langs)
+
+    /** "This is a triangle." · the bridge · the rest; one line, as before, when there is no bridge. */
+    fun named(name: Txt, word: Txt, rest: Txt?): List<Say> {
+        val b = bridge(word)
+        if (b.isEmpty()) return listOf(line(rest?.let { name + it } ?: name))
+        return listOf(line(name)) + b + listOfNotNull(rest?.let { line(it) })
+    }
     return when (this) {
         is TimeUp -> if (bedtime) {
             listOf(line(Phrases.bedtime, Tone.CALM), line(Phrases.bedtimeBody, Tone.CALM))
         } else {
             listOf(line(Phrases.allDone, Tone.CALM), line(Phrases.allDoneBody, Tone.CALM))
         }
-        // Said, then said again with the child: toddlers learn a letter by repeating it.
-        is LetterCard -> letter.spoken() + line(Phrases.sayWithMe) + letter.spoken()
+        // Said, bridged, then said again with the child: toddlers learn a letter by repeating
+        // it. The bridge is the word's meaning in the other language, in the card's voice:
+        // "A for Apple" · "Apple means" … "सेब"; "अ से अनानास" · "अनानास यानी" … "pineapple".
+        is LetterCard -> letter.spoken() + bridge(letter.meaning) + line(Phrases.sayWithMe) + letter.spoken()
         is Quiz -> listOf(line(say ?: prompt))
         is DragGame -> listOf(line(say))
         is CountAlong -> listOf(line(Phrases.countAlong(thing)))
-        is ShapeCard -> listOf(line(Phrases.thisShape(shape)))
-        is SolidCard -> listOf(line(Phrases.thisSolid(solid, showFact)))
+        is ShapeCard -> named(Phrases.thisShapeName(shape), shape.name, Phrases.thisShapeRest(shape))
+        is SolidCard -> named(Phrases.thisSolidName(solid), solid.name, Phrases.thisSolidRest(solid, showFact))
         is AngleLab -> listOf(line(target?.let(Phrases::makeAngleSay) ?: Phrases.dragAngle))
-        is CurveLab -> listOf(line(Phrases.thisCurve(curve)))
-        // Like the alphabet card: "1", "O", "N", "E", "one", "1 elephant", then again together.
+        is CurveLab -> named(Phrases.thisCurveName(curve), curve.name, Phrases.thisCurveRest(curve))
+        // Like the alphabet card: "1", "O", "N", "E", "one", "1 elephant", "one means" … "एक",
+        // then again together.
         is NumberCard -> buildList {
             val part = { t: String, l: Lang -> Say(t, l, pauseMillis = Letter.PART_PAUSE) }
             add(part(n.toString(), lang))
             if (lang == Lang.EN && level >= 4) Numbers.spelling(n).forEach { add(part(it, lang)) }
             add(part(word[lang], lang))
             add(line(thing.of(n)))
+            addAll(bridge(word))
             add(line(Phrases.sayWithMe))
             add(part(word[lang], lang))
         }
@@ -421,21 +444,51 @@ fun Reel.intro(main: Lang): List<Say> {
         is PairsGame -> listOf(line(Memory.pairsSay))
         is OrderGame -> listOf(line(Memory.orderSay))
         is MazeGame -> listOf(line(Mazes.say(runner)))
-        // Named, then named again with the child, as on the picture cards.
-        is DiagramCard -> listOfNotNull(
-            line(Diagrams.thisIs(diagram, part)), line(Phrases.sayWithMe), Say(part.name[lang], lang, pauseMillis = Letter.PART_PAUSE),
+        // Named, bridged, then named again with the child, as on the picture cards.
+        is DiagramCard -> listOf(line(Diagrams.thisIs(diagram, part))) + bridge(part.name) + listOfNotNull(
+            line(Phrases.sayWithMe), Say(part.name[lang], lang, pauseMillis = Letter.PART_PAUSE),
             part.fact.takeIf { showFact }?.let { line(it) },
         )
         is DiagramTap -> listOf(line(Diagrams.tapSay(part)))
-        is WordUseCard -> listOf(line(word.word), line(Grammar.cardSay(word, level)))
+        is WordUseCard -> listOf(line(word.word)) + bridge(word.word) + line(Grammar.cardSay(word, level))
         is LabReel -> listOf(line(lab.intro))
-        is PlanetCard -> listOf(line(Science.planetSay(planet)))
-        // Named, then named again with the child, as on the alphabet card.
-        is WordCard -> listOfNotNull(
-            line(word.thisIs()), line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),
+        // "Earth is the 3rd planet from the Sun." · "Earth means" … "पृथ्वी" · its fact. The Sun's
+        // and the Moon's facts start with their name, so their bridge comes after.
+        is PlanetCard -> {
+            val name = Science.bareName(planet)
+            planet.order?.let { named(Science.planetOrder(planet), name, planet.fact) }
+                ?: (listOf(line(planet.fact)) + bridge(name))
+        }
+        // Named, bridged, then named again with the child, as on the alphabet card.
+        is WordCard -> listOf(line(word.thisIs())) + bridge(word.name) + listOfNotNull(
+            line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),
             word.fact?.takeIf { showFact }?.let { line(it) },
         )
     }
+}
+
+/**
+ * What a right answer says after the cheer: the [Quiz.reveal] (or [Quiz.revealSaid], in
+ * parts), then the [Quiz.bridge] into the child's other [langs]: "Yes! That is red!" ·
+ * "red means" … "लाल".
+ */
+fun Quiz.revealLines(langs: List<Lang>): List<Say> {
+    val lang = voice ?: langs.first()
+    val said = revealSaid ?: reveal?.let { listOf(Say(it[lang], lang)) }.orEmpty()
+    return said + Bridge.lines(bridge, lang, langs)
+}
+
+/**
+ * A tap on a quiz's picture: its name, then the question again ("This is a fish. Where
+ * does the fish live?"), with the name bridged in between. Not in a quiz about one
+ * language's words ([Reel.voice]): "ball means गेंद" before "Ball starts with which
+ * letter?" would send the child to ग.
+ */
+fun Quiz.pictureTapped(langs: List<Lang>): List<Say> {
+    val lang = voice ?: langs.first()
+    val picture = stage as? Stage.Picture
+    val name = picture?.let { it.name ?: Words.of(it.emoji) }
+    return name?.said(lang, if (voice == null) langs else listOf(lang)).orEmpty() + Say((say ?: prompt)[lang], lang)
 }
 
 /** Hard reels are followed by an easy one: see Feed. */

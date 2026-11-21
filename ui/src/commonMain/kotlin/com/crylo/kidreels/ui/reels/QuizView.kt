@@ -45,10 +45,10 @@ import com.crylo.kidreels.core.Op
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Quiz
 import com.crylo.kidreels.core.Stage
-import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.Txt
-import com.crylo.kidreels.core.Words
+import com.crylo.kidreels.core.pictureTapped
+import com.crylo.kidreels.core.revealLines
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.art.Picture
@@ -83,7 +83,7 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
         if (state.solved || i in state.wrong) return
         if (i == quiz.answer) {
             env.sfx(Sfx.CORRECT)
-            env.praise(quiz.reveal, quiz.voice, quiz.revealSaid)
+            env.praise(quiz.reveal, quiz.voice, quiz.revealLines(env.langs))
             onSolved()
         } else {
             state.wrong += i
@@ -147,9 +147,7 @@ private fun StageView(quiz: Quiz, state: ReelState, looking: Boolean, onLooked: 
                 stage.emoji,
                 Modifier.floating().popOn(pop).tap {
                     pop++
-                    val lang = quiz.voice ?: env.main
-                    val name = (stage.name ?: Words.of(stage.emoji))?.thisIs()
-                    env.say(listOfNotNull(name, quiz.say ?: quiz.prompt).map { Say(it[lang], lang) })
+                    env.say(quiz.pictureTapped(env.langs))
                 },
                 size = 120.sp,
             )

@@ -201,7 +201,13 @@ object Science {
         PlanetCard(g.id, g.level, g.difficulty, if (g.ordered) planets[g.inOrder("planets", planets.size)] else g.pick(planets))
 
     /** "Earth is the 3rd planet from the Sun." and the fact; the Sun's and Moon's facts already start with their name. */
-    fun planetSay(p: Planet): Txt = p.order?.let { o -> p.name + txt("is ${o[Lang.EN]}.", "${o[Lang.HI]} है।") + p.fact } ?: p.fact
+    fun planetSay(p: Planet): Txt = p.order?.let { planetOrder(p) + p.fact } ?: p.fact
+
+    /** "Earth is the 3rd planet from the Sun." */
+    fun planetOrder(p: Planet): Txt = p.name + txt("is ${p.order?.get(Lang.EN)}.", "${p.order?.get(Lang.HI)} है।")
+
+    /** The name as a word on its own, to bridge: "Sun", not "The Sun". */
+    fun bareName(p: Planet): Txt = txt(p.name[Lang.EN].removePrefix("The "), p.name[Lang.HI])
 
     private fun Item.agree(m: String, f: String) = if (feminine) f else m
 
@@ -240,6 +246,8 @@ object Science {
             reveal = txt("${it.name[Lang.EN].replaceFirstChar(Char::uppercase)} is a ${state.word[Lang.EN].lowercase()}!", "${it.name[Lang.HI]} ${state.word[Lang.HI]} है!") + state.rule,
             say = ask + Phrases.tapIt,
             whyNot = whyNot(State.entries, state.ordinal) { other -> other.rule + txt("Is that true of ${it.name[Lang.EN]}?", "क्या ${it.name[Lang.HI]} ऐसा है?") },
+            // The science word is what a class bridges: "liquid means" … "द्रव".
+            bridge = state.word,
         )
     }
 
@@ -261,6 +269,7 @@ object Science {
                         .simpler("The ${name(it)[Lang.EN]} is not alive: it does not grow, eat or breathe.", "${name(it)[Lang.HI]} ज़िंदा नहीं है: न बढ़ना, न खाना, न साँस लेना।"),
                 )
             },
+            bridge = g.words(txt("alive", "सजीव").simpler("alive", "ज़िंदा")),
         )
     }
 }

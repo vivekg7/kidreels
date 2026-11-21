@@ -24,6 +24,9 @@ data class Word(
 
     /** "This is an elephant!" / "यह हाथी है!"; "These are grapes!"; "This is the colour red!". */
     fun thisIs(): Txt = Phrases.thisIs(name, plural, pluralHi, article, colour)
+
+    /** What tapping the picture says in [voice]: "This is an elephant!", then "elephant means" … "हाथी" into the rest of [langs]. */
+    fun said(voice: Lang, langs: List<Lang>): List<Say> = listOf(Say(thisIs()[voice], voice)) + Bridge.lines(name, voice, langs)
 }
 
 /**

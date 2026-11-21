@@ -69,10 +69,14 @@ class ReelEnv(
     /** [text] in the main language, or in [voice] for a reel about that language. */
     fun say(text: Txt, voice: Lang? = null, tone: Tone = Tone.TALK) = say(Say(text[voice ?: main], voice ?: main, tone))
 
-    /** "This is an elephant!" for a tapped picture; [word] when the reel names it its own way. */
+    /**
+     * "This is an elephant!" for a tapped picture, then "elephant means" … "हाथी" in the other
+     * languages; [word] when the reel names it its own way. A reel about one language
+     * ([voice]) keeps to it.
+     */
     fun name(emoji: String, voice: Lang? = null, word: Word? = null) {
         val w = word ?: Words.of(emoji) ?: return
-        say(w.thisIs(), voice)
+        say(w.said(voice ?: main, if (voice == null) langs else listOf(voice)))
     }
 
     /** A tapped piece of a row or grid: a picture says its name, a numeral is read out. */

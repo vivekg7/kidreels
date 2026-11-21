@@ -80,7 +80,7 @@ fun NumberView(reel: NumberCard, padding: PaddingValues) {
     ) {
         Box(
             Modifier.shadow(10.dp, RoundedCornerShape(36.dp)).clip(RoundedCornerShape(36.dp)).background(Color.White)
-                .pressable({ env.say(reel.intro(env.main)); bounce++ })
+                .pressable({ env.say(reel.intro(env.langs)); bounce++ })
                 .padding(horizontal = 34.dp, vertical = 2.dp),
             contentAlignment = Alignment.Center,
         ) {

@@ -255,7 +255,7 @@ fun WordView(reel: WordCard, padding: PaddingValues) {
             Modifier.floating(6f, 1800).popOn(bounce).tap {
                 bounce++
                 env.sfx(Sfx.POP)
-                env.say(listOfNotNull(word.thisIs(), word.fact?.takeIf { reel.showFact }).map { Say(it[env.main], env.main) })
+                env.say(word.said(env.main, env.langs) + listOfNotNull(word.fact?.takeIf { reel.showFact }?.let { Say(it[env.main], env.main) }))
             },
         )
         val fact = word.fact

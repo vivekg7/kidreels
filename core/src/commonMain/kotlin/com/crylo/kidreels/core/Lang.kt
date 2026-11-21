@@ -61,9 +61,17 @@ fun txt(en: String, hi: String): Txt = Txt(mapOf(Lang.EN to en, Lang.HI to hi))
 
 /**
  * One stretch of speech, in one voice. A reel's speech is a list of these, with a short
- * silence of [pauseMillis] before each line after the first.
+ * silence of [pauseMillis] before each line after the first. [alsoNeeds] is set on each
+ * half of a bridge ("Apple means" … "सेब", see [Bridge]): the line is left out when that
+ * language has no voice, as the other half will be.
  */
-data class Say(val text: String, val lang: Lang, val tone: Tone = Tone.TALK, val pauseMillis: Long = PAUSE) {
+data class Say(
+    val text: String,
+    val lang: Lang,
+    val tone: Tone = Tone.TALK,
+    val pauseMillis: Long = PAUSE,
+    val alsoNeeds: Lang? = null,
+) {
     companion object {
         /** A breath between lines: run together, a reel sounds read out. */
         const val PAUSE = 300L

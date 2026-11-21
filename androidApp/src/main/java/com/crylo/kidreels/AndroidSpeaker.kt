@@ -61,7 +61,7 @@ class AndroidSpeaker(context: Context) : Speaker {
         tts.stop()
         var first = true
         for (line in lines) {
-            if (readyLangs[line.lang] == false) continue
+            if (readyLangs[line.lang] == false || line.alsoNeeds?.let { readyLangs[it] == false } == true) continue
             // Language, pitch and pace are fixed per call to speak(), so queued lines can
             // each have their own.
             if (tts.setLanguage(locale(line.lang)) < TextToSpeech.LANG_AVAILABLE) continue

@@ -76,6 +76,12 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   below. The voice speaks the main language, except on a reel about another language's
   alphabet, which is spoken in that language. Tapping any line says it in its own
   language.
+- With two languages, a reel that names one thing says it once more in the other, in
+  that language's voice, as Indian classrooms do: "A for Apple. Apple means सेब", "1
+  elephant. One means एक", "हाथी यानी elephant". Alphabet, number, picture, body,
+  shape, solid, curve and planet cards do it, and so do right answers that name one
+  thing (a colour, an animal, a home, a shape, a body part, an opposite). Words that are
+  the same in both ("bus" / "बस") are not bridged.
 
 ## What a parent sets
 

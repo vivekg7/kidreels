@@ -51,6 +51,17 @@ object Phrases {
 
     fun hi(name: String): Txt = txt("Hi, $name!", "नमस्ते, $name!")
 
+    /**
+     * The frame of a bridge, in the voice the reel speaks, before [word] is said in the
+     * other language's voice: "Apple means" … "सेब", "सेब यानी" … "apple" (see [Bridge]).
+     * Each language frames with its own word first, so the word the child just heard
+     * leads into the new one, and the frame never names the other language: a third one
+     * just adds its own frame here. Hindi has "सेब को अंग्रेज़ी में Apple कहते हैं", the
+     * textbook form, but it switches voice twice in one phrase; "यानी" is how Hindi glosses
+     * a word aloud, and is as short as "means".
+     */
+    fun means(word: Txt): Txt = txt("${word.en} means", "${word.hi} यानी")
+
     /** Under the goodbye reel: what comes after the phone. */
     val goodbyeThings = listOf("🍽️", "⚽", "🧸", "📚", "🛏️")
 
@@ -141,19 +152,29 @@ object Phrases {
     val sudokuPictureSay = sudokuPicture + txt("Each row and column has every picture once.", "हर पंक्ति और स्तंभ में हर चीज़ एक बार आती है।")
         .simpler("Each line has every picture once.", "हर लाइन में हर चीज़ एक बार आती है।")
 
-    /** "This is a triangle. 3 sides, 3 corners. Tap it and count the corners!" */
-    fun thisShape(s: ShapeInfo): Txt = txt(
-        "This is ${a(s.name.en)}. ${s.fact.en}. " + if (s.sides > 0) "Tap it and count the corners!" else "Tap it and see!",
-        "यह ${s.name.hi} है। ${s.fact.hi}। " + if (s.sides > 0) "छूकर कोने गिनो!" else "छूकर देखो!",
+    /*
+     * A card's line comes in two halves, the name and the rest, so a bridge can go between
+     * them (see Reel.intro): "This is a triangle." · "triangle means" … "तिकोना" · "3 sides,
+     * 3 corners. Tap it and count the corners!". Without a bridge they are one line.
+     */
+
+    fun thisShapeName(s: ShapeInfo): Txt = txt("This is ${a(s.name.en)}.", "यह ${s.name.hi} है।")
+
+    fun thisShapeRest(s: ShapeInfo): Txt = txt(
+        "${s.fact.en}. " + if (s.sides > 0) "Tap it and count the corners!" else "Tap it and see!",
+        "${s.fact.hi}। " + if (s.sides > 0) "छूकर कोने गिनो!" else "छूकर देखो!",
     )
 
-    fun thisSolid(s: SolidInfo, withFact: Boolean): Txt = txt(
-        "This is ${a(s.name.en)}. " + (if (withFact) "${s.fact.en}. " else "") + "Spin it with your finger!",
-        "यह ${s.name.hi} है। " + (if (withFact) "${s.fact.hi}। " else "") + "उँगली से घुमाकर देखो!",
+    fun thisSolidName(s: SolidInfo): Txt = txt("This is ${a(s.name.en)}.", "यह ${s.name.hi} है।")
+
+    fun thisSolidRest(s: SolidInfo, withFact: Boolean): Txt = txt(
+        (if (withFact) "${s.fact.en}. " else "") + "Spin it with your finger!",
+        (if (withFact) "${s.fact.hi}। " else "") + "उँगली से घुमाकर देखो!",
     )
 
-    fun thisCurve(c: CurveInfo): Txt =
-        txt("This is ${a(c.name.en)}. ${c.fact.en}. Slide to change it!", "यह ${c.name.hi} है। ${c.fact.hi}। सरकाकर बदलो!")
+    fun thisCurveName(c: CurveInfo): Txt = txt("This is ${a(c.name.en)}.", "यह ${c.name.hi} है।")
+
+    fun thisCurveRest(c: CurveInfo): Txt = txt("${c.fact.en}. Slide to change it!", "${c.fact.hi}। सरकाकर बदलो!")
 
     fun makeAngleSay(kind: AngleKind): Txt = makeAngle(kind) + txt("Drag the arm until it fits!", "भुजा को खींचो, जब तक ठीक न बैठे!")
 
