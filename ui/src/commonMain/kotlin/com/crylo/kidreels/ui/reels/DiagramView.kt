@@ -1,9 +1,6 @@
 package com.crylo.kidreels.ui.reels
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,6 +44,7 @@ import com.crylo.kidreels.ui.art.drawArt
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
+import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.skin.LocalReelColors
 import com.crylo.kidreels.ui.skin.reelWidth
 import kotlinx.coroutines.delay
@@ -59,7 +59,18 @@ private val Miss = Color(0xFFE5484D)
  */
 @Composable
 fun DiagramFigure(d: Diagram, lit: DiagramPart?, missed: DiagramPart?, modifier: Modifier, onTap: (DiagramPart) -> Unit) {
-    val pulse by rememberInfiniteTransition().animateFloat(1f, 1.35f, infiniteRepeatable(tween(700), RepeatMode.Reverse))
+    val env = LocalReelEnv.current
+    // A newly lit ring pulses three times, then rests: a found part ringing on and on would
+    // keep calling the child back to a reel that is done.
+    val pulse = remember { Animatable(1f) }
+    LaunchedEffect(lit, env.active) {
+        pulse.snapTo(1f)
+        if (lit == null || !env.active) return@LaunchedEffect
+        repeat(3) {
+            pulse.animateTo(1.35f, tween(700))
+            pulse.animateTo(1f, tween(700))
+        }
+    }
     val tap by rememberUpdatedState(onTap)
     Canvas(
         modifier.pointerInput(Unit) {
@@ -80,7 +91,7 @@ fun DiagramFigure(d: Diagram, lit: DiagramPart?, missed: DiagramPart?, modifier:
             drawCircle(colour.copy(alpha = 0.25f), r, at)
             drawCircle(colour, r, at, style = Stroke(3.5.dp.toPx()))
         }
-        lit?.let { ring(it, Glow, pulse) }
+        lit?.let { ring(it, Glow, pulse.value) }
         missed?.let { ring(it, Miss, 1f) }
     }
 }
@@ -91,13 +102,16 @@ fun DiagramCardView(reel: DiagramCard, padding: PaddingValues) {
     val env = LocalReelEnv.current
     val colors = LocalReelColors.current
     var shown by remember(reel.id) { mutableStateOf(reel.part) }
+    // Bumped when another part is shown, so its name and fact pop in rather than swap in place.
+    var swaps by remember(reel.id) { mutableIntStateOf(0) }
     Column(
         Modifier.fillMaxSize().padding(padding).reelWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
-        MultiText(Diagrams.title(shown), env.langs, colors.ink, size = 40.sp, say = { env.say(it) })
+        MultiText(Diagrams.title(shown), env.langs, colors.ink, Modifier.popOn(swaps), size = 40.sp, say = { env.say(it) })
         DiagramFigure(reel.diagram, shown, null, Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) { part ->
+            if (part != shown) swaps++
             shown = part
             env.sfx(Sfx.POP)
             env.say(
@@ -106,7 +120,7 @@ fun DiagramCardView(reel: DiagramCard, padding: PaddingValues) {
             )
         }
         Box(Modifier.fillMaxWidth().height(70.dp), contentAlignment = Alignment.Center) {
-            if (reel.showFact) MultiText(shown.fact, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+            if (reel.showFact) MultiText(shown.fact, env.langs, colors.ink, Modifier.popOn(swaps), size = 20.sp, say = { env.say(it) })
             else T("👆", Modifier.floating(), size = 32.sp)
         }
     }
@@ -141,7 +155,7 @@ fun DiagramTapView(reel: DiagramTap, state: ReelState, padding: PaddingValues, o
             }
         }
         Box(Modifier.fillMaxWidth().height(70.dp), contentAlignment = Alignment.Center) {
-            if (state.solved) MultiText(Diagrams.found(reel.part), env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+            if (state.solved) MultiText(Diagrams.found(reel.part), env.langs, colors.ink, Modifier.popOn(1), size = 20.sp, say = { env.say(it) })
             else T("👆", Modifier.floating(), size = 32.sp)
         }
     }

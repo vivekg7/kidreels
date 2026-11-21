@@ -1,5 +1,11 @@
 package com.crylo.kidreels.ui.reels
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -423,7 +429,6 @@ private fun BubbleBall(colour: Color) {
  * that note lights up with a ball bouncing over it. At the end of a line its picture does
  * its thing, and the next line is said before it is played. The song ends by itself.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TuneView(reel: TuneReel, padding: PaddingValues, onDone: () -> Unit) {
     val env = LocalReelEnv.current
@@ -433,10 +438,18 @@ fun TuneView(reel: TuneReel, padding: PaddingValues, onDone: () -> Unit) {
     val flat = remember(song) { song.lines.flatMapIndexed { l, line -> line.notes.indices.map { l to it } } }
     var played by remember(reel.id) { mutableIntStateOf(0) }
     var lineDone by remember(reel.id) { mutableIntStateOf(0) }
+    var lineAt by remember(reel.id) { mutableIntStateOf(0) }
     val finished = played >= flat.size
-    // The line on screen: the one being played, or the next one once a line is done.
-    val (lineAt, syllableAt) = if (finished) song.lines.lastIndex to song.lines.last().notes.size else flat[played].let { (l, s) -> l to s }
+    val playing = if (finished) song.lines.lastIndex else flat[played].first
+    // A line just played stays on screen while its picture does its thing, then the next
+    // one comes in; notes tapped meanwhile already belong to the next line.
+    LaunchedEffect(lineDone) {
+        if (lineDone == 0) return@LaunchedEffect
+        delay(LINE_HOLD_MILLIS)
+        lineAt = if (played >= flat.size) song.lines.lastIndex else flat[played].first
+    }
     val line = song.lines[lineAt]
+    val syllableAt = if (finished || lineAt != playing) line.notes.size else flat[played].second
 
     fun next() {
         // The state itself, not the value read at the last frame: fast taps come between frames.
@@ -461,37 +474,53 @@ fun TuneView(reel: TuneReel, padding: PaddingValues, onDone: () -> Unit) {
     ) {
         MultiText(song.title, env.langs, colors.ink, Modifier.fillMaxWidth(), size = 24.sp, first = voice)
         Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            T(line.picture, Modifier.floating().moveOn(lineDone, Motion.HOP).moveOn(lineDone, Motion.SPIN, delayMillis = 200), size = 110.sp)
-        }
-        // The line, a word lit for each note: the next one to play, with the ball over it.
-        FlowRow(
-            Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            line.syllables.forEachIndexed { i, syllable ->
-                val lit = !finished && i == syllableAt
-                val sung = finished || i < syllableAt
-                val joined = syllable.endsWith("-")
-                Column(Modifier.padding(end = if (joined) 0.dp else 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.size(14.dp), contentAlignment = Alignment.Center) { if (lit) Ball(colors.good) }
-                    T(
-                        syllable.removeSuffix("-"),
-                        Modifier.clip(RoundedCornerShape(8.dp)).background(if (lit) colors.good.copy(alpha = 0.3f) else Color.Transparent).padding(horizontal = 2.dp),
-                        color = if (sung || lit) colors.ink else colors.ink.copy(alpha = 0.55f),
-                        size = 28.sp,
-                        weight = if (lit) FontWeight.Black else FontWeight.Bold,
-                    )
-                }
+            Crossfade(lineAt, animationSpec = tween(350)) { l ->
+                T(song.lines[l].picture, Modifier.floating().moveOn(lineDone, Motion.HOP).moveOn(lineDone, Motion.SPIN, delayMillis = 200), size = 110.sp)
             }
         }
+        // The line, a word lit for each note: the next one to play, with the ball over it.
+        AnimatedContent(
+            lineAt,
+            transitionSpec = { (slideInVertically(tween(300)) { it / 2 } + fadeIn(tween(300))) togetherWith fadeOut(tween(200)) },
+        ) { at -> LineWords(song.lines[at].syllables, if (at == lineAt) syllableAt else song.lines[at].notes.size, finished) }
         Box(Modifier.fillMaxWidth().height(90.dp), contentAlignment = Alignment.Center) {
             if (finished) {
-                MultiText(Songs.played(song), env.langs, colors.ink, size = 20.sp, first = voice, say = { env.say(it) })
+                MultiText(Songs.played(song), env.langs, colors.ink, Modifier.popOn(1), size = 20.sp, first = voice, say = { env.say(it) })
             } else if (played == 0) {
                 T("👆", Modifier.floating(), size = 32.sp)
             } else {
                 T("🎵 ${played} / ${flat.size}", color = colors.ink.copy(alpha = 0.7f), size = 15.sp, weight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+/** How long a line just played stays on screen, for its picture to hop and spin. */
+private const val LINE_HOLD_MILLIS = 800L
+
+/** A line of the song, a word for each note: those [syllableAt] sung, the next lit with the ball over it. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LineWords(syllables: List<String>, syllableAt: Int, finished: Boolean) {
+    val colors = LocalReelColors.current
+    FlowRow(
+        Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        syllables.forEachIndexed { i, syllable ->
+            val lit = !finished && i == syllableAt
+            val sung = finished || i < syllableAt
+            val joined = syllable.endsWith("-")
+            Column(Modifier.padding(end = if (joined) 0.dp else 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.size(14.dp), contentAlignment = Alignment.Center) { if (lit) Ball(colors.good) }
+                T(
+                    syllable.removeSuffix("-"),
+                    Modifier.clip(RoundedCornerShape(8.dp)).background(if (lit) colors.good.copy(alpha = 0.3f) else Color.Transparent).padding(horizontal = 2.dp),
+                    color = if (sung || lit) colors.ink else colors.ink.copy(alpha = 0.55f),
+                    size = 28.sp,
+                    weight = if (lit) FontWeight.Black else FontWeight.Bold,
+                )
             }
         }
     }
@@ -566,6 +595,8 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
                 // Simon did not say: the drawn child stays still, and so should the child.
                 delay(2200)
                 caught = true
+                // The drawn child giggles at the catch.
+                wobble++
                 env.say(CopyMoves.gotcha, tone = Tone.CHEER)
                 delay(speakingMillis(CopyMoves.gotcha[env.main]))
             }
@@ -601,9 +632,13 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
             when (phase) {
                 CopyPhase.READY -> GoButton(CopyMoves.go[env.main]) { phase = CopyPhase.PLAYING }
                 CopyPhase.PLAYING -> reel.steps.getOrNull(at)?.let { step ->
-                    MultiText(if (caught) CopyMoves.gotcha else CopyMoves.said(step, reel.simon), env.langs, colors.ink, size = 22.sp, say = { env.say(it) })
+                    // Each new move, and "Gotcha!", pops in, so a child looking up sees it changed.
+                    MultiText(
+                        if (caught) CopyMoves.gotcha else CopyMoves.said(step, reel.simon), env.langs, colors.ink,
+                        Modifier.popOn(at * 2 + (if (caught) 2 else 1)), size = 22.sp, say = { env.say(it) },
+                    )
                 }
-                CopyPhase.DONE -> Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CopyPhase.DONE -> Column(Modifier.popOn(1), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     MultiText(CopyMoves.done, env.langs, colors.ink, size = 22.sp, say = { env.say(it) })
                     GoButton(CopyMoves.again[env.main]) { phase = CopyPhase.PLAYING }
                 }

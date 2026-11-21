@@ -343,7 +343,7 @@ where **the same songs and toys come back** and **nothing is kept**.
   copyright: Twinkle Twinkle, Baa Baa Black Sheep (the same tune), Row Row Row Your Boat
   and Old MacDonald, one verse with a farm animal picked each time. A song is data: a
   note and a syllable per tap, a picture per line, that hops and spins at the end of its
-  line. The voice says each line before it is played, so the child hears the words. Tap
+  line; the line stays on screen for that, then the next slides in. The voice says each line before it is played, so the child hears the words. Tap
   fast and the song goes fast; stop and it waits. It ends with the song, and start over
   plays it again. English only for now, so a child without English gets no songs; Hindi
   needs care, as many rhymes children know are film songs still in copyright.
@@ -416,6 +416,12 @@ fanfare of its own after the chime (`Burst` in `Motion.kt`).
 - **Only on a change, never on arrival.** `moveOn` skips the value it first shows with: a
   puzzle started over is a new view of a page already celebrated, and its right answer
   hopping as it appears would give the answer away.
+- **Nothing appears in one frame.** A piece dropped in a basket pops into place, the
+  leftover tray pieces shrink away on a solve, a found pair pops, the answer line pops in,
+  the sieve crosses out its multiples one after another, the water cycle's newest step
+  fades in. The exception is "What is missing?": there the thing taken away vanishes at
+  once, as a fading one would point at the answer. A part's ring on a diagram pulses
+  three times, then rests, rather than for ever.
 - Celebrations belong to every puzzle, so they stay when fun reels are turned off.
 
 #### Gappu

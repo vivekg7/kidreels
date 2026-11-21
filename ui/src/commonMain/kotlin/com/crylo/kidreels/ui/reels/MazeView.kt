@@ -172,7 +172,7 @@ fun MazeView(game: MazeGame, state: ReelState, padding: PaddingValues, onSolved:
             }
         }
         Box(Modifier.fillMaxWidth().height(60.dp), contentAlignment = Alignment.Center) {
-            if (state.solved) MultiText(Mazes.reached(game.runner), env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+            if (state.solved) MultiText(Mazes.reached(game.runner), env.langs, colors.ink, Modifier.popOn(1), size = 20.sp, say = { env.say(it) })
             else if (trail.size == 1) T("👆", Modifier.floating(), size = 32.sp)
         }
     }

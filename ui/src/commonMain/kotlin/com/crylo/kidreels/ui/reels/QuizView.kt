@@ -126,7 +126,7 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
             if (state.solved && reveal != null) {
                 // A tap says the answer as the cheer did: "S" … "for" … "Sun", not run together.
                 val parts = quiz.revealSaid
-                MultiText(reveal, env.langs, colors.ink, size = 17.sp, first = quiz.voice ?: env.main, say = { line ->
+                MultiText(reveal, env.langs, colors.ink, Modifier.popOn(1), size = 17.sp, first = quiz.voice ?: env.main, say = { line ->
                     env.say(parts?.takeIf { it.first().lang == line.lang } ?: listOf(line))
                 })
             }
@@ -238,7 +238,7 @@ private fun CountStage(stage: Stage.Count, id: Long, cheer: Int) {
                 size = emojiSize,
             )
             if (number > 0) {
-                Box(Modifier.size(22.dp).clip(CircleShape).background(colors.good), contentAlignment = Alignment.Center) {
+                Box(Modifier.popOn(1).size(22.dp).clip(CircleShape).background(colors.good), contentAlignment = Alignment.Center) {
                     T(number.toString(), color = Color.White, size = 12.sp, weight = FontWeight.Bold)
                 }
             }

@@ -1,5 +1,6 @@
 package com.crylo.kidreels.ui.reels
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +43,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -96,6 +99,14 @@ fun LabView(reel: LabReel, padding: PaddingValues) {
     val done = step == lab.steps.size
     val t by rememberInfiniteTransition().animateFloat(0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing)))
     val pulse by rememberInfiniteTransition().animateFloat(1f, 1.3f, infiniteRepeatable(tween(650), RepeatMode.Reverse))
+    // The newest step fades in (the cloud grows, it greys), so each tap visibly adds one thing.
+    val grow = remember(reel.id) { Animatable(1f) }
+    LaunchedEffect(step) {
+        if (step > 0) {
+            grow.snapTo(0f)
+            grow.animateTo(1f, tween(400))
+        }
+    }
 
     fun tapped(target: LabTarget?) {
         val now = lab.steps.getOrNull(step) ?: return
@@ -134,7 +145,7 @@ fun LabView(reel: LabReel, padding: PaddingValues) {
                         }
                     },
                 ) {
-                    if (lab == Lab.PHOTOSYNTHESIS) drawPhoto(step, t) else drawWater(step, t)
+                    if (lab == Lab.PHOTOSYNTHESIS) drawPhoto(step, t, grow.value) else drawWater(step, t, grow.value)
                     lab.steps.getOrNull(step)?.let { now ->
                         scene.targets.getValue(now.target).forEach { (c, r) ->
                             drawCircle(Ring, r * 0.85f * pulse, c, style = Stroke(3.dp.toPx()))
@@ -201,7 +212,8 @@ private fun photoScene(w: Float, h: Float): Scene {
     )
 }
 
-private fun DrawScope.drawPhoto(step: Int, t: Float) {
+/** [fresh] (0 to 1) is how far the newest step has faded in. */
+private fun DrawScope.drawPhoto(step: Int, t: Float, fresh: Float) {
     val w = size.width
     val h = size.height
     drawRect(Brush.verticalGradient(listOf(Color(0xFFB3E5FC), Color(0xFFE1F5FE))))
@@ -217,6 +229,8 @@ private fun DrawScope.drawPhoto(step: Int, t: Float) {
     val r = minOf(w, h) * 0.11f
     val leaves = leafSpots.map { (x, y) -> plantPoint(w, h, x, y) }
     fun p(x: Float, y: Float) = plantPoint(w, h, x, y)
+    /** How far step [n] is in: the newest one is still fading in. */
+    fun shown(n: Int) = if (n == step) fresh else 1f
 
     // The sun, with short rays all round.
     for (i in 0 until 12) {
@@ -239,25 +253,25 @@ private fun DrawScope.drawPhoto(step: Int, t: Float) {
     if (step >= 1) {
         // Sunlight reaching each leaf, the dashes running towards it.
         val dash = PathEffect.dashPathEffect(floatArrayOf(18f, 14f), -t * 64f)
-        leaves.forEach { drawLine(SunYellow, sun, it, 3.dp.toPx(), StrokeCap.Round, pathEffect = dash) }
+        leaves.forEach { drawLine(SunYellow.copy(alpha = shown(1)), sun, it, 3.dp.toPx(), StrokeCap.Round, pathEffect = dash) }
     }
     if (step >= 2) {
         // Rain into the soil, then water up the roots and the stem to the leaves.
         for (i in 0 until 7) {
             val x = cloud.x + (i - 3) * r * 0.22f
             val y = cloud.y + r * 0.5f + ((t + i / 7f) % 1f) * (p(0f, 262f).y - cloud.y - r * 0.5f)
-            drawLine(WaterBlue, Offset(x, y), Offset(x, y + 10.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
+            drawLine(WaterBlue.copy(alpha = shown(2)), Offset(x, y), Offset(x, y + 10.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
         }
         val route = listOf(p(120f, 340f), p(120f, 262f), p(120f, 200f))
         for (leaf in leaves) for (i in 0 until 3) {
-            drawCircle(WaterBlue, 4.dp.toPx(), along(route + leaf, (t + i / 3f) % 1f))
+            drawCircle(WaterBlue.copy(alpha = shown(2)), 4.dp.toPx(), along(route + leaf, (t + i / 3f) % 1f))
         }
     }
     if (step >= 3) {
         // Air drifting into the leaves.
         for (leaf in leaves.take(2)) for (i in 0 until 3) {
             val f = (t + i / 3f) % 1f
-            drawCircle(Color(0xFF90A4AE), 5.dp.toPx(), air + (leaf - air) * f)
+            drawCircle(Color(0xFF90A4AE).copy(alpha = shown(3)), 5.dp.toPx(), air + (leaf - air) * f)
         }
     }
     if (step >= 4) {
@@ -265,12 +279,12 @@ private fun DrawScope.drawPhoto(step: Int, t: Float) {
         val down = listOf(p(120f, 180f), p(120f, 262f), p(120f, 320f))
         for (i in 0 until 4) {
             val c = along(down, (t + i / 4f) % 1f)
-            drawRect(Color.White, c - Offset(4.dp.toPx(), 4.dp.toPx()), Size(8.dp.toPx(), 8.dp.toPx()))
+            drawRect(Color.White.copy(alpha = shown(4)), c - Offset(4.dp.toPx(), 4.dp.toPx()), Size(8.dp.toPx(), 8.dp.toPx()))
         }
         for (leaf in leaves) for (i in 0 until 3) {
             val f = (t + i / 3f) % 1f
             val c = Offset(leaf.x + sin(f * 6f + i) * 10.dp.toPx(), leaf.y - f * h * 0.3f)
-            drawCircle(Oxygen.copy(alpha = 1f - f), 6.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
+            drawCircle(Oxygen.copy(alpha = (1f - f) * shown(4)), 6.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
         }
     }
 }
@@ -319,7 +333,8 @@ private fun riverPath(w: Float, h: Float) = listOf(
     Offset(w * 0.6f, h * 0.68f), Offset(w * 0.5f, h * 0.73f),
 )
 
-private fun DrawScope.drawWater(step: Int, t: Float) {
+/** [fresh] (0 to 1) is how far the newest step has faded in. */
+private fun DrawScope.drawWater(step: Int, t: Float, fresh: Float) {
     val w = size.width
     val h = size.height
     val r = minOf(w, h) * 0.11f
@@ -347,6 +362,8 @@ private fun DrawScope.drawWater(step: Int, t: Float) {
         drawLine(SunYellow, sun + d * (r * 0.75f), sun + d * (r * 1.05f), 4.dp.toPx(), StrokeCap.Round)
     }
     drawCircle(SunYellow, r * 0.62f, sun)
+    /** How far step [n] is in: the newest one is still fading in. */
+    fun shown(n: Int) = if (n == step) fresh else 1f
 
     if (step >= 1) {
         // Vapour rising off the sea in wavy wisps.
@@ -358,20 +375,22 @@ private fun DrawScope.drawWater(step: Int, t: Float) {
                 moveTo(x, y)
                 for (k in 1..4) lineTo(x + sin(k * 1.6f + f * 6f) * 6.dp.toPx(), y - k * 6.dp.toPx())
             }
-            drawPath(path, Color.White.copy(alpha = 1f - f), style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
+            drawPath(path, Color.White.copy(alpha = (1f - f) * shown(1)), style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
         }
     }
     val cloud = Offset(w * 0.66f, h * 0.2f)
-    if (step >= 2) drawCloud(cloud, r * 1.1f, if (step >= 3) Color(0xFF90A4AE) else Color.White)
+    // The cloud grows in (solid: a see-through cloud shows its overlapping puffs), then
+    // greys as it fills with rain.
+    if (step >= 2) drawCloud(cloud, r * 1.1f * shown(2), lerp(Color.White, Color(0xFF90A4AE), if (step >= 3) shown(3) else 0f))
     if (step >= 3) {
         for (i in 0 until 8) {
             val x = cloud.x + (i - 3.5f) * r * 0.22f
             val y = cloud.y + r * 0.55f + ((t + i / 8f) % 1f) * h * 0.2f
-            drawLine(WaterBlue, Offset(x, y), Offset(x - 3.dp.toPx(), y + 12.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
+            drawLine(WaterBlue.copy(alpha = shown(3)), Offset(x, y), Offset(x - 3.dp.toPx(), y + 12.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
         }
     }
     if (step >= 4) {
-        for (i in 0 until 5) drawCircle(Color.White, 4.dp.toPx(), along(river, (t + i / 5f) % 1f))
+        for (i in 0 until 5) drawCircle(Color.White.copy(alpha = shown(4)), 4.dp.toPx(), along(river, (t + i / 5f) % 1f))
     }
 }
 

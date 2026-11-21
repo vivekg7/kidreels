@@ -1,5 +1,7 @@
 package com.crylo.kidreels.ui.reels
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -135,13 +138,14 @@ fun CutoutStage(stage: Stage.Cutout, solved: Boolean) {
     }
 }
 
-/** The busy lines; once solved the hidden shape lights up in them. */
+/** The busy lines; once solved the hidden shape lights up in them, fading in with a pop. */
 @Composable
 fun HiddenStage(stage: Stage.Hidden, solved: Boolean) {
+    val lit by animateFloatAsState(if (solved) 1f else 0f, tween(350))
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val side = minOf(maxWidth * 0.65f, maxHeight, 250.dp)
-        Box(Modifier.size(side).clip(RoundedCornerShape(14.dp)).background(Paper).padding(10.dp)) {
-            Canvas(Modifier.fillMaxSize()) { drawLines(stage.lines, stage.size, found = stage.answer.takeIf { solved }) }
+        Box(Modifier.size(side).popOn(if (solved) 1 else 0).clip(RoundedCornerShape(14.dp)).background(Paper).padding(10.dp)) {
+            Canvas(Modifier.fillMaxSize()) { drawLines(stage.lines, stage.size, found = stage.answer.takeIf { lit > 0f }, foundColor = Accent.copy(alpha = lit)) }
         }
     }
 }

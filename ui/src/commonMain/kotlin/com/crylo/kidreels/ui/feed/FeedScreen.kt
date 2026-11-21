@@ -15,6 +15,9 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -239,10 +242,13 @@ fun FeedScreen(app: AppState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (windingDown) {
-                    // Gappu yawning is the gentle signal; tapped, he says his name like any picture.
-                    YawningGappu { if (onScreen) speaker.speak(Words.of(GappuPose.YAWN.art)?.said(settings.main, settings.langs).orEmpty()) }
-                    Chip(Phrases.almostDone[settings.main], colors.dark)
+                // Gappu yawning is the gentle signal; tapped, he says his name like any picture.
+                // It fades in slowly, never pops: nothing in the wind-down should grab.
+                AnimatedVisibility(windingDown, enter = fadeIn(tween(1200)), exit = fadeOut(tween(400))) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        YawningGappu { if (onScreen) speaker.speak(Words.of(GappuPose.YAWN.art)?.said(settings.main, settings.langs).orEmpty()) }
+                        Chip(Phrases.almostDone[settings.main], colors.dark)
+                    }
                 }
                 // Whose feed this is, for the grown-up; held past the gate, it switches child.
                 if (app.all.size > 1) {

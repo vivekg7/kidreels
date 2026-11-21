@@ -54,8 +54,10 @@ import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.SolidCard
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
+import com.crylo.kidreels.ui.common.Motion
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.tap
 import com.crylo.kidreels.ui.draw.drawMesh
@@ -204,14 +206,22 @@ fun AngleView(reel: AngleLab, state: ReelState, padding: PaddingValues, onSolved
                 drawText(label, topLeft = lp - Offset(label.size.width / 2f, label.size.height / 2f))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                MultiText(kind.title, env.langs, if (state.solved) colors.good else colors.ink, Modifier.popOn(kind.ordinal + 1), size = 30.sp, say = { env.say(it) })
+                // Found, the angle's name wags; not in the wind-down.
+                val cheer = if (env.calm) 0 else state.celebrate
+                MultiText(
+                    kind.title, env.langs, if (state.solved) colors.good else colors.ink,
+                    Modifier.popOn(kind.ordinal + 1).moveOn(cheer, Motion.WAG, times = 2), size = 30.sp, say = { env.say(it) },
+                )
                 MultiText(kind.rule, env.langs, colors.ink, size = 17.sp)
             }
         }
     }
 }
 
-/** A curve that draws itself; the slider stretches it, and it draws again. */
+/**
+ * A curve that draws itself once; the slider then stretches it as the finger moves. Not
+ * drawn again from the start on each move: the curve would vanish under the child's finger.
+ */
 @Composable
 fun CurveView(reel: CurveLab, padding: PaddingValues) {
     val env = LocalReelEnv.current

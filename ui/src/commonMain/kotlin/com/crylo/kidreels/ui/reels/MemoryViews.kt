@@ -1,8 +1,11 @@
 package com.crylo.kidreels.ui.reels
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -175,7 +178,7 @@ fun CupView(game: CupGame, state: ReelState, padding: PaddingValues, onSolved: (
             when (phase) {
                 Phase.SHOW -> T("👀", Modifier.floating(), size = 36.sp)
                 Phase.ANSWER -> T("👆", Modifier.floating(), size = 36.sp)
-                Phase.DONE -> MultiText(Memory.cupsFound(game.prize), env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+                Phase.DONE -> MultiText(Memory.cupsFound(game.prize), env.langs, colors.ink, Modifier.popOn(1), size = 20.sp, say = { env.say(it) })
                 else -> Unit
             }
         }
@@ -274,7 +277,7 @@ fun PairsView(game: PairsGame, state: ReelState, padding: PaddingValues, onSolve
         }
         Box(Modifier.fillMaxWidth().height(70.dp), contentAlignment = Alignment.Center) {
             if (peeking) MultiText(Memory.pairsPeek, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
-            else if (state.solved) MultiText(Memory.pairsDone, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+            else if (state.solved) MultiText(Memory.pairsDone, env.langs, colors.ink, Modifier.popOn(1), size = 20.sp, say = { env.say(it) })
         }
     }
 }
@@ -282,12 +285,24 @@ fun PairsView(game: PairsGame, state: ReelState, padding: PaddingValues, onSolve
 @Composable
 private fun Card(emoji: String, size: Dp, faceUp: Boolean, matched: Boolean, onTap: () -> Unit) {
     val turn by animateFloatAsState(if (faceUp) 180f else 0f, tween(280))
+    // A pair found pops, once the second card has turned, and its edge goes green.
+    val pop = remember { Animatable(1f) }
+    LaunchedEffect(matched) {
+        if (!matched) return@LaunchedEffect
+        delay(280)
+        pop.animateTo(1.15f, tween(110))
+        pop.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+    }
+    // A white edge on the back, so pink cards stand out on the pink look too.
+    val edge by animateColorAsState(
+        if (matched) Color(0xFF2E9E5B) else if (turn > 90f) Color.Transparent else Color.White.copy(alpha = 0.85f),
+        tween(if (matched) 300 else 0, delayMillis = if (matched) 280 else 0),
+    )
     val shape = RoundedCornerShape(14.dp)
     Box(
-        Modifier.size(size).graphicsLayer { rotationY = turn; cameraDistance = 12f * density }
+        Modifier.size(size).graphicsLayer { rotationY = turn; cameraDistance = 12f * density; scaleX = pop.value; scaleY = pop.value }
             .clip(shape).background(if (turn > 90f) Color.White else MemoryPink)
-            // A white edge on the back, so pink cards stand out on the pink look too.
-            .border(3.dp, if (matched) Color(0xFF2E9E5B) else if (turn > 90f) Color.Transparent else Color.White.copy(alpha = 0.85f), shape)
+            .border(3.dp, edge, shape)
             .tap(onTap),
         contentAlignment = Alignment.Center,
     ) {

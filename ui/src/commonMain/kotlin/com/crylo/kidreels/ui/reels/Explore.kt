@@ -54,10 +54,12 @@ import com.crylo.kidreels.ui.art.Picture
 import com.crylo.kidreels.ui.common.Confetti
 import com.crylo.kidreels.ui.common.Gappu
 import com.crylo.kidreels.ui.common.HoldButton
+import com.crylo.kidreels.ui.common.Motion
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.Snooze
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.pressable
 import com.crylo.kidreels.ui.common.tap
@@ -75,6 +77,8 @@ fun CountAlongView(reel: CountAlong, padding: PaddingValues) {
     val colors = LocalReelColors.current
     val counted = remember(reel.id) { mutableStateListOf<Int>() }
     val done = counted.size == reel.n
+    // All counted, they jump one after another; not in the wind-down.
+    val cheer = if (done && !env.calm) 1 else 0
     Box(Modifier.fillMaxSize()) {
         Column(
             Modifier.fillMaxSize().padding(padding).reelWidth(),
@@ -103,10 +107,10 @@ fun CountAlongView(reel: CountAlong, padding: PaddingValues) {
                                         },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    T(reel.emoji, Modifier.popOn(number), size = if (reel.n <= 6) 52.sp else 34.sp)
+                                    T(reel.emoji, Modifier.popOn(number).moveOn(cheer, Motion.HOP, delayMillis = i * 70), size = if (reel.n <= 6) 52.sp else 34.sp)
                                     if (number > 0) {
                                         Box(
-                                            Modifier.align(Alignment.TopEnd).padding(4.dp).size(24.dp).clip(CircleShape).background(colors.good),
+                                            Modifier.align(Alignment.TopEnd).padding(4.dp).popOn(1).size(24.dp).clip(CircleShape).background(colors.good),
                                             contentAlignment = Alignment.Center,
                                         ) { T(number.toString(), color = Color.White, size = 13.sp, weight = FontWeight.Bold) }
                                     }
@@ -185,6 +189,22 @@ fun ShapeView(reel: ShapeCard, padding: PaddingValues) {
     val wobble = remember(reel.id) { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val color = Color(reel.argb)
+    // The corners drawn: each new one grows in, and when the count is over they all fade
+    // out together instead of vanishing.
+    var dots by remember(reel.id) { mutableIntStateOf(0) }
+    val grow = remember(reel.id) { Animatable(1f) }
+    val dotsAlpha = remember(reel.id) { Animatable(1f) }
+    LaunchedEffect(lit) {
+        if (lit > 0) {
+            dotsAlpha.snapTo(1f)
+            grow.snapTo(0f)
+            dots = lit
+            grow.animateTo(1f, tween(200))
+        } else if (dots > 0) {
+            dotsAlpha.animateTo(0f, tween(300))
+            dots = 0
+        }
+    }
 
     fun countCorners(cornerCount: Int) {
         if (running) return
@@ -222,9 +242,10 @@ fun ShapeView(reel: ShapeCard, padding: PaddingValues) {
                     .tap { countCorners(countedCorners(shape.kind, androidx.compose.ui.geometry.Size(1f, 1f)).size) },
             ) {
                 drawShape(shape.kind, color, Color.White.copy(alpha = 0.9f))
-                countedCorners(shape.kind, size).take(lit).forEach { p ->
-                    drawCircle(Color.White, size.minDimension * 0.06f, p)
-                    drawCircle(Color(0xFF2D2440), size.minDimension * 0.06f, p, style = Stroke(size.minDimension * 0.015f))
+                countedCorners(shape.kind, size).take(dots).forEachIndexed { k, p ->
+                    val r = size.minDimension * 0.06f * (if (k == dots - 1) grow.value else 1f)
+                    drawCircle(Color.White.copy(alpha = dotsAlpha.value), r, p)
+                    drawCircle(Color(0xFF2D2440).copy(alpha = dotsAlpha.value), r, p, style = Stroke(size.minDimension * 0.015f))
                 }
             }
         }
@@ -327,14 +348,17 @@ fun TimeUpView(bedtime: Boolean, padding: PaddingValues, onMoreTime: () -> Unit)
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
         Box {
-            Crossfade(pose, animationSpec = tween(700)) {
-                Gappu(
-                    it, if (it == GappuPose.ASLEEP) 130.dp else 170.dp,
-                    Modifier.floating(4f, 2600).popOn(pop).tap {
-                        pop++
-                        env.name(it.art)
-                    },
-                )
+            // The pop and float are outside the crossfade: inside, each new pose fading in
+            // would pop again for the last tap.
+            Box(
+                Modifier.floating(4f, 2600).popOn(pop).tap {
+                    pop++
+                    env.name(pose.art)
+                },
+            ) {
+                Crossfade(pose, animationSpec = tween(700)) {
+                    Gappu(it, if (it == GappuPose.ASLEEP) 130.dp else 170.dp)
+                }
             }
             if (bedtime) Snooze(colors.ink, Modifier.align(Alignment.TopEnd).padding(top = 4.dp))
         }

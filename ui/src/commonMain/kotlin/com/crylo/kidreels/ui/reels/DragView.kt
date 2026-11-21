@@ -3,7 +3,9 @@ package com.crylo.kidreels.ui.reels
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -158,7 +160,7 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
                     }
                     DragKind.FEED -> Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         game.targets.forEachIndexed { t, target ->
-                            val food = placed.entries.filter { it.value == t }.map { game.pieces[it.key].sprite }
+                            val food = placed.entries.filter { it.value == t }.map { it.key }
                             Column(
                                 register(t).shakeOn(shakeOf(t)).clip(RoundedCornerShape(24.dp)).background(colors.card)
                                     .tap { tapTarget(t) }.padding(12.dp),
@@ -168,17 +170,18 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
                                 val cheer = if (env.calm) 0 else state.celebrate
                                 T((target.sprite as Sprite.Emoji).text, Modifier.popOn(food.size).moveOn(cheer, Motion.WAG, times = 2).moveOn(cheer, Motion.HOP, delayMillis = 760 + t * 120), size = 60.sp)
                                 Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) {
-                                    food.forEach { SpriteView(it, 44.dp) }
+                                    // Keyed by piece, so only the one just dropped pops in.
+                                    food.forEach { p -> key(p) { SpriteView(game.pieces[p].sprite, 44.dp, Modifier.popOn(1)) } }
                                 }
                             }
                         }
                     }
                     DragKind.SORT -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         game.targets.forEachIndexed { t, target ->
-                            Basket(game, t, placed.entries.filter { it.value == t }.map { game.pieces[it.key].sprite }, register(t).shakeOn(shakeOf(t)).weight(1f).tap { tapTarget(t) })
+                            Basket(game, t, placed.entries.filter { it.value == t }.map { it.key }, register(t).shakeOn(shakeOf(t)).weight(1f).tap { tapTarget(t) })
                         }
                     }
-                    DragKind.BASKET -> Basket(game, 0, placed.keys.map { game.pieces[it].sprite }, register(0).shakeOn(shakeOf(0)).fillMaxWidth(0.8f).tap { tapTarget(0) })
+                    DragKind.BASKET -> Basket(game, 0, placed.keys.toList(), register(0).shakeOn(shakeOf(0)).fillMaxWidth(0.8f).tap { tapTarget(0) })
                 }
             }
             // The tray: pieces still to place. A tap names the piece; a drag moves it.
@@ -188,8 +191,6 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 game.pieces.forEachIndexed { i, piece ->
-                    // Once solved, the pieces left over go: they are not part of the answer.
-                    if (state.solved) return@forEachIndexed
                     // A placed piece leaves its slot empty, so the others stay under the
                     // child's finger instead of sliding along.
                     if (i in placed) {
@@ -197,7 +198,15 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
                         return@forEachIndexed
                     }
                     key(game.id, i) {
-                        Draggable(
+                        // Once solved, the pieces left over go: they are not part of the answer.
+                        // They fade and shrink where they are, so the tray keeps its shape, and
+                        // take no more taps.
+                        val left by animateFloatAsState(if (state.solved) 0f else 1f, tween(250))
+                        if (state.solved) {
+                            Box(Modifier.graphicsLayer { alpha = left; scaleX = 0.5f + 0.5f * left; scaleY = scaleX }) {
+                                SpriteView(piece.sprite, pieceSize, card = game.kind != DragKind.SHAPE_SORTER)
+                            }
+                        } else Draggable(
                             onTap = {
                                 when (val s = piece.sprite) {
                                     is Sprite.Emoji -> env.name(s.text)
@@ -212,7 +221,7 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
             }
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.Center) {
                 val reveal = game.reveal
-                if (state.solved && reveal != null) MultiText(reveal, env.langs, colors.ink, size = 17.sp, say = { env.say(it) })
+                if (state.solved && reveal != null) MultiText(reveal, env.langs, colors.ink, Modifier.popOn(1), size = 17.sp, say = { env.say(it) })
                 else if (placed.isEmpty() && !state.solved) T("👆", Modifier.floating(), size = 28.sp)
             }
         }
@@ -268,15 +277,15 @@ private fun Draggable(onTap: () -> Unit, onDrop: (Offset) -> Boolean, content: @
 }
 
 @Composable
-private fun SpriteView(sprite: Sprite, size: Dp, card: Boolean = false) {
+private fun SpriteView(sprite: Sprite, size: Dp, modifier: Modifier = Modifier, card: Boolean = false) {
     val colors = LocalReelColors.current
     val back = if (card) Modifier.clip(RoundedCornerShape(16.dp)).background(colors.card) else Modifier
     when (sprite) {
-        is Sprite.Emoji -> Box(Modifier.size(size).then(back), contentAlignment = Alignment.Center) {
+        is Sprite.Emoji -> Box(modifier.size(size).then(back), contentAlignment = Alignment.Center) {
             T(sprite.text, size = with(LocalDensity.current) { (size * 0.66f).toSp() })
         }
-        is Sprite.Shape -> ShapeIcon(sprite.kind, Color(sprite.argb), size)
-        is Sprite.Crop -> Crop(sprite, size)
+        is Sprite.Shape -> ShapeIcon(sprite.kind, Color(sprite.argb), size, modifier)
+        is Sprite.Crop -> Crop(sprite, size, modifier)
     }
 }
 
@@ -290,11 +299,11 @@ private fun WholePicture(emoji: String, side: Dp, modifier: Modifier = Modifier)
 
 /** One square of the picture, the size of [cell], turned as the sprite says. */
 @Composable
-private fun Crop(crop: Sprite.Crop, cell: Dp) {
+private fun Crop(crop: Sprite.Crop, cell: Dp, modifier: Modifier = Modifier) {
     val col = crop.cell % crop.grid
     val row = crop.cell / crop.grid
     Box(
-        Modifier.size(cell).graphicsLayer { rotationZ = crop.turns * 90f }
+        modifier.size(cell).graphicsLayer { rotationZ = crop.turns * 90f }
             .clip(RoundedCornerShape(4.dp)).clipToBounds()
             .border(1.dp, Color(0x332D2440), RoundedCornerShape(4.dp)),
     ) {
@@ -356,10 +365,10 @@ private fun ShapeHole(hole: Sprite.Shape, filled: Sprite.Shape?, modifier: Modif
     }
 }
 
-/** A basket: its sign (a member, or 🧺) and name, and what has been put in so far. */
+/** A basket: its sign (a member, or 🧺) and name, and the pieces ([inside]) put in so far. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Basket(game: DragGame, t: Int, inside: List<Sprite>, modifier: Modifier) {
+private fun Basket(game: DragGame, t: Int, inside: List<Int>, modifier: Modifier) {
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
     val target = game.targets[t]
@@ -376,7 +385,8 @@ private fun Basket(game: DragGame, t: Int, inside: List<Sprite>, modifier: Modif
         }
         target.label?.let { T(it[env.main].replaceFirstChar { c -> c.uppercase() }, color = colors.cardInk, size = 16.sp, weight = FontWeight.Bold) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            inside.forEach { SpriteView(it, 36.dp) }
+            // Keyed by piece, so only the one just dropped pops in.
+            inside.forEach { p -> key(p) { SpriteView(game.pieces[p].sprite, 36.dp, Modifier.popOn(1)) } }
         }
     }
 }

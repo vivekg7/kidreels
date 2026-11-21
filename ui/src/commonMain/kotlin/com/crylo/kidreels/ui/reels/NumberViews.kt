@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +62,7 @@ import com.crylo.kidreels.ui.common.tap
 import com.crylo.kidreels.ui.draw.Paper
 import com.crylo.kidreels.ui.skin.LocalReelColors
 import com.crylo.kidreels.ui.skin.reelWidth
+import kotlinx.coroutines.delay
 
 /** The maths channel's blue, for the numeral and the filled squares. */
 private val NumberBlue = Color(0xFF3D6CE8)
@@ -244,11 +244,12 @@ fun SquareView(reel: SquareCard, padding: PaddingValues) {
             Box(Modifier.fillMaxWidth().height(96.dp), contentAlignment = Alignment.Center) {
                 when {
                     rows == 0 -> T("👆", Modifier.floating(), size = 36.sp)
-                    done -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // The sum pops as each row changes it.
+                    done -> Column(Modifier.popOn(rows), horizontalAlignment = Alignment.CenterHorizontally) {
                         Sum("$n × $n = ${n * n}", colors.ink)
                         if (reel.showPower) Sum("$n² = ${n * n}", colors.ink.copy(alpha = 0.8f), 26)
                     }
-                    else -> Sum("$rows × $n = ${rows * n}", colors.ink)
+                    else -> Sum("$rows × $n = ${rows * n}", colors.ink, modifier = Modifier.popOn(rows))
                 }
             }
         }
@@ -257,9 +258,9 @@ fun SquareView(reel: SquareCard, padding: PaddingValues) {
 }
 
 @Composable
-private fun Sum(text: String, color: Color, size: Int = 34) {
+private fun Sum(text: String, color: Color, size: Int = 34, modifier: Modifier = Modifier) {
     val env = LocalReelEnv.current
-    T(text, Modifier.tap { env.say(Txt.same(text.substringAfter("= "))) }, color = color, size = size.sp, weight = FontWeight.Black)
+    T(text, modifier.tap { env.say(Txt.same(text.substringAfter("= "))) }, color = color, size = size.sp, weight = FontWeight.Black)
 }
 
 /**
@@ -299,7 +300,15 @@ fun SieveView(reel: SieveLab, padding: PaddingValues) {
     val steps = reel.steps
     var step by remember(reel.id) { mutableIntStateOf(0) }
     val done = step == steps.size
-    val crossed = remember(step) { setOf(1) + steps.take(step).flatMap { p -> (p * 2..reel.top step p).toList() } }
+    fun crossedBy(upTo: Int) = setOf(1) + steps.take(upTo).flatMap { p -> (p * 2..reel.top step p).toList() }
+    val crossed = remember(step) { crossedBy(step) }
+    // The multiples just crossed out go one after another, not all at once: 40 ms apart, or
+    // closer for a long run, so the whole sweep stays under about 0.6 s.
+    val sweep = remember(step) {
+        val new = (crossed - crossedBy((step - 1).coerceAtLeast(0))).sorted()
+        val gap = minOf(40, 600 / new.size.coerceAtLeast(1))
+        new.withIndex().associate { (k, n) -> n to k * gap }
+    }
     val target = steps.getOrNull(step)
     fun tapped(n: Int) {
         val now = steps.getOrNull(step)
@@ -329,7 +338,7 @@ fun SieveView(reel: SieveLab, padding: PaddingValues) {
                             for (c in 1..10) {
                                 val n = r * 10 + c
                                 if (n > reel.top) break
-                                SieveCell(n, cell, crossed = n in crossed, prime = n in steps.take(step) || (done && n !in crossed), next = n == target) { tapped(n) }
+                                SieveCell(n, cell, crossed = n in crossed, prime = n in steps.take(step) || (done && n !in crossed), next = n == target, delayMillis = sweep[n] ?: 0) { tapped(n) }
                             }
                         }
                     }
@@ -348,19 +357,30 @@ private val PrimeGreen = Color(0xFF2E9E5B)
 private val SieveInk = Color(0xFF2D2440)
 
 @Composable
-private fun SieveCell(n: Int, size: androidx.compose.ui.unit.Dp, crossed: Boolean, prime: Boolean, next: Boolean, onTap: () -> Unit) {
-    val fade by animateFloatAsState(if (crossed) 0.25f else 1f, tween(400))
+private fun SieveCell(n: Int, size: androidx.compose.ui.unit.Dp, crossed: Boolean, prime: Boolean, next: Boolean, delayMillis: Int, onTap: () -> Unit) {
+    // Crossing out, after its turn in the sweep: the number fades as the slash is drawn.
+    val cross = remember { Animatable(if (crossed) 1f else 0f) }
+    LaunchedEffect(crossed) {
+        if (!crossed) cross.snapTo(0f)
+        if (!crossed || cross.value >= 1f) return@LaunchedEffect
+        delay(delayMillis.toLong())
+        cross.animateTo(1f, tween(300))
+    }
     Box(
-        Modifier.size(size).padding(2.dp).clip(RoundedCornerShape(8.dp))
+        // A number found to be prime pops as it turns green.
+        Modifier.size(size).popOn(if (prime) 1 else 0).padding(2.dp).clip(RoundedCornerShape(8.dp))
             .background(if (prime) PrimeGreen else Color.Transparent)
             .then(if (next) Modifier.border(2.5.dp, NumberBlue, RoundedCornerShape(8.dp)) else Modifier)
             .tap(onTap),
         contentAlignment = Alignment.Center,
     ) {
         T(
-            n.toString(), Modifier.graphicsLayer { alpha = fade }.then(if (next) Modifier.popOn(1) else Modifier),
+            n.toString(), Modifier.graphicsLayer { alpha = 1f - 0.75f * cross.value }.then(if (next) Modifier.popOn(1) else Modifier),
             color = if (prime) Color.White else SieveInk, size = (size.value * 0.4f).sp, weight = if (prime || next) FontWeight.Black else FontWeight.SemiBold,
         )
-        if (crossed) Canvas(Modifier.fillMaxSize().padding(6.dp)) { drawLine(Color(0xFFE5484D).copy(alpha = 0.7f), Offset(0f, this.size.height), Offset(this.size.width, 0f), 2.dp.toPx()) }
+        if (crossed) Canvas(Modifier.fillMaxSize().padding(6.dp)) {
+            val from = Offset(0f, this.size.height)
+            drawLine(Color(0xFFE5484D).copy(alpha = 0.7f), from, from + (Offset(this.size.width, 0f) - from) * cross.value, 2.dp.toPx())
+        }
     }
 }
