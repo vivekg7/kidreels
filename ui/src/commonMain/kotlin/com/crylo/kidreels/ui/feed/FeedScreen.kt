@@ -15,12 +15,16 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +36,8 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -39,6 +45,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.crylo.kidreels.core.GappuPose
 import com.crylo.kidreels.core.Phrases
 import com.crylo.kidreels.core.Say
 import com.crylo.kidreels.core.Tone
@@ -46,17 +53,21 @@ import com.crylo.kidreels.core.TimeBudget
 import com.crylo.kidreels.core.TimeUp
 import com.crylo.kidreels.core.intro
 import com.crylo.kidreels.core.isFun
+import com.crylo.kidreels.core.Words
 import com.crylo.kidreels.ui.AppState
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Screen
 import com.crylo.kidreels.ui.common.AvatarBadge
 import com.crylo.kidreels.ui.common.Celebration
 import com.crylo.kidreels.ui.common.DrawnIcon
+import com.crylo.kidreels.ui.common.Gappu
 import com.crylo.kidreels.ui.common.Icon
 import com.crylo.kidreels.ui.common.SadBubble
 import com.crylo.kidreels.ui.common.SwipeHint
 import com.crylo.kidreels.ui.common.T
+import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.pressable
+import com.crylo.kidreels.ui.common.tap
 import com.crylo.kidreels.ui.reels.LocalReelEnv
 import com.crylo.kidreels.ui.reels.ReelEnv
 import com.crylo.kidreels.ui.reels.ReelView
@@ -228,7 +239,11 @@ fun FeedScreen(app: AppState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (windingDown) Chip("🌙 " + Phrases.almostDone[settings.main], colors.dark)
+                if (windingDown) {
+                    // Gappu yawning is the gentle signal; tapped, he says his name like any picture.
+                    YawningGappu { if (onScreen) speaker.speak(Words.of(GappuPose.YAWN.art)?.said(settings.main, settings.langs).orEmpty()) }
+                    Chip(Phrases.almostDone[settings.main], colors.dark)
+                }
                 // Whose feed this is, for the grown-up; held past the gate, it switches child.
                 if (app.all.size > 1) {
                     AvatarBadge(
@@ -277,6 +292,40 @@ private fun Chip(text: String, dark: Boolean) {
         Modifier.clip(RoundedCornerShape(50)).background(if (dark) Color(0x55000000) else Color(0x22000000))
             .padding(horizontal = 14.dp, vertical = 6.dp),
     ) { T(text, color = if (dark) Color.White else Color(0xFF2E2A3A), size = 13.sp, weight = FontWeight.Bold) }
+}
+
+/**
+ * Gappu yawning beside "Almost done", small and calm: one slow stretch after another, each a
+ * little slower than the last, as the day's reels run out. Never loud, never on the reel.
+ */
+@Composable
+private fun YawningGappu(onTap: () -> Unit) {
+    val stretch = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        var millis = 2_400
+        while (true) {
+            stretch.animateTo(1f, tween(millis, easing = FastOutSlowInEasing))
+            stretch.animateTo(0f, tween(millis, easing = FastOutSlowInEasing))
+            delay(millis / 2L)
+            millis = (millis * 1.15f).toInt().coerceAtMost(6_000)
+        }
+    }
+    var pop by remember { mutableIntStateOf(0) }
+    Gappu(
+        GappuPose.YAWN, 48.dp,
+        Modifier
+            .graphicsLayer {
+                transformOrigin = TransformOrigin(0.5f, 1f)
+                scaleY = 1f + 0.07f * stretch.value
+                scaleX = 1f - 0.02f * stretch.value
+                rotationZ = -4f * stretch.value
+            }
+            .popOn(pop)
+            .tap {
+                pop++
+                onTap()
+            },
+    )
 }
 
 /**

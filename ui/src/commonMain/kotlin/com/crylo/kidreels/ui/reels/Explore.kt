@@ -1,5 +1,6 @@
 package com.crylo.kidreels.ui.reels
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.crylo.kidreels.core.CountAlong
+import com.crylo.kidreels.core.GappuPose
 import com.crylo.kidreels.core.LetterCard
 import com.crylo.kidreels.core.NumberWords
 import com.crylo.kidreels.core.Phrases
@@ -50,6 +52,7 @@ import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.art.Picture
 import com.crylo.kidreels.ui.common.Confetti
+import com.crylo.kidreels.ui.common.Gappu
 import com.crylo.kidreels.ui.common.HoldButton
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.Snooze
@@ -295,19 +298,45 @@ fun WordUseView(reel: WordUseCard, padding: PaddingValues) {
     }
 }
 
-/** The goodbye reel, or good night. Calm on purpose: no confetti, nothing to tap but the parent button. */
+/**
+ * The goodbye reel, or good night. Calm on purpose: no confetti, and nothing to play with.
+ * Gappu waves, then goes to eat with his banana; at bedtime he is asleep already. Tapping
+ * him only says his name.
+ */
 @Composable
 fun TimeUpView(bedtime: Boolean, padding: PaddingValues, onMoreTime: () -> Unit) {
     val env = LocalReelEnv.current
     val colors = LocalReelColors.current
+    // A wave first, then his banana, about when the voice says he is going to eat. From
+    // when the reel is on screen: the page is made one ahead, while the last reel is played.
+    var eating by remember { mutableStateOf(false) }
+    LaunchedEffect(env.active) {
+        if (!env.active) return@LaunchedEffect
+        delay(GOODBYE_WAVE_MILLIS)
+        eating = true
+    }
+    var pop by remember { mutableIntStateOf(0) }
+    val pose = when {
+        bedtime -> GappuPose.ASLEEP
+        eating -> GappuPose.EATING
+        else -> GappuPose.HAPPY
+    }
     Column(
         Modifier.fillMaxSize().padding(padding).reelWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
         Box {
-            T("🌙", Modifier.floating(6f, 2600), size = 120.sp)
-            Snooze(colors.ink, Modifier.align(Alignment.TopEnd).padding(top = 10.dp))
+            Crossfade(pose, animationSpec = tween(700)) {
+                Gappu(
+                    it, if (it == GappuPose.ASLEEP) 130.dp else 170.dp,
+                    Modifier.floating(4f, 2600).popOn(pop).tap {
+                        pop++
+                        env.name(it.art)
+                    },
+                )
+            }
+            if (bedtime) Snooze(colors.ink, Modifier.align(Alignment.TopEnd).padding(top = 4.dp))
         }
         MultiText(if (bedtime) Phrases.bedtime else Phrases.allDone, env.langs, colors.ink, size = 32.sp, say = { env.say(it) })
         MultiText(if (bedtime) Phrases.bedtimeBody else Phrases.allDoneBody, env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
@@ -317,3 +346,6 @@ fun TimeUpView(bedtime: Boolean, padding: PaddingValues, onMoreTime: () -> Unit)
         HoldButton(S.moreTime[env.grownUps], onMoreTime, Modifier.fillMaxWidth(), background = colors.ink.copy(alpha = 0.16f), content = colors.ink)
     }
 }
+
+/** How long Gappu waves on the goodbye reel before he starts on his banana. */
+private const val GOODBYE_WAVE_MILLIS = 3_000L

@@ -114,6 +114,7 @@ class ContentTest {
             Bubbles.words.forEach { add(it.second) }
             Songs.all.forEach { song -> song.lines.forEach { add(it.picture) } }
             Songs.farm.forEach { add(it.emoji) }
+            GappuPose.entries.forEach { add(it.art) }
         }
         val missing = pictures.distinct().filter { Words.of(it) == null }
         assertTrue(missing.isEmpty(), "No name for $missing")

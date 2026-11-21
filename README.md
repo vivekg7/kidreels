@@ -22,8 +22,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   more, what comes next, odd one out, what time is it, which colour, which shape, who
   says "moo", where does the fish live, big and small, first letter, one-cell sudoku.
   A right answer gets a chime, a spoken "well done" and a celebration: the puzzle's own
-  pictures jump and spin, with one of eight bursts (confetti, fireworks, balloons…) and
-  a fanfare, taken in turn so none is rarer than another. A wrong one gets a
+  pictures jump and spin, with one of ten bursts (confetti, fireworks, balloons, Gappu
+  the baby elephant cheering or dancing…) and a fanfare, taken in turn so none is rarer
+  than another. A wrong one gets a
   gentle shake and a reason, never "wrong": "That is green, not blue. Find blue and tap
   it!", or a hint where working it out is the puzzle ("4 is too few: there are more
   apples than that").
@@ -80,8 +81,8 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   order) and **Copy me** ("Touch your nose! Clap three times!", and Simon says from 5).
   Lots at first, fewer once the child has settled in; never more for a child who skips,
   only calm ones before the end, and none of them scored.
-- Swiping past a puzzle without trying shows a short sad face, and the puzzle comes back
-  a few reels later, a little easier.
+- Swiping past a puzzle without trying shows Gappu's sad face for a moment, and the
+  puzzle comes back a few reels later, a little easier.
 - Every line is shown in up to three languages: the main one large, the others smaller
   below. The voice speaks the main language, except on a reel about another language's
   alphabet, which is spoken in that language. Tapping any line says it in its own
@@ -118,12 +119,13 @@ choice below, and each row opens that choice:
   gradients and bubbles) or Calm (soft colours, nothing extra).
 - **Daily time limit**: 10 minutes to an hour in a tap, any other up to 6 hours under
   Custom, or none. In the last two minutes only easy reels appear and an "Almost done"
-  chip shows; then a goodbye reel says it is time to eat and play, and the feed stops. A
+  chip shows, with Gappu yawning beside it; then a goodbye reel says it is time to eat
+  and play (Gappu is going to eat too), and the feed stops. A
   grown-up can hold a button there for 10 more minutes.
 - **Bedtime**: off, 7 pm to 9:30 pm in a tap, or any time from 4 pm to 11:55 pm under
-  Custom. From then until 6 in the morning a good-night reel takes the feed's place,
-  however many minutes are left, with the same wind-down before it and the same 10 more
-  minutes for a grown-up.
+  Custom. From then until 6 in the morning a good-night reel, with Gappu asleep, takes
+  the feed's place, however many minutes are left, with the same wind-down before it and
+  the same 10 more minutes for a grown-up.
 - **Fun reels**: Automatic (the default) eases a new child in, from 1 in 2 reels down to
   1 in 6 over 2 to 8 weeks of play (3 by default), and says where it has got to ("day 9
   of 21, now 1 in 3"), with a button to start again; or a fixed 1 in 2 to 1 in 6; or off.

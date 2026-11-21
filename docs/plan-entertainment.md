@@ -1,8 +1,10 @@
 # Plan: fun reels, to make the switch from Shorts easier
 
-**Status:** phase 1 built (2026-11-21), not yet released; phases 2 and 3 planned. What
-phase 1 does and why is now in [design.md](design.md#fun-reels); when a later phase ships,
-its decisions move there too and this file says so.
+**Status:** phase 1 built (2026-11-21), not yet released; of phase 2, the mascot Gappu is
+built (2026-11-21: celebrations, sad face, wind-down, goodbye reels), the reels built on
+him are not; phase 3 planned. What is built and why is now in
+[design.md](design.md#fun-reels) and [design.md](design.md#gappu); when a later phase
+ships, its decisions move there too and this file says so.
 
 ## The problem
 
@@ -538,7 +540,7 @@ field per day and topic, for plays) so they stay out of the puzzle numbers.
 - Start over is on fun reels too (it plays the song again). The weekly note's reels are
   the reels engaged with; a favourite song needs two plays in the week. Picking Fixed
   starts from the share automatic is at.
-- Gappu is not in phase 1 (its art is being designed); nothing assumes a mascot.
+- Gappu is not in phase 1; he came after it, in phase 2.
 
 The cheapest things with the most delight, and the feed change that lets them in:
 
@@ -568,10 +570,19 @@ tones. APK cost: a few KB. No new permission, no audio file, no library.
 
 ### Phase 2: the mascot and humour
 
-Gappu (6) and the reels built on him: silly mistakes (7), Gappu in the wind-down and the
-goodbye reels, then what's silly (8), riddles and पहेलियाँ (9), drums and xylophone (10),
-with notes in "copy the order", peekaboo (11), big voice, small voice (12), dress up (13).
-Mostly content once the mascot is drawn.
+**Gappu himself is built** (2026-11-21), as [design.md](design.md#gappu) describes: in the
+celebrations (cheer and dance as two of ten bursts taking turns), the sad face on a
+skip, yawning beside "Almost done" in the wind-down, waving then eating on the goodbye
+reel and asleep on the good-night reel; tapping him says his name, with no bridge. Where
+it differs from (6): nine poses traced from images made with Gemini rather than six
+hand-drawn ones, so 30 to 60 KB of SVG each, not a few KB (Arts.kt went from 25 KB to
+270 KB); he is not a silly animal, whose tap zones do not fit a full-body drawing;
+surprised and sneeze wait for the reels below.
+
+Still to build, the reels on him and the humour: silly mistakes (7), then what's silly
+(8), riddles and पहेलियाँ (9), drums and xylophone (10), with notes in "copy the order",
+peekaboo (11), big voice, small voice (12), dress up (13). Mostly content, now that the
+mascot is drawn.
 
 ### Phase 3: making and stories
 

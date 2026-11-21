@@ -19,6 +19,8 @@ data class Word(
     val pluralHi: Boolean = plural,
     val article: String? = null,
     val colour: Boolean = false,
+    /** A name, not a word (Gappu): never bridged, since "Gappu means" … "गप्पू" teaches nothing. */
+    val proper: Boolean = false,
 ) {
     val title: Txt get() = txt(name[Lang.EN].replaceFirstChar { it.uppercase() }, name[Lang.HI])
 
@@ -26,7 +28,8 @@ data class Word(
     fun thisIs(): Txt = Phrases.thisIs(name, plural, pluralHi, article, colour)
 
     /** What tapping the picture says in [voice]: "This is an elephant!", then "elephant means" … "हाथी" into the rest of [langs]. */
-    fun said(voice: Lang, langs: List<Lang>): List<Say> = listOf(Say(thisIs()[voice], voice)) + Bridge.lines(name, voice, langs)
+    fun said(voice: Lang, langs: List<Lang>): List<Say> =
+        listOf(Say(thisIs()[voice], voice)) + if (proper) emptyList() else Bridge.lines(name, voice, langs)
 }
 
 /**
@@ -294,8 +297,11 @@ n("🌵", "cactus", "नागफनी"), n("🪨", "stone", "पत्थर")
         colour("🟥", Colours.all[0]), colour("🟦", Colours.all[1]), colour("🟨", Colours.all[2]), colour("🟩", Colours.all[3]),
     )
 
+    /** Every drawing of Gappu: "This is Gappu!" / "यह गप्पू है!". */
+    private val gappu = GappuPose.entries.map { Word(it.art, Gappu.name, article = "", proper = true) }
+
     private val table: Map<String, Word> =
-        (others + byTopic.values.flatten()).associateBy { key(it.emoji) }
+        (others + gappu + byTopic.values.flatten()).associateBy { key(it.emoji) }
 
     /** The name for [emoji], or null if the app has none. Variation selectors do not matter. */
     fun of(emoji: String): Word? = table[key(emoji)]

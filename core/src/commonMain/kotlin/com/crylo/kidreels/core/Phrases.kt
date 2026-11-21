@@ -402,10 +402,12 @@ object Phrases {
         txt("Find the one that is not there yet!", "जो अभी नहीं है, वो ढूँढो!")
 
     val allDone = txt("All done for today!", "आज के लिए बस!")
-    val allDoneBody = txt("Time to eat, play and rest. See you tomorrow!", "अब खाना, खेलना और आराम। कल मिलते हैं!")
+    /** Gappu goes to eat too, so it is not only the child who stops: see [Gappu]. */
+    val allDoneBody = txt("Time to eat, play and rest.", "अब खाना, खेलना और आराम।") + Gappu.eatsToo + txt("See you tomorrow!", "कल मिलते हैं!")
     val almostDone = txt("Almost done", "बस थोड़ा और")
     val bedtime = txt("Time for bed!", "सोने का समय हो गया!")
-    val bedtimeBody = txt("Brush your teeth, hug your teddy and sleep tight. Good night!", "ब्रश करो, टेडी को गले लगाओ और मीठे सपने देखो। शुभ रात्रि!")
+    val bedtimeBody = Gappu.asleep +
+        txt("Brush your teeth, hug your teddy and sleep tight. Good night!", "ब्रश करो, टेडी को गले लगाओ और मीठे सपने देखो। शुभ रात्रि!")
 
     fun <T> pick(list: List<T>, random: Random): T = list[random.nextInt(list.size)]
 

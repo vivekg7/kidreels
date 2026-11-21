@@ -19,10 +19,11 @@ where they overlap). Put the opacity on each shape instead.
 
 ## Where each picture comes from
 
-| Folder   | Pictures                                                                                                                   | Source and licence                                                                                                                                                                                                                                     |
-| -------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `noto/`  | peas (U+1FADB), ginger (U+1FADA), beetroot (U+1FADC), kidney beans (U+1FAD8)                                               | [Noto Emoji](https://github.com/googlefonts/noto-emoji) `2D/svg/`, © 2013 Google LLC. Licence text in `noto/LICENSE` (SIL Open Font License 1.1); Noto's README puts its images under Apache 2.0. Either way: keep the notice, credit it (About does). |
-| `drawn/` | okra, bottle gourd, bitter gourd, cauliflower, radish, spinach, pumpkin, the child in `body.svg`, the plant in `plant.svg` | Drawn for Kid Reels, MIT like the rest of the app.                                                                                                                                                                                                     |
+| Folder   | Pictures                                                                                                                                   | Source and licence                                                                                                                                                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `noto/`  | peas (U+1FADB), ginger (U+1FADA), beetroot (U+1FADC), kidney beans (U+1FAD8)                                                               | [Noto Emoji](https://github.com/googlefonts/noto-emoji) `2D/svg/`, © 2013 Google LLC. Licence text in `noto/LICENSE` (SIL Open Font License 1.1); Noto's README puts its images under Apache 2.0. Either way: keep the notice, credit it (About does). |
+| `drawn/` | okra, bottle gourd, bitter gourd, cauliflower, radish, spinach, pumpkin, the child in `body.svg`, the plant in `plant.svg`                 | Drawn for Kid Reels, MIT like the rest of the app.                                                                                                                                                                                                     |
+| `drawn/` | Gappu, the app's baby elephant: `gappu-happy` (waving), `-cheer`, `-surprised`, `-sneeze`, `-yawn`, `-asleep`, `-sad`, `-eating`, `-dance` | Generated with Google Gemini's image model for Kid Reels on 2026-11-21, from our own prompt for an original character, then traced to SVG with vtracer. MIT like the rest of the app.                                                                  |
 
 The Noto pictures are emoji newer than Emoji 13.1, which Android 12's font cannot draw,
 in the same style as the emoji around them. Nothing freely licensed showed Indian
@@ -37,3 +38,10 @@ so those are drawn here in the same flat style.
 - Add a row above with where it came from, then run the script and add the word.
 - Keep it small: a few KB of path data each. A detailed illustration belongs in a
   simpler redraw, not in the APK.
+
+Gappu is the one exception to keeping it small: about 30 to 60 KB of SVG a pose, with
+the grey ground shadow and outline the tracer kept, and 9 poses took `Arts.kt` from
+25 KB to 270 KB of path data. He is the character a child comes back to, on screen at
+every celebration and at the end of each day, and a flat redraw would lose what makes
+him likeable; a vegetable or a knee is better small. The source sheets the poses were cut
+from stay out of the repo (they are only the generator's output, before tracing).

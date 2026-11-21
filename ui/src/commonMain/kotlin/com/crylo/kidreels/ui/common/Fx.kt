@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.crylo.kidreels.core.GappuPose
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -112,7 +113,11 @@ fun HeartBurst(trigger: Int, modifier: Modifier = Modifier) {
     }
 }
 
-/** The sad face when a puzzle is swiped past unsolved. Gentle: a moment, then it goes. */
+/**
+ * Gappu's sad face when a puzzle is swiped past unsolved. Gentle: a moment, then it goes.
+ * Sad about the puzzle, never about the child leaving, and it takes no taps: the next reel
+ * is already under it.
+ */
 @Composable
 fun SadBubble(trigger: Int, text: String, modifier: Modifier = Modifier) {
     if (trigger == 0) return
@@ -140,7 +145,7 @@ fun SadBubble(trigger: Int, text: String, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        T("🥺", size = 56.sp)
+        Gappu(GappuPose.SAD, 96.dp)
         T(text, color = Color.White, size = 16.sp, weight = FontWeight.Bold, align = TextAlign.Center)
     }
 }

@@ -10,14 +10,16 @@ rail of buttons, a reward for every reel) and deliberately leaves out what makes
 apps hard to put down:
 
 - **There is an end.** The parent's daily limit is a core feature, not a setting buried
-  three screens deep. The last two minutes get only easy, calm reels and an "Almost done"
-  chip, so the stop is expected; then a goodbye reel ("time to eat, play and rest")
-  replaces the feed. An abrupt cut-off causes meltdowns; a wind-down does not.
+  three screens deep. The last two minutes get only easy, calm reels, an "Almost done"
+  chip and [Gappu](#gappu) yawning beside it, so the stop is expected; then a goodbye
+  reel ("time to eat, play and rest", and Gappu goes to eat too) replaces the feed. An
+  abrupt cut-off causes meltdowns; a wind-down does not.
 - **And a bedtime.** Minutes alone let a child who saved them up watch at 11 pm, and
   screens just before sleep are what paediatric advice warns about most. Each child can
   have a bedtime, from which until 6 am a good-night reel ("brush your teeth, hug your
-  teddy") ends the feed, with the same wind-down before it. A grown-up's "10 more
-  minutes" there is wall-clock time, ten minutes before bed, not ten minutes of feed.
+  teddy", with Gappu asleep already) ends the feed, with the same wind-down before it.
+  A grown-up's "10 more minutes" there is wall-clock time, ten minutes before bed, not
+  ten minutes of feed.
   6 am rather than later, so a child up at dawn is not told good night.
 - **No streaks, badges, points or "just one more".** A right answer is celebrated on the
   spot and then it is over. Nothing accumulates that a child would be afraid to lose.
@@ -25,7 +27,7 @@ apps hard to put down:
   bend this only as far as [Fun reels](#fun-reels) says: a payoff the child's own tap
   starts, and Copy me, where looking away from the screen to copy is the point.
 - **No feeling of failure.** Wrong answers shake and fade; the word "wrong" never
-  appears. Skipping a puzzle shows a short sad face, not a penalty.
+  appears. Skipping a puzzle shows Gappu's sad face for a moment, not a penalty.
 - **Some fun, on purpose.** Children used to Shorts found a feed of nothing but questions
   felt like homework, and a child who refuses the app goes back to Shorts. So there are
   songs and toys between the learning reels, more in the first weeks and fewer once a
@@ -379,9 +381,8 @@ where **the same songs and toys come back** and **nothing is kept**.
 - **The voice may be cartoonish here, and only here.** `Tone.TINY` and `Tone.GIANT` push
   pitch and pace past the four learning tones, which stay as they are. Engines clamp
   pitch differently, so a silly voice is less silly on some phones; it never sounds wrong.
-- **The mascot is not in yet.** The plan's baby elephant (Gappu / गप्पू) is being drawn;
-  until then the silly animals and the drawn child do its jobs, and nothing in the fun
-  reels assumes a character, so it can be swapped in.
+- **The mascot, Gappu, is not a fun reel of his own yet**: he is in the celebrations, the
+  sad face and the end of the day (see [Gappu](#gappu)). The silly animals stay emoji.
 
 #### Bigger celebrations
 
@@ -390,16 +391,60 @@ chime. Now **the things in the puzzle celebrate**: the counted apples jump one a
 another and spin, a quiz's picture hops, the right answer card bounces, the fed animals
 wag, the maze runner dances on the goal, the found pairs bow (`Modifier.moveOn` in
 `ui/common/Motion.kt`: hop, squash and stretch, wobble, spin, shake, wag). Around that,
-one of eight bursts (confetti, fireworks, balloons, a rainbow, stars, bubbles, streamers,
-sparkles), each about 1.5 seconds with a short fanfare of its own after the chime.
+one of ten bursts (confetti, fireworks, balloons, a rainbow, stars, bubbles, streamers,
+sparkles, and [Gappu](#gappu) cheering or dancing), each about 1.5 seconds with a short
+fanfare of its own after the chime (`Burst` in `Motion.kt`).
 
 - **Taken in turn, not at random**, and all the same size. A celebration that is
-  sometimes bigger for no reason is a slot machine.
+  sometimes bigger for no reason is a slot machine. Gappu's two are peers of the others,
+  not a rare treat: two turns in ten, never one after the other (`MotionTest`).
 - **In the wind-down, the plain chime and confetti**, and no puzzle picture moves: the
   last minutes get no new excitement.
 - **Never in the way.** A burst takes no taps, so the next swipe is never held up, and no
   sparkle flashes more than once, well under three flashes a second.
 - Celebrations belong to every puzzle, so they stay when fun reels are turned off.
+
+#### Gappu
+
+Gappu / गप्पू is the app's own character: a chubby blue-grey baby elephant with pink ears
+and an orange cap (`core/Gappu.kt`, `ui/common/Gappu.kt`). Children used to Shorts love a
+character, and we can use none of theirs (licences, and the trade dress
+[Familiar, not a copy](#familiar-not-a-copy) warns of). An elephant has a big comic range,
+every Indian child knows one, and it is not one of the profile animals, so no child's own
+animal is the one that is sad or sleepy. Nine poses are drawn (`GappuPose`); where the art
+came from is in `art/README.md`.
+
+| Where                | Pose                   | What he does                                                                              |
+| -------------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
+| A celebration        | cheer, dance           | Pops up low beside the puzzle, hops or sways on one foot twice, fades: 1.5 s              |
+| A puzzle swiped past | sad                    | In the sad bubble instead of 🥺, for the same 1.8 s, with "Aww, you didn't try that one!" |
+| The wind-down        | yawn                   | Small, beside "Almost done", stretching slowly, each stretch slower than the last         |
+| The goodbye reel     | happy (waving), eating | Waves, then eats a banana: "Gappu is going to eat too" / "गप्पू भी खाना खाने जा रहा है"       |
+| The good-night reel  | asleep                 | Curled up, "z"s rising: "Gappu is asleep already" / "गप्पू सो गया है"                        |
+
+Surprised and sneeze (his cap flies off) are drawn for the phase 2 reels built on him
+(silly mistakes, riddles). The silly animals stay emoji: their tap zones are fixed spots
+on a front-on face and an oval body, and a full-body drawing whose sneeze moves its
+outline does not fit them.
+
+A loved character is a hook, so these rules are part of the design, not polish:
+
+- **He is only ever used for the stop, never against it.** He yawns, eats and sleeps: a
+  character the child likes going to rest is the gentlest sign that the day's reels are
+  over. He never asks the child to stay, never says he will miss them and is never sad
+  that they leave (`GappuTest` checks the goodbye lines). His one sad face is about a
+  puzzle, for a moment, and it takes no taps.
+- **Nothing to look after.** He needs no feeding or care, and nothing about him builds up:
+  no outfits to unlock, no Gappu who is happier the more the child plays.
+- **No bigger or rarer Gappu.** His celebrations are two of the ten taking turns, the same
+  size and length as confetti, and in the wind-down he does not celebrate at all.
+- **Calm at the end.** In the wind-down he is small and in the header, not on the reel or
+  loud; on the goodbye reels the voice mentions him once, in the same low, slow tone.
+- **A picture with a name.** Tapping him where he can be tapped (the wind-down, the
+  goodbye reels) says "This is Gappu!" / "यह गप्पू है!" like every picture, in the
+  reel's voice and with no bridge into the other language: a name is not a word to
+  learn (`Word.proper`). In a celebration or the sad bubble he takes no taps, so he
+  never holds up a swipe or takes an answer meant for the card under him.
 
 ### Adding a reel type
 
@@ -698,12 +743,14 @@ the feed, and picking another child once the last one's time is up.
   picture. So a word can name a drawing instead (`art:okra`): an SVG in `art/`, turned
   into Kotlin path data by `scripts/art.py` and drawn with the same Canvas as everything
   else, so no image library is added and every platform draws it the same. Each is a few
-  KB. Sources, licences and what the script accepts are in `art/README.md`. Speech stays
-  the phone's TTS for now; recordings may be bundled later where a voice falls short.
+  KB, except Gappu, the one picture worth the detail (30 to 60 KB of SVG a pose).
+  Sources, licences and what the script accepts are in `art/README.md`. Speech stays the
+  phone's TTS for now; recordings may be bundled later where a voice falls short.
 - **Every picture has a name** (`core/Words.kt`), so tapping any picture says "This is an
   elephant" / "यह हाथी है" in the reel's voice, then bridges the name into the child's
-  other language ("elephant means" … "हाथी"). One table covers every emoji the app
-  shows, and `everyPictureHasAName` fails when a new one is added without a name: a
+  other language ("elephant means" … "हाथी"). A name is not bridged: Gappu is just
+  "This is Gappu!". One table covers every emoji the app shows (and every pose of
+  Gappu), and `everyPictureHasAName` fails when a new one is added without a name: a
   picture that does nothing when tapped teaches a child that tapping is pointless. Answer
   cards are the exception: a tap there is the answer, and a wrong one already names what
   was tapped. A quiz can name its picture its own way: the first-letter quiz says the

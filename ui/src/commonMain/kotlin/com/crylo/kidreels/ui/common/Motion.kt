@@ -5,10 +5,12 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -19,6 +21,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
+import com.crylo.kidreels.core.GappuPose
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.cos
@@ -72,11 +76,12 @@ fun Modifier.moveOn(key: Int, motion: Motion, delayMillis: Int = 0, times: Int =
 }
 
 /**
- * The celebration after a right answer: one of [BURSTS] bursts, each about 1.5 seconds with
- * a short fanfare of its own after the chime. They take turns ([burst] counts up), so none
- * is rarer than another: a reward that comes at random is a slot machine. In the
- * wind-down ([calm]) it is the plain confetti and chime, nothing new. It never takes a
- * tap, so it never holds up the next swipe.
+ * The celebration after a right answer: one of the [Burst]s, each about 1.5 seconds with a
+ * short fanfare of its own after the chime. They take turns ([burst] counts up, see
+ * [burstFor]), so none is rarer than another: a reward that comes at random is a slot
+ * machine. Gappu cheering and Gappu dancing are two of them, the same size and length as
+ * the rest. In the wind-down ([calm]) it is the plain confetti and chime, nothing new. It
+ * never takes a tap, so it never holds up the next swipe.
  */
 @Composable
 fun Celebration(trigger: Int, burst: Int, calm: Boolean, note: (Int) -> Unit) {
@@ -85,50 +90,91 @@ fun Celebration(trigger: Int, burst: Int, calm: Boolean, note: (Int) -> Unit) {
         Confetti(trigger)
         return
     }
-    val kind = burst % BURSTS
+    val kind = burstFor(burst)
     LaunchedEffect(trigger) {
         // After the chime, which every right answer already plays.
         delay(380)
-        for (n in fanfares[kind]) {
+        for (n in kind.fanfare) {
             note(n)
             delay(85)
         }
     }
-    if (kind == 0) {
+    if (kind == Burst.CONFETTI) {
         Confetti(trigger)
         return
     }
     val t = remember(trigger) { Animatable(0f) }
-    LaunchedEffect(trigger) { t.animateTo(1f, tween(1500, easing = LinearEasing)) }
+    LaunchedEffect(trigger) { t.animateTo(1f, tween(BURST_MILLIS, easing = LinearEasing)) }
     if (t.value >= 1f) return
-    val seed = remember(trigger) { trigger * 31 + kind }
+    if (kind == Burst.GAPPU_CHEER || kind == Burst.GAPPU_DANCE) {
+        GappuBurst(trigger, t.value, dance = kind == Burst.GAPPU_DANCE)
+        return
+    }
+    val seed = remember(trigger) { trigger * 31 + kind.ordinal }
     Canvas(Modifier.fillMaxSize()) {
         val r = Random(seed)
         when (kind) {
-            1 -> fireworks(t.value, r)
-            2 -> balloons(t.value, r)
-            3 -> rainbow(t.value)
-            4 -> stars(t.value, r)
-            5 -> bubbles(t.value, r)
-            6 -> streamers(t.value, r)
+            Burst.FIREWORKS -> fireworks(t.value, r)
+            Burst.BALLOONS -> balloons(t.value, r)
+            Burst.RAINBOW -> rainbow(t.value)
+            Burst.STARS -> stars(t.value, r)
+            Burst.BUBBLES -> bubbles(t.value, r)
+            Burst.STREAMERS -> streamers(t.value, r)
             else -> sparkles(t.value, r)
         }
     }
 }
 
-const val BURSTS = 8
+/**
+ * The celebrations, in the order they take turns, each with its fanfare on the music box's
+ * notes (semitones from middle C).
+ */
+enum class Burst(val fanfare: List<Int>) {
+    CONFETTI(listOf(0, 4, 7, 12)),
+    FIREWORKS(listOf(7, 12, 16, 19)),
+    BALLOONS(listOf(0, 2, 4, 5, 7)),
+    RAINBOW(listOf(0, 4, 7, 9, 12)),
+    STARS(listOf(12, 7, 12, 16)),
+    BUBBLES(listOf(7, 9, 11, 12, 14, 16)),
 
-/** A short fanfare per burst, on the music box's notes (semitones from middle C). */
-private val fanfares = listOf(
-    listOf(0, 4, 7, 12),
-    listOf(7, 12, 16, 19),
-    listOf(0, 2, 4, 5, 7),
-    listOf(0, 4, 7, 9, 12),
-    listOf(12, 7, 12, 16),
-    listOf(7, 9, 11, 12, 14, 16),
-    listOf(16, 14, 12, 11, 12),
-    listOf(19, 16, 12, 16, 19),
-)
+    /** Gappu pops up and hops, cheering. */
+    GAPPU_CHEER(listOf(0, 7, 4, 12)),
+    STREAMERS(listOf(16, 14, 12, 11, 12)),
+    SPARKLES(listOf(19, 16, 12, 16, 19)),
+
+    /** Gappu pops up and sways on one foot. */
+    GAPPU_DANCE(listOf(12, 11, 12, 14, 16, 12)),
+}
+
+/** The [n]th celebration of the session: each in turn, so every one comes as often as the others. */
+fun burstFor(n: Int): Burst = Burst.entries[n.mod(Burst.entries.size)]
+
+private const val BURST_MILLIS = 1500
+
+/**
+ * Gappu cheering or dancing, low down beside the puzzle so the things in it can still be
+ * seen celebrating: he pops up, hops (or sways, on one foot) twice, then fades, in the same
+ * 1.5 seconds as every other burst.
+ */
+@Composable
+private fun GappuBurst(trigger: Int, p: Float, dance: Boolean) {
+    Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier.align(BiasAlignment(-0.55f, 0.62f)).graphicsLayer {
+                val s = if (p < 0.12f) 0.5f + p / 0.12f * 0.5f else 1f
+                scaleX = s
+                scaleY = s
+                transformOrigin = TransformOrigin(0.5f, 1f)
+                alpha = fade(p, 0.8f)
+            },
+        ) {
+            Gappu(
+                if (dance) GappuPose.DANCE else GappuPose.CHEER, 150.dp,
+                Modifier.moveOn(trigger, if (dance) Motion.WAG else Motion.HOP, delayMillis = 180, times = 2, millis = 560),
+            )
+        }
+    }
+}
 
 private val party = listOf(
     Color(0xFFFF5252), Color(0xFFFFD740), Color(0xFF69F0AE), Color(0xFF40C4FF), Color(0xFFE040FB), Color(0xFFFF9100),
