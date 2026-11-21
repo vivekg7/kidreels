@@ -55,7 +55,8 @@ takes by copy and upload and F-Droid reads as is:
   on screen. The emoji in them are
   Android's Noto Color Emoji, under the Apache licence.
 
-AI-generated assets: none.
+AI-generated assets: none in the listing. In the app, Gappu and the silly animals were
+drawn with Google Gemini and traced to SVG (`art/README.md`); the screenshots predate them.
 
 ## App content
 
@@ -105,7 +106,7 @@ AI-generated assets: none.
 While a production release is still in review, the next one goes to **internal
 testing** instead: it reaches the testers' phones within minutes, without waiting
 behind the review, and is promoted to production from there once the review is done.
-1.2 (3) went this way while 1.1 (2) was in review, and 1.3 (4) after it. The store
+1.2 (3) went this way while 1.1 (2) was in review, then 1.3 (4) and 1.4 (5). The store
 listing is shared by every track, so a changed `full_description.txt` is pasted into it
 when the release is promoted to production, not when it goes to internal testing. The
 track's testers are the account's "Galla testers" email list; they join at
