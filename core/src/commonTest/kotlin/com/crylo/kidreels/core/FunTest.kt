@@ -280,4 +280,19 @@ class FunTest {
             assertEquals(CopyMoves.sitDown, jumping.steps.last().move, "standing moves end sitting down again")
         }
     }
+
+    /** Each drawing's parts are where its taps land: a nose tap that tickled would be no joke. */
+    @Test
+    fun sillyAnimalPartsAreWhereTheDrawingHasThem() {
+        for (a in Silly.all) {
+            val c = a.shape.centre
+            assertEquals(SillyZone.NOSE, Silly.zone(a, c, a.shape.noseY), a.face)
+            assertEquals(SillyZone.EARS, Silly.zone(a, c - a.shape.earsOut - 0.05f, a.shape.earsTo - 0.05f), a.face)
+            assertEquals(SillyZone.EARS, Silly.zone(a, c + a.shape.earsOut + 0.05f, a.shape.earsTo - 0.05f), a.face)
+            assertEquals(SillyZone.TUMMY, Silly.zone(a, c, 0.7f), a.face)
+            assertEquals(SillyZone.FEET, Silly.zone(a, c - 0.1f, 0.9f), a.face)
+            assertEquals(SillyZone.AIR, Silly.zone(a, 0.02f, 0.75f), a.face)
+            assertTrue(a.art.startsWith("art:silly-"), a.face)
+        }
+    }
 }

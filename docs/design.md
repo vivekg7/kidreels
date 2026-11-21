@@ -353,15 +353,20 @@ where **the same songs and toys come back** and **nothing is kept**.
   rising scale and the celebrations' fanfares all play on it, and every song is written
   in those notes (a test checks). Drum, clap, boing and sneeze are synthesised too: a
   sine falling in pitch, bursts of noise, a sliding pitch.
-- **Silly animals are emoji on a drawn body.** A face emoji (🐮, 🦁, 🐷, 🐭, 🐱, 🐶) is
-  drawn front-on by every font, so its ears and nose are where the tap zones expect them;
-  a full-body emoji faces left in one font and right in another. The body under it is an
-  oval drawn in the animal's colour with a lighter tummy and two feet, so there is a
-  tummy to tickle and feet to hop on. Each speaks in a silly voice, `Tone.TINY` for the
-  small ones and `Tone.GIANT` for the big. From 4 a tap names the part ("That's the
-  cow's nose!" / "यह गाय की नाक है!"), and the animal is named and bridged like a picture
-  card ("This is a cow!" · "cow means" … "गाय"). It never escalates: the hundredth sneeze
-  is as funny as the first.
+- **Silly animals are drawn whole, in Gappu's style**: six friends of his (cow, lion cub,
+  pig, mouse, cat, puppy) from the same Gemini chat, every one standing front-on in the
+  same pose, so each has a nose, ears, a tummy and feet where a child expects them. Where
+  those parts are is data per animal (`SillyShape`: the middle, the nose's height, how
+  far down and out the ears go), since a puppy's ears hang to its chin and a lion's tail
+  moves its middle; a test checks each part lands where its drawing has it. The first
+  version put a face emoji on a drawn oval, as a full-body emoji faces left in one font
+  and right in another; it looked rough beside Gappu. The drawing is one picture, so the
+  whole animal moves (it squashes and shakes for a sneeze, wobbles for a giggle, hops,
+  wags for its ears), and the sneeze sprays from its own nose. Each speaks in a silly
+  voice, `Tone.TINY` for the small ones and `Tone.GIANT` for the big. From 4 a tap names
+  the part ("That's the cow's nose!" / "यह गाय की नाक है!"), and the animal is named and
+  bridged like a picture card ("This is a cow!" · "cow means" … "गाय"). It never
+  escalates: the hundredth sneeze is as funny as the first.
 - **Bubbles have a fixed count**, 5 at 2, 7 at 3, 10 at 4 and 20 from 5, as count-along
   climbs, and then no new ones come: bubble popping is a classic time-waster. Each pop
   says the count and plays the next note up the scale, so popping makes a tune. The
@@ -382,7 +387,8 @@ where **the same songs and toys come back** and **nothing is kept**.
   pitch and pace past the four learning tones, which stay as they are. Engines clamp
   pitch differently, so a silly voice is less silly on some phones; it never sounds wrong.
 - **The mascot, Gappu, is not a fun reel of his own yet**: he is in the celebrations, the
-  sad face and the end of the day (see [Gappu](#gappu)). The silly animals stay emoji.
+  sad face and the end of the day (see [Gappu](#gappu)). The silly animals are drawn in
+  his style, as his friends.
 
 #### Bigger celebrations
 

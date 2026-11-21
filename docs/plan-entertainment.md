@@ -526,8 +526,9 @@ field per day and topic, for plays) so they stay out of the puzzle numbers.
 - No fun reels at 9 and over yet, and none in an 8-year-old's wind-down (Copy me is not
   calm): those slots get usual reels. Songs are English only, so a child without
   English gets the Play channel only.
-- Silly animals are face emoji (🐮 🦁 🐷 🐭 🐱 🐶) on a drawn body with a tummy and feet:
-  full-body emoji face different ways in different fonts, so fixed tap zones would miss.
+- Silly animals were first face emoji (🐮 🦁 🐷 🐭 🐱 🐶) on a drawn body, as full-body
+  emoji face different ways in different fonts; they are now drawn whole in Gappu's
+  style, with tap zones per drawing (design.md#fun-reels).
 - Bubbles: 7 at age 3; from 4 a colour game (5 or 8 to pop), 1 to 5 in order at 4 and 1
   to 10 from 5, a short English word's letters from 5. Old MacDonald is one verse a
   reel, with a farm animal picked each time. Songs' Hindi titles are transliterated.

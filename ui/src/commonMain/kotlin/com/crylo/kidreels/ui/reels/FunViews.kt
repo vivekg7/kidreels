@@ -40,13 +40,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.cos
+import kotlin.math.PI
+import com.crylo.kidreels.core.Bubble
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.sp
 import com.crylo.kidreels.core.BubbleGame
 import com.crylo.kidreels.core.BubblePop
@@ -66,6 +72,9 @@ import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.TuneReel
 import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.ui.Sfx
+import com.crylo.kidreels.ui.art.drawArt
+import com.crylo.kidreels.ui.art.artFor
+import com.crylo.kidreels.core.SillyZone
 import com.crylo.kidreels.ui.common.Motion
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
@@ -89,27 +98,11 @@ import kotlin.random.Random
  * cheers without scoring anything.
  */
 
-/** Where a tap on the silly animal landed, in its own square. */
-private enum class SillyZone { NOSE, TUMMY, FEET, EARS, HEAD, AIR }
-
 /**
- * Which part a tap at ([x], [y]), as fractions of the animal's square, is on. The face is
- * an emoji drawn front-on in every font, ears at its top corners and the nose low in the
- * middle; the body under it is drawn here, so its tummy and feet are where this says.
+ * Tap its nose and it sneezes, its tummy and it giggles, its feet and it hops, its ears and
+ * it flaps them. The animal is one drawing, so the whole of it moves; where each part is
+ * comes from its [com.crylo.kidreels.core.SillyShape].
  */
-private fun sillyZone(x: Float, y: Float): SillyZone = when {
-    y < 0.56f && x in 0.18f..0.82f -> when {
-        y < 0.26f && (x < 0.38f || x > 0.62f) -> SillyZone.EARS
-        y < 0.4f && (x < 0.27f || x > 0.73f) -> SillyZone.EARS
-        y in 0.26f..0.52f && x in 0.36f..0.64f -> SillyZone.NOSE
-        else -> SillyZone.HEAD
-    }
-    y in 0.56f..0.86f && x in 0.2f..0.8f -> SillyZone.TUMMY
-    y > 0.84f && x in 0.15f..0.85f -> SillyZone.FEET
-    else -> SillyZone.AIR
-}
-
-/** Tap its nose and it sneezes, its tummy and it giggles, its feet and it hops, its ears and they flap. */
 @Composable
 fun SillyAnimalView(reel: SillyAnimalReel, padding: PaddingValues) {
     val env = LocalReelEnv.current
@@ -145,47 +138,35 @@ fun SillyAnimalView(reel: SillyAnimalReel, padding: PaddingValues) {
     // The tap handler outlives a composition, and the page was first composed off screen,
     // silent: it must reach the reel's current voice.
     val onZone by rememberUpdatedState<(SillyZone) -> Unit> { tapped(it) }
+    val art = remember(animal) { artFor(animal.art) ?: error("No drawing for ${animal.art}: run scripts/art.py") }
     Column(Modifier.fillMaxSize().padding(padding).reelWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         MultiText(reel.prompt, env.langs, colors.ink, Modifier.fillMaxWidth(), size = 26.sp, say = { env.say(it) })
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().pointerInput(reel.id) {
-            detectTapGestures { p ->
-                // Taps outside the animal's square are "air" too.
-                val side = minOf(size.width, size.height) * 0.9f
-                val left = (size.width - side) / 2
-                val top = (size.height - side) / 2
-                onZone(sillyZone((p.x - left) / side, (p.y - top) / side))
-            }
-        }, contentAlignment = Alignment.Center) {
-            val side = minOf(maxWidth, maxHeight) * 0.9f
-            Box(Modifier.size(side).moveOn(hop, Motion.HOP, times = 2), contentAlignment = Alignment.TopCenter) {
-                // The body: an oval in the animal's colour, a lighter tummy, two feet.
-                Canvas(Modifier.fillMaxSize().moveOn(giggle, Motion.WOBBLE, times = 3, millis = 260)) {
-                    val w = size.width
-                    val body = Color(animal.body)
-                    listOf(0.3f, 0.7f).forEach { fx ->
-                        drawOval(body, Offset(w * (fx - 0.11f), w * 0.86f), Size(w * 0.22f, w * 0.12f))
-                    }
-                    drawOval(body, Offset(w * 0.21f, w * 0.44f), Size(w * 0.58f, w * 0.48f))
-                    drawOval(Color(animal.belly), Offset(w * 0.33f, w * 0.56f), Size(w * 0.34f, w * 0.3f))
-                    drawOval(Color.Black.copy(alpha = 0.12f), Offset(w * 0.21f, w * 0.44f), Size(w * 0.58f, w * 0.48f), style = Stroke(w * 0.008f))
-                }
-                // The face, on top: it sneezes, flaps, says hello and looks round.
-                T(
-                    animal.face,
-                    Modifier.moveOn(sneeze, Motion.SQUASH, delayMillis = 0, millis = 380)
-                        .moveOn(sneeze, Motion.SHAKE, delayMillis = 380, millis = 300)
-                        .moveOn(flap, Motion.WAG, times = 2, millis = 360)
-                        .moveOn(look, Motion.WOBBLE, millis = 900)
-                        .popOn(hello),
-                    size = (side.value * 0.42f).sp,
-                )
-                if (sneeze > 0) Sneeze(sneeze, Modifier.fillMaxSize())
+        BoxWithConstraints(
+            // Taps beside the animal are "air"; those on it are caught by the drawing first.
+            Modifier.weight(1f).fillMaxWidth().pointerInput(reel.id) { detectTapGestures { onZone(SillyZone.AIR) } },
+            contentAlignment = Alignment.Center,
+        ) {
+            val ratio = art.width / art.height
+            val tall = minOf(maxHeight * 0.92f, maxWidth * 0.9f / ratio)
+            Box(
+                Modifier.size(tall * ratio, tall)
+                    .moveOn(hop, Motion.HOP, times = 2)
+                    .moveOn(giggle, Motion.WOBBLE, times = 3, millis = 260)
+                    .moveOn(sneeze, Motion.SQUASH, millis = 380)
+                    .moveOn(sneeze, Motion.SHAKE, delayMillis = 380, millis = 300)
+                    .moveOn(flap, Motion.WAG, times = 2, millis = 360)
+                    .moveOn(look, Motion.WOBBLE, millis = 900)
+                    .popOn(hello)
+                    .pointerInput(reel.id) { detectTapGestures { p -> onZone(Silly.zone(animal, p.x / size.width, p.y / size.height)) } },
+            ) {
+                Canvas(Modifier.fillMaxSize()) { drawArt(art) }
+                if (sneeze > 0) Sneeze(sneeze, Offset(animal.shape.centre, animal.shape.noseY), Modifier.fillMaxSize())
             }
         }
         Box(Modifier.fillMaxWidth().height(70.dp), contentAlignment = Alignment.Center) {
             val part = named
             if (part != null && reel.namesParts) {
-                MultiText(Silly.thatsThe(animal, part), env.langs, colors.ink, size = 20.sp, say = { env.say(it) })
+                MultiText(Silly.thatsThe(animal, part), env.langs, colors.ink, Modifier.popOn(sneeze + giggle + hop + flap), size = 20.sp, say = { env.say(it) })
             } else {
                 T("👆", Modifier.floating(), size = 32.sp)
             }
@@ -193,9 +174,9 @@ fun SillyAnimalView(reel: SillyAnimalReel, padding: PaddingValues) {
     }
 }
 
-/** A spray of drops from the nose, for a moment. */
+/** A spray of drops from the nose at [nose] (fractions of the picture), for a moment. */
 @Composable
-private fun Sneeze(trigger: Int, modifier: Modifier) {
+private fun Sneeze(trigger: Int, nose: Offset, modifier: Modifier) {
     val t = remember(trigger) { androidx.compose.animation.core.Animatable(0f) }
     LaunchedEffect(trigger) {
         delay(380)
@@ -203,11 +184,11 @@ private fun Sneeze(trigger: Int, modifier: Modifier) {
     }
     if (t.value <= 0f || t.value >= 1f) return
     Canvas(modifier) {
-        val origin = Offset(size.width * 0.5f, size.width * 0.42f)
+        val origin = Offset(size.width * nose.x, size.height * nose.y)
         repeat(9) { i ->
             val a = (-0.6f + 1.2f * i / 8f)
-            val d = t.value * size.width * 0.28f
-            drawCircle(Color(0xFF8FD3FF).copy(alpha = 1f - t.value), size.width * 0.015f, origin + Offset(sin(a) * d, d * 0.9f))
+            val d = t.value * size.width * 0.4f
+            drawCircle(Color(0xFF8FD3FF).copy(alpha = 1f - t.value), size.width * 0.022f, origin + Offset(sin(a) * d, d * 0.9f))
         }
     }
 }

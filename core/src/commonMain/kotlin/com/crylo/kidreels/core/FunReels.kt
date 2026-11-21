@@ -1,5 +1,7 @@
 package com.crylo.kidreels.core
 
+import kotlin.math.abs
+
 /*
  * The first fun reels (phase 1 of docs/plan-entertainment.md): silly animals, bubble pop
  * and copy me here, tap the tune in Songs.kt. None of them is a puzzle (`needsSolving` is
@@ -16,14 +18,25 @@ enum class SillyPart(val word: Txt, val plural: Boolean, val feminineHi: Boolean
 }
 
 /**
- * One silly animal: a face emoji (front-on in every font, so its ears and nose are where
- * the tap zones expect them) on a drawn body in [body] with a [belly], so there is a tummy
- * to tickle and feet to hop on. [hiOblique] is the Hindi name before "का/की/के": कुत्ते की
- * नाक, not कुत्ता की. [voice] is its silly voice.
+ * One silly animal, drawn whole in Gappu's style (art/drawn/silly-*.svg), standing
+ * front-on so it has a nose to tap, a tummy to tickle, feet to hop on and ears to flap.
+ * [face] is its emoji, which names it. [hiOblique] is the Hindi name before "का/की/के":
+ * कुत्ते की नाक, not कुत्ता की. [voice] is its silly voice; [shape] is where its parts are.
  */
-data class SillyAnimal(val face: String, val hiOblique: String, val sound: Txt, val voice: Tone, val body: Long, val belly: Long) {
+data class SillyAnimal(val face: String, val art: String, val hiOblique: String, val sound: Txt, val voice: Tone, val shape: SillyShape) {
     val word: Word get() = Words.of(face) ?: error("$face has no name")
 }
+
+/**
+ * Where a drawn animal's parts are, as fractions of its picture (0 is the left or top
+ * edge): its middle [centre] (a tail to one side moves it), its nose at [noseY], and ears
+ * above [earsTo] and further than [earsOut] from the middle. The head ends and the tummy
+ * starts at the neck, at the same height in every drawing; the feet are at the bottom.
+ */
+data class SillyShape(val noseY: Float, val earsTo: Float, val earsOut: Float, val centre: Float = 0.5f)
+
+/** Where a tap on a silly animal landed. */
+enum class SillyZone { NOSE, TUMMY, FEET, EARS, HEAD, AIR }
 
 /** "Tap the silly cow!": tap its nose and it sneezes, its tummy and it giggles. From 4 the voice names the part. */
 data class SillyAnimalReel(
@@ -42,12 +55,13 @@ data class SillyAnimalReel(
 object Silly {
     /** A handful to start with, a booming voice for the big ones and a squeak for the small. */
     val all: List<SillyAnimal> = listOf(
-        SillyAnimal("🐮", "गाय", txt("Moooooo!", "मूँ मूँ मूँ!"), Tone.GIANT, 0xFFF4F1EA, 0xFFFFC9D6),
-        SillyAnimal("🦁", "शेर", txt("Roooar!", "गुर्रर्रर्र!"), Tone.GIANT, 0xFFE9A23B, 0xFFF7D9A0),
-        SillyAnimal("🐷", "सूअर", txt("Oink oink oink!", "घुर्र घुर्र!"), Tone.GIANT, 0xFFF6A5B9, 0xFFFFD3DE),
-        SillyAnimal("🐭", "चूहे", txt("Squeak squeak!", "चीं चीं चीं!"), Tone.TINY, 0xFFB7B3BE, 0xFFF3D3DC),
-        SillyAnimal("🐱", "बिल्ली", txt("Meeeow!", "म्याऊँ म्याऊँ!"), Tone.TINY, 0xFFF2B35B, 0xFFFBE3BC),
-        SillyAnimal("🐶", "कुत्ते", txt("Woof woof!", "भौं भौं!"), Tone.TINY, 0xFFC98B52, 0xFFF1D5B5),
+        SillyAnimal("🐮", "art:silly-cow", "गाय", txt("Moooooo!", "मूँ मूँ मूँ!"), Tone.GIANT, SillyShape(noseY = 0.45f, earsTo = 0.32f, earsOut = 0.3f)),
+        SillyAnimal("🦁", "art:silly-lion", "शेर", txt("Roooar!", "गुर्रर्रर्र!"), Tone.GIANT, SillyShape(noseY = 0.42f, earsTo = 0.3f, earsOut = 0.17f, centre = 0.465f)),
+        SillyAnimal("🐷", "art:silly-pig", "सूअर", txt("Oink oink oink!", "घुर्र घुर्र!"), Tone.GIANT, SillyShape(noseY = 0.39f, earsTo = 0.23f, earsOut = 0.2f)),
+        SillyAnimal("🐭", "art:silly-mouse", "चूहे", txt("Squeak squeak!", "चीं चीं चीं!"), Tone.TINY, SillyShape(noseY = 0.435f, earsTo = 0.33f, earsOut = 0.2f)),
+        SillyAnimal("🐱", "art:silly-cat", "बिल्ली", txt("Meeeow!", "म्याऊँ म्याऊँ!"), Tone.TINY, SillyShape(noseY = 0.38f, earsTo = 0.22f, earsOut = 0.22f)),
+        // Its ears hang down the sides of its head, so they reach low.
+        SillyAnimal("🐶", "art:silly-dog", "कुत्ते", txt("Woof woof!", "भौं भौं!"), Tone.TINY, SillyShape(noseY = 0.385f, earsTo = 0.62f, earsOut = 0.26f, centre = 0.485f)),
     )
 
     fun tapThe(a: SillyAnimal): Txt = txt("Tap the silly ${a.word.name[Lang.EN]}!", "मज़ेदार ${a.word.name[Lang.HI]} को छुओ!")
@@ -67,6 +81,27 @@ object Silly {
             "${if (part.plural) "ये" else "यह"} ${a.hiOblique} $of ${part.word[Lang.HI]} ${if (part.plural) "हैं" else "है"}!",
         )
     }
+
+    /**
+     * Which part a tap at ([x], [y]) is on, as fractions of [a]'s picture. Generous: a
+     * two-year-old's finger is wide, and a near miss of the nose that tickles the head
+     * instead is still a laugh.
+     */
+    fun zone(a: SillyAnimal, x: Float, y: Float): SillyZone {
+        val s = a.shape
+        val dx = abs(x - s.centre)
+        return when {
+            x !in 0f..1f || y !in 0f..1f -> SillyZone.AIR
+            abs(y - s.noseY) < 0.08f && dx < 0.13f -> SillyZone.NOSE
+            y < s.earsTo && dx > s.earsOut -> SillyZone.EARS
+            y < NECK -> if (dx < 0.46f) SillyZone.HEAD else SillyZone.AIR
+            y < 0.84f -> if (dx < 0.33f) SillyZone.TUMMY else SillyZone.AIR
+            else -> if (dx < 0.36f) SillyZone.FEET else SillyZone.AIR
+        }
+    }
+
+    /** Where every drawing's head meets its body. */
+    private const val NECK = 0.56f
 
     fun make(g: Gen): SillyAnimalReel {
         val animal = if (g.ordered) all[g.inOrder("silly", all.size)] else g.pick(all)
