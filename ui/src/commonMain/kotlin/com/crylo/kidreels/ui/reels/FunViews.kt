@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -628,7 +629,10 @@ fun CopyMeView(reel: CopyMe, padding: PaddingValues, onDone: () -> Unit) {
                 T(beat.toString(), Modifier.align(Alignment.TopEnd).padding(12.dp).popOn(beat), color = colors.ink, size = 64.sp, weight = FontWeight.Black)
             }
         }
-        Box(Modifier.fillMaxWidth().height(110.dp), contentAlignment = Alignment.Center) {
+        // At least this tall, so the figure keeps still while the moves change, but free to
+        // grow: the done words in two languages over the Again button need more, and a fixed
+        // height squeezed the button until its label was cut off.
+        Box(Modifier.fillMaxWidth().heightIn(min = 110.dp), contentAlignment = Alignment.Center) {
             when (phase) {
                 CopyPhase.READY -> GoButton(CopyMoves.go[env.main]) { phase = CopyPhase.PLAYING }
                 CopyPhase.PLAYING -> reel.steps.getOrNull(at)?.let { step ->
