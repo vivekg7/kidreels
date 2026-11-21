@@ -20,6 +20,10 @@ class Gen(
     val age: Int = level,
     /** A parent picked this topic alone: things that can go in order do (count 1, 2, 3…). */
     val ordered: Boolean = false,
+    /** The last minutes before the end: a fun reel made now is its calm kind (slow bubbles, a gentle song). */
+    val calm: Boolean = false,
+    /** The parent turned on jumping games: "Copy me" may ask the child to stand up and jump. */
+    val jumping: Boolean = false,
 ) {
     /** [t] in words for this child: see [Txt.forAge]. */
     fun words(t: Txt): Txt = t.forAge(age)
@@ -57,8 +61,13 @@ class Template(
      * of these is chosen, and handed only those. Null for a topic in every language.
      */
     val langs: Set<Lang>? = null,
+    /** A fun reel that suits the wind-down: a slow tune, slow bubbles. Lively ones wait for another day. */
+    val calm: Boolean = false,
     val make: (Gen) -> Reel,
 ) {
+    /** A song or a toy: made only in the feed's fun slot, never in the learning mix. See [Feed]. */
+    val isFun: Boolean get() = topic.isFun
+
     /** Whether this topic can be made for a child with [chosen] languages. */
     fun fits(chosen: List<Lang>): Boolean = langs == null || chosen.any { it in langs }
 
@@ -335,6 +344,13 @@ object Templates {
                 whyNot = whyNot(choices, answer) { it.thisIs() + it.fact!! }, bridge = word.name,
             )
         },
+
+        // Fun reels: songs and toys for the feed's fun slot (see Feed and Fun.kt). Not puzzles,
+        // so nothing in them is scored.
+        Template(Topic.TAP_TUNE, 2..7, solving = false, langs = Songs.langs, calm = true) { g -> Songs.make(g) },
+        Template(Topic.SILLY_ANIMALS, 2..6, solving = false) { g -> Silly.make(g) },
+        Template(Topic.BUBBLES, 2..7, solving = false, calm = true) { g -> Bubbles.make(g) },
+        Template(Topic.COPY_ME, 2..8, solving = false) { g -> CopyMoves.make(g) },
     ) + Words.byTopic.map { (topic, words) ->
         // Small topics with light weights, so together they are about three reels' worth.
         Template(topic, Words.agesOf(topic), solving = false, weight = 0.4) { g ->

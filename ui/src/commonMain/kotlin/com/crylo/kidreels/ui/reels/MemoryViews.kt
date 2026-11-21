@@ -52,7 +52,9 @@ import com.crylo.kidreels.core.Stage
 import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.MultiText
+import com.crylo.kidreels.ui.common.Motion
 import com.crylo.kidreels.ui.common.T
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.floating
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.shakeOn
@@ -261,7 +263,10 @@ fun PairsView(game: PairsGame, state: ReelState, padding: PaddingValues, onSolve
                     Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
                         for (c in 0 until game.columns) {
                             val i = r * game.columns + c
-                            Card(game.cards[i].emoji, card, faceUp = peeking || i in up || i in matched || state.solved, matched = i in matched) { tapped(i) }
+                            // All found: the cards bow, one after another.
+                            Box(Modifier.moveOn(if (env.calm) 0 else state.celebrate, Motion.SQUASH, delayMillis = i * 60, times = 2, millis = 300)) {
+                                Card(game.cards[i].emoji, card, faceUp = peeking || i in up || i in matched || state.solved, matched = i in matched) { tapped(i) }
+                            }
                         }
                     }
                 }

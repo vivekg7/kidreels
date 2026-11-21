@@ -67,6 +67,8 @@ import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
+import com.crylo.kidreels.ui.common.Motion
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.shakeOn
 import com.crylo.kidreels.ui.common.tap
@@ -161,7 +163,9 @@ fun DragView(game: DragGame, state: ReelState, padding: PaddingValues, onSolved:
                                     .tap { tapTarget(t) }.padding(12.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                T((target.sprite as Sprite.Emoji).text, Modifier.popOn(food.size), size = 60.sp)
+                                // Fed, every animal wags and hops.
+                                val cheer = if (env.calm) 0 else state.celebrate
+                                T((target.sprite as Sprite.Emoji).text, Modifier.popOn(food.size).moveOn(cheer, Motion.WAG, times = 2).moveOn(cheer, Motion.HOP, delayMillis = 760 + t * 120), size = 60.sp)
                                 Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) {
                                     food.forEach { SpriteView(it, 44.dp) }
                                 }

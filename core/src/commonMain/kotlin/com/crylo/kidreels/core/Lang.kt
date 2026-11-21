@@ -94,4 +94,13 @@ enum class Tone {
 
     /** The goodbye reel: low and slow, winding down. */
     CALM,
+
+    /**
+     * A tiny animal's voice, high and quick: the mouse's squeak in a fun reel. Cartoonish on
+     * purpose, so only fun reels use it; learning reels keep to the four above.
+     */
+    TINY,
+
+    /** A big animal's voice, deep and slow: the lion's roar, the cow's "MOOOO". Fun reels only. */
+    GIANT,
 }

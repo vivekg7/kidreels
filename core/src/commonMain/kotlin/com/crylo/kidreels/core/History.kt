@@ -2,13 +2,16 @@ package com.crylo.kidreels.core
 
 /**
  * The last fortnight, day by day: feed time, and per topic the puzzles tried, solved first
- * time, the likes and the puzzles swiped past unsolved. [Progress] keeps running totals,
- * which say how a child did since the age was set but not how this week went; this is
- * what the parent's weekly note reads.
+ * time, the likes, the puzzles swiped past unsolved and the reels played (engaged with:
+ * touched, or stayed on, see [Feed.engaged]). [Progress] keeps running totals, which say
+ * how a child did since the age was set but not how this week went; this is what the
+ * parent's weekly note reads. Fun reels only ever add plays and likes, so they stay out
+ * of the puzzle numbers; each song's plays are kept too, for "their favourite song".
  *
- * Keys are "day.<day>.time" and "day.<day>.<TOPIC>" = "tried,firstTry,likes,skipped", where
- * day is days since 1970-01-01. Days written before skips were kept have three numbers and
- * read as none skipped. Days older than [KEEP_DAYS] are removed once a day.
+ * Keys are "day.<day>.time", "day.<day>.<TOPIC>" = "tried,firstTry,likes,skipped,plays" and
+ * "day.<day>.song.<key>" = plays, where day is days since 1970-01-01. Days written before
+ * skips or plays were kept have fewer numbers and read as none. Days older than
+ * [KEEP_DAYS] are removed once a day.
  */
 class History(private val kv: KeyValueStore, private val clock: Clock) {
     fun addTime(millis: Long) {
@@ -25,19 +28,27 @@ class History(private val kv: KeyValueStore, private val clock: Clock) {
 
     fun like(topic: Topic) = bump(topic, likes = 1)
 
-    private fun bump(topic: Topic, tried: Int = 0, first: Int = 0, likes: Int = 0, skipped: Int = 0) {
+    /** A reel of [topic] the child did something with: learning or fun, once per reel. */
+    fun played(topic: Topic) = bump(topic, plays = 1)
+
+    /** A song played, for the weekly note's favourite. */
+    fun song(key: String) {
+        val k = "day.${today()}.song.$key"
+        kv.put(k, ((kv.get(k)?.toIntOrNull() ?: 0) + 1).toString())
+    }
+
+    /** Whether today has had its minute on the feed: a day played, as the weekly note counts it. */
+    fun playedToday(): Boolean = (kv.get("day.${today()}.time")?.toLongOrNull() ?: 0) >= PLAYED_MILLIS
+
+    private fun bump(topic: Topic, tried: Int = 0, first: Int = 0, likes: Int = 0, skipped: Int = 0, plays: Int = 0) {
         val key = "day.${today()}.${topic.name}"
         val n = counts(kv.get(key))
-        kv.put(key, "${n[TRIED] + tried},${n[FIRST] + first},${n[LIKES] + likes},${n[SKIPPED] + skipped}")
+        kv.put(key, "${n[TRIED] + tried},${n[FIRST] + first},${n[LIKES] + likes},${n[SKIPPED] + skipped},${n[PLAYS] + plays}")
     }
 
     private fun counts(value: String?): List<Int> {
         val n = value?.split(',')?.mapNotNull { it.toIntOrNull() }
-        return when (n?.size) {
-            FIELDS -> n
-            FIELDS - 1 -> n + 0
-            else -> List(FIELDS) { 0 }
-        }
+        return if (n != null && n.size in 3..FIELDS) n + List(FIELDS - n.size) { 0 } else List(FIELDS) { 0 }
     }
 
     /** Today, and once a day, a sweep of the days nobody will ask about again. */
@@ -60,7 +71,13 @@ class History(private val kv: KeyValueStore, private val clock: Clock) {
         var millis = 0L
         var played = 0
         val byTopic = mutableMapOf<Topic, IntArray>()
+        val songs = mutableMapOf<String, Int>()
         for (day in days) {
+            val prefix = "day.$day.song."
+            kv.keys().filter { it.startsWith(prefix) }.forEach { key ->
+                val k = key.removePrefix(prefix)
+                songs[k] = (songs[k] ?: 0) + (kv.get(key)?.toIntOrNull() ?: 0)
+            }
             val time = kv.get("day.$day.time")?.toLongOrNull() ?: 0
             millis += time
             if (time >= PLAYED_MILLIS) played++
@@ -89,6 +106,10 @@ class History(private val kv: KeyValueStore, private val clock: Clock) {
             skips = byTopic.filter { (_, n) -> n[TRIED] >= MIN_TRIES && n[SKIPPED] * 100 >= n[TRIED] * SKIPS_PERCENT }
                 .entries.sortedByDescending { it.value[SKIPPED] }.take(TOP).map { it.key },
             liked = byTopic.filter { it.value[LIKES] > 0 }.entries.sortedByDescending { it.value[LIKES] }.take(TOP).map { it.key },
+            reels = byTopic.values.sumOf { it[PLAYS] },
+            funReels = byTopic.filterKeys { it.isFun }.values.sumOf { it[PLAYS] },
+            // Played more than once: one play is not a favourite.
+            favouriteSong = songs.filterValues { it >= FAVOURITE_PLAYS }.maxByOrNull { it.value }?.key,
         )
     }
 
@@ -106,12 +127,16 @@ class History(private val kv: KeyValueStore, private val clock: Clock) {
         const val SKIPS_PERCENT = 50
         private const val TOP = 3
 
+        /** A song played this often in the week is "their favourite". */
+        const val FAVOURITE_PLAYS = 2
+
         // A day's numbers for one topic, in the order they are stored.
         private const val TRIED = 0
         private const val FIRST = 1
         private const val LIKES = 2
         private const val SKIPPED = 3
-        private const val FIELDS = 4
+        private const val PLAYS = 4
+        private const val FIELDS = 5
     }
 }
 
@@ -131,6 +156,12 @@ data class Week(
     /** Mostly swiped past: too hard to start, or not their thing. */
     val skips: List<Topic>,
     val liked: List<Topic>,
+    /** Reels played (engaged with), learning and fun. Zero for days from before plays were kept. */
+    val reels: Int = 0,
+    /** Of [reels], the fun ones: songs and toys. */
+    val funReels: Int = 0,
+    /** [Song.key] of the song played most, if one was played at least twice. */
+    val favouriteSong: String? = null,
 ) {
     val firstTryPercent: Int get() = if (tried == 0) 0 else firstTry * 100 / tried
 }

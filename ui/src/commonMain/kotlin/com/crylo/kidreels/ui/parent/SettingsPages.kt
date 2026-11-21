@@ -33,6 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.crylo.kidreels.core.Avatar
+import com.crylo.kidreels.core.FunShare
+import com.crylo.kidreels.core.Lang
+import com.crylo.kidreels.core.Songs
+import com.crylo.kidreels.core.Templates
 import com.crylo.kidreels.core.Profile
 import com.crylo.kidreels.core.Profiles
 import com.crylo.kidreels.core.Settings
@@ -185,6 +189,9 @@ private fun ChildPage(app: AppState, child: Child) {
             RowLine()
             NavRow(S.look[ui], S.lookName(s.look)[ui], { open(ChildPart.LOOK) })
             RowLine()
+            val day = app.funDay(child)
+            NavRow(S.funReels[ui], S.funLine(s.funMode, day, FunShare.spanDays(s.funWeeks), FunShare.every(s, day))[ui], { open(ChildPart.FUN) })
+            RowLine()
             Toggle(S.slowSpeech[ui], s.slowSpeech) { app.update(s.copy(slowSpeech = it), child) }
         }
 
@@ -229,6 +236,7 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
         ChildPart.TOPICS -> S.showOnly
         ChildPart.LANGUAGES -> S.languages
         ChildPart.LOOK -> S.look
+        ChildPart.FUN -> S.funReels
     }
     // A new topic is usually wanted now: one tap to it, rather than Back up three pages.
     // Only for the child playing; for another, the pick waits for them. Held below the
@@ -280,6 +288,13 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
                 LanguagePicker(s.langs, ui) { set(s.copy(langs = it)) }
             }
             ChildPart.LOOK -> LookPicker(s.look, ui) { set(s.copy(look = it)) }
+            ChildPart.FUN -> {
+                Body(S.funBody[ui])
+                val funAges = Templates.all.filter { it.isFun }.let { t -> t.minOf { it.ages.first }..t.maxOf { it.ages.last } }
+                if (s.age !in funAges) Body(S.funNoneForAge(s.age, funAges)[ui])
+                if (Lang.EN !in s.langs) Body(S.funSongsEnglish[ui])
+                FunPicker(s, app.funDay(child), ui, set) { app.restartFun(child) }
+            }
         }
     }
 }
@@ -379,6 +394,13 @@ private fun WeekNote(app: AppState, child: Child) {
         if (week.hard.isNotEmpty()) Body(S.findsHard[ui] + " " + names(week.hard))
         if (week.skips.isNotEmpty()) Body(S.oftenSkips[ui] + " " + names(week.skips))
         if (week.liked.isNotEmpty()) Body(S.likesMost[ui] + " " + names(week.liked))
+        // So a parent sees the fun and is not surprised by it, and is pointed at a song to sing together.
+        if (week.reels > 0) {
+            val s = child.settings
+            val day = app.funDay(child)
+            Body(S.weekFun(week.reels, week.funReels)[ui] + " " + S.funNote(s.funMode, day, FunShare.spanDays(s.funWeeks), FunShare.every(s, day))[ui])
+        }
+        week.favouriteSong?.let { Songs.byKey(it) }?.let { Body(S.favouriteSong(it.title)[ui]) }
     }
 }
 

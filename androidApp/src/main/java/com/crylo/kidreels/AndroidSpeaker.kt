@@ -77,13 +77,18 @@ class AndroidSpeaker(context: Context) : Speaker {
     /**
      * Pitch and pace for each tone. The engine has no emotions, so this borrows the way
      * adults talk to toddlers: a little higher and slower than usual, brighter for praise,
-     * softer for a miss. Small steps: much past these, the voice turns cartoonish.
+     * softer for a miss. Small steps: much past these, the voice turns cartoonish, which is
+     * what the two silly voices of the fun reels want, and only they go that far. Engines
+     * clamp pitch differently (Google's goes further than Samsung's), so a silly voice may
+     * sound less silly on some phones; it never sounds wrong.
      */
     private fun sound(tone: Tone): Pair<Float, Float> = when (tone) {
         Tone.TALK -> 1.1f to 1f
         Tone.CHEER -> 1.25f to 1.08f
         Tone.GENTLE -> 1.05f to 0.9f
         Tone.CALM -> 0.95f to 0.85f
+        Tone.TINY -> 2.0f to 1.3f
+        Tone.GIANT -> 0.55f to 0.75f
     }
 
     override fun stop() {

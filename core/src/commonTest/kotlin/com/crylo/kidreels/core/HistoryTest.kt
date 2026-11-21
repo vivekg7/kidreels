@@ -102,4 +102,53 @@ class HistoryTest {
         assertTrue(kv.keys().none { it.startsWith("day.100.") })
         assertTrue(kv.keys().any { it.startsWith("day.107.") })
     }
+
+    @Test
+    fun funReelsArePlaysNotPuzzles() {
+        val clock = DayClock(100)
+        val history = History(MapStore(), clock)
+        history.solve(Topic.COUNTING, first = 4)
+        repeat(4) { history.played(Topic.COUNTING) }
+        repeat(3) { history.played(Topic.TAP_TUNE) }
+        repeat(2) { history.played(Topic.BUBBLES) }
+        history.song("twinkle")
+        history.song("twinkle")
+        history.song("row-your-boat")
+        clock.day = 101
+        history.played(Topic.TAP_TUNE)
+        history.song("row-your-boat")
+        history.song("row-your-boat")
+        val week = history.week()
+        assertEquals(4, week.tried, "fun reels are not puzzles")
+        assertEquals(10, week.reels)
+        assertEquals(6, week.funReels)
+        assertEquals("row-your-boat", week.favouriteSong)
+    }
+
+    @Test
+    fun oneSongPlayedOnceIsNotAFavourite() {
+        val history = History(MapStore(), DayClock(100))
+        history.song("twinkle")
+        assertEquals(null, history.week().favouriteSong)
+    }
+
+    @Test
+    fun daysStoredBeforePlaysWereKeptReadAsNone() {
+        val kv = MapStore()
+        kv.put("day.100.COUNTING", "5,4,1,1")
+        kv.put("day.100.SHAPES", "0,0,2")
+        val week = History(kv, DayClock(100)).week()
+        assertEquals(5, week.tried)
+        assertEquals(0, week.reels)
+        assertEquals(listOf(Topic.SHAPES, Topic.COUNTING), week.liked)
+    }
+
+    @Test
+    fun aMinuteMakesADayPlayed() {
+        val history = History(MapStore(), DayClock(100))
+        history.addTime(59_000)
+        assertEquals(false, history.playedToday())
+        history.addTime(1_000)
+        assertEquals(true, history.playedToday())
+    }
 }

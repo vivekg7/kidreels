@@ -43,6 +43,8 @@ import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.common.MultiText
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
+import com.crylo.kidreels.ui.common.Motion
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.draw.Ink
 import com.crylo.kidreels.ui.draw.Paper
@@ -162,7 +164,9 @@ fun MazeView(game: MazeGame, state: ReelState, padding: PaddingValues, onSolved:
                         },
                         contentAlignment = Alignment.Center,
                     ) {
-                        T(game.runner.emoji, Modifier.popOn(if (state.solved) 1 else 0), size = emoji)
+                        // At the goal, the runner dances.
+                        val cheer = if (env.calm) 0 else state.celebrate
+                        T(game.runner.emoji, Modifier.popOn(if (state.solved) 1 else 0).moveOn(cheer, Motion.HOP, times = 2).moveOn(cheer, Motion.SPIN, delayMillis = 1040), size = emoji)
                     }
                 }
             }

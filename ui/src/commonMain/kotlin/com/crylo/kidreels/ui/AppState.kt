@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.crylo.kidreels.core.CheckIn
 import com.crylo.kidreels.core.Feed
+import com.crylo.kidreels.core.FunDays
+import com.crylo.kidreels.core.TuneReel
+import com.crylo.kidreels.core.isFun
 import com.crylo.kidreels.core.History
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.Outcome
@@ -43,7 +46,7 @@ sealed interface Page {
 }
 
 /** One thing about a child, on a page of its own. [PROFILE] is who they are: name, animal and age. */
-enum class ChildPart { PROFILE, LIMIT, BEDTIME, TOPICS, LANGUAGES, LOOK }
+enum class ChildPart { PROFILE, LIMIT, BEDTIME, TOPICS, LANGUAGES, LOOK, FUN }
 
 /**
  * One child's settings, progress, time and feed. Kept while the app runs, so switching
@@ -56,8 +59,14 @@ class Child(app: AppState, val id: Int) {
     val budget = TimeBudget(store, app.host.clock)
     val history = History(store, app.host.clock)
 
+    /** Which day of play this is, for automatic fun reels. */
+    val funDays = FunDays(store)
+
     var settings by mutableStateOf(settingsStore.load())
     var profile by mutableStateOf(app.profiles.profile(id))
+
+    /** Bumped when the day of play is started again, so the fun reels row reads it afresh. */
+    var funRestarts by mutableIntStateOf(0)
     val feed = FeedModel(app, this)
 }
 
@@ -288,6 +297,22 @@ class AppState(val host: Host) {
         return id
     }
 
+    /** [c]'s day of play today, for automatic fun reels; read afresh after a "start again". */
+    fun funDay(c: Child): Int {
+        c.funRestarts
+        return c.funDays.day(host.clock.today())
+    }
+
+    /**
+     * "Start again" on a child's fun reels page: back to day 1 and 1 in 2. Today stays
+     * counted if it has been played, so it is day 1, and tomorrow day 2.
+     */
+    fun restartFun(c: Child) {
+        c.funDays.restart()
+        if (c.history.playedToday()) c.funDays.played(host.clock.today())
+        c.funRestarts++
+    }
+
     fun removeChild(id: Int) {
         if (profiles.count <= 1) return
         if (child.id == id) select(profiles.ids().first { it != id })
@@ -362,6 +387,12 @@ class ReelState {
     /** Bumped on every right answer, to restart the celebration. */
     var celebrate by mutableIntStateOf(0)
 
+    /** Which of the celebrations this solve gets: they take turns, so none is rarer than another. */
+    var burst by mutableIntStateOf(0)
+
+    /** The child did something with this reel (touched it, or stayed on it): see [Feed.engaged]. */
+    var engaged = false
+
     /** Marks the first solve. Returns false when an earlier round already counted. */
     fun count(): Boolean {
         if (counted) return false
@@ -383,7 +414,10 @@ class ReelState {
 }
 
 class FeedModel(private val app: AppState, private val child: Child) {
-    private val engine = Feed({ child.settings }, child.progress)
+    private val engine = Feed({ child.settings }, child.progress, funDay = { child.funDays.day(app.host.clock.today()) })
+
+    /** Celebrations take turns across the session. */
+    private var bursts = 0
     private val states = mutableStateMapOf<Long, ReelState>()
 
     val reels = mutableStateListOf<Reel>()
@@ -448,8 +482,47 @@ class FeedModel(private val app: AppState, private val child: Child) {
     fun remake() {
         if (reels.isEmpty()) return
         val at = current.coerceAtMost(reels.lastIndex)
-        reels.removeRange(at, reels.size)
+        dropFrom(at)
         fill(at)
+    }
+
+    /** Takes out the reels from [index] on, unseen: a fun reel waiting among them is no longer waiting. */
+    private fun dropFrom(index: Int) {
+        if (index >= reels.size) return
+        engine.dropped(reels.subList(index, reels.size).toList())
+        reels.removeRange(index, reels.size)
+    }
+
+    /** The reel at [page] came on screen. */
+    fun onScreen(page: Int) {
+        reels.getOrNull(page)?.let { engine.shown(it) }
+    }
+
+    /**
+     * The child did something with [reel]: a tap on it, or five seconds on screen (an
+     * explore card can be just listened to). Only these reels move the fun slot on, and
+     * they are what the weekly note counts as reels played. A reel finished well (an
+     * explore reel taken in here, a puzzle on its first-try solve) may bring the next fun
+     * reel straight after it.
+     */
+    fun engaged(reel: Reel) {
+        val s = state(reel)
+        if (s.engaged || reel is TimeUp) return
+        s.engaged = true
+        engine.engaged(reel)
+        child.history.played(reel.topic)
+        if (reel is TuneReel) child.history.song(reel.song.key)
+        if (!reel.needsSolving) finishedWell(reel)
+    }
+
+    /**
+     * Puts a due fun reel straight after [reel], the one on screen: the reels already made
+     * ahead were decided before the child got here. The page below is not visible yet, so
+     * nothing moves under the child's finger.
+     */
+    private fun finishedWell(reel: Reel) {
+        if (timeUp || reels.getOrNull(current)?.id != reel.id) return
+        engine.funAfter(reel)?.let { reels.add(current + 1, it) }
     }
 
     /** Called when the child moves off [reel]. */
@@ -468,11 +541,16 @@ class FeedModel(private val app: AppState, private val child: Child) {
         val s = state(reel)
         if (s.solved) return
         s.solved = true
+        s.burst = bursts++
         s.celebrate++
+        // A fun reel played to its end is cheered, never scored.
+        if (reel.isFun) return
         if (!s.count()) return
         val outcome = if (s.wrongTries == 0) Outcome.SOLVED_FIRST_TRY else Outcome.SOLVED
+        engaged(reel)
         engine.record(reel, outcome)
         child.history.record(reel.topic, outcome)
+        if (outcome == Outcome.SOLVED_FIRST_TRY) finishedWell(reel)
     }
 
     /** The reel on screen from the start, keeping that it was solved. */
@@ -494,6 +572,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
         if (timeUp) return false
         child.budget.add(millis)
         child.history.addTime(millis)
+        if (child.history.playedToday()) child.funDays.played(app.host.clock.today())
         refreshBudget()
         if (timeUp) {
             goodbyeAfter(current)
@@ -504,7 +583,7 @@ class FeedModel(private val app: AppState, private val child: Child) {
 
     /** The child finishes the reel they are on; the goodbye reel is the next one. */
     private fun goodbyeAfter(current: Int) {
-        if (reels.size > current + 1) reels.removeRange(current + 1, reels.size)
+        dropFrom(current + 1)
         reels += engine.timeUp(bedtime)
     }
 

@@ -1,6 +1,8 @@
 package com.crylo.kidreels.ui.parent
 
 import com.crylo.kidreels.core.Channel
+import com.crylo.kidreels.core.FunMode
+import com.crylo.kidreels.core.FunShare
 import com.crylo.kidreels.core.Templates
 import com.crylo.kidreels.core.Topic
 
@@ -272,6 +274,50 @@ fun LimitPicker(minutes: Int, ui: Lang, onChange: (Int) -> Unit) {
             )
             Body(S.limitUpTo[ui])
         }
+    }
+}
+
+/**
+ * How many fun reels: automatic over a span of weeks of play, a fixed share, or off; then
+ * the jumping-games switch. Picking Fixed starts from the share automatic is at now, so
+ * nothing jumps.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun FunPicker(s: Settings, day: Int, ui: Lang, onChange: (Settings) -> Unit, onRestart: () -> Unit) {
+    val c = LocalParent.current
+    val now = FunShare.every(s, day)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Pill(S.funAuto[ui], s.funMode == FunMode.AUTO, { onChange(s.copy(funMode = FunMode.AUTO)) })
+            Pill(S.funFixed[ui], s.funMode == FunMode.FIXED, {
+                if (s.funMode != FunMode.FIXED) onChange(s.copy(funMode = FunMode.FIXED, funEvery = now ?: s.funEvery))
+            })
+            Pill(S.off[ui], s.funMode == FunMode.OFF, { onChange(s.copy(funMode = FunMode.OFF)) })
+        }
+        when (s.funMode) {
+            FunMode.AUTO -> {
+                val span = FunShare.spanDays(s.funWeeks)
+                Rows { T(S.funProgress(day, span, now ?: FunShare.SETTLED)[ui].replaceFirstChar { it.uppercase() }, Modifier.padding(16.dp), color = c.accent, size = 18.sp, weight = FontWeight.Bold) }
+                Body(S.funAutoBody[ui])
+                SectionTitle(S.funOver[ui])
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FunShare.WEEKS.forEach { w -> Pill(S.weeksOfPlay(w)[ui], w == s.funWeeks, { onChange(s.copy(funWeeks = w)) }) }
+                }
+                SecondaryButton(S.funStartAgain[ui], onRestart, Modifier.fillMaxWidth())
+                Body(S.funStartAgainBody[ui])
+            }
+            FunMode.FIXED -> {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FunShare.EVERY.forEach { n -> Pill(S.oneIn(n)[ui], n == s.funEvery, { onChange(s.copy(funEvery = n)) }) }
+                }
+                Body(S.funFixedBody[ui])
+            }
+            FunMode.OFF -> Body(S.funOffBody[ui])
+        }
+        SectionTitle(S.jumpingTitle[ui])
+        Rows { Toggle(S.jumpingTitle[ui], s.jumping) { onChange(s.copy(jumping = it)) } }
+        Body(S.jumpingBody[ui])
     }
 }
 

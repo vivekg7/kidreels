@@ -21,7 +21,9 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
 - **Puzzles** to answer by tapping: how many, add, take away, multiply, even or odd, which is prime, which is
   more, what comes next, odd one out, what time is it, which colour, which shape, who
   says "moo", where does the fish live, big and small, first letter, one-cell sudoku.
-  A right answer gets a chime, confetti and a spoken "well done". A wrong one gets a
+  A right answer gets a chime, a spoken "well done" and a celebration: the puzzle's own
+  pictures jump and spin, with one of eight bursts (confetti, fireworks, balloons…) and
+  a fanfare, taken in turn so none is rarer than another. A wrong one gets a
   gentle shake and a reason, never "wrong": "That is green, not blue. Find blue and tap
   it!", or a hint where working it out is the puzzle ("4 is too few: there are more
   apples than that").
@@ -70,6 +72,14 @@ No ads, no tracking, no account, no internet permission. Free and open source (M
   fish", "This is the colour red"); tapping a number in a row reads it out.
 - Numbers under 20 come with matchsticks (तीलियाँ) under them, in fives, with tied
   bundles of ten, the way Indian classrooms count. Multiplication shows a dot array.
+- **Fun reels**, songs and toys between the learning ones, so the switch from Shorts does
+  not feel like homework: **Tap the tune** (every tap plays the next note of Twinkle
+  Twinkle, Baa Baa Black Sheep, Row Row Row Your Boat or Old MacDonald, on a music box
+  synthesised on the phone, with the words lighting up), **silly animals** (tap the cow's
+  nose and it sneezes, in a booming voice), **bubble pop** (counting, colours, 1 to 10 in
+  order) and **Copy me** ("Touch your nose! Clap three times!", and Simon says from 5).
+  Lots at first, fewer once the child has settled in; never more for a child who skips,
+  only calm ones before the end, and none of them scored.
 - Swiping past a puzzle without trying shows a short sad face, and the puzzle comes back
   a few reels later, a little easier.
 - Every line is shown in up to three languages: the main one large, the others smaller
@@ -114,10 +124,16 @@ choice below, and each row opens that choice:
   Custom. From then until 6 in the morning a good-night reel takes the feed's place,
   however many minutes are left, with the same wind-down before it and the same 10 more
   minutes for a grown-up.
+- **Fun reels**: Automatic (the default) eases a new child in, from 1 in 2 reels down to
+  1 in 6 over 2 to 8 weeks of play (3 by default), and says where it has got to ("day 9
+  of 21, now 1 in 3"), with a button to start again; or a fixed 1 in 2 to 1 in 6; or off.
+  A **Jumping games** switch (off by default) adds standing moves to Copy me; otherwise
+  every move can be done sitting at the table.
 - **Show only**: one topic for now, picked from topics folded by channel, such as just
-  the alphabet or just vehicles. It goes in order (the alphabet from A, counting from 1,
-  shapes from the simplest) and puzzles get harder as they are solved. A chip on the feed says which topic is on. It is not saved:
-  the next start of the app is the usual mix again.
+  the alphabet, just vehicles or just songs. It goes in order (the alphabet from A,
+  counting from 1, shapes from the simplest) and puzzles get harder as they are solved. A
+  chip on the feed says which topic is on. It is not saved: the next start of the app is
+  the usual mix again.
 - **Age check-in**: every 1, 3 or 6 months (or never), a "For grown-ups" banner asks
   whether the child is ready for the next age, with how they did at this one.
 - **Speech**: slow speech for each child, and on the first page which voices the phone
@@ -127,7 +143,9 @@ choice below, and each row opens that choice:
   it never sends it.
 - **Progress**: the last 7 days in a few lines: minutes and days played, puzzles, how
   many were right first time and how many were swiped past, and which topics the child
-  does well at, finds hard (worth trying one together), often swipes past and likes most.
+  does well at, finds hard (worth trying one together), often swipes past and likes most;
+  how many reels were played and how many of them were fun, and their favourite song,
+  to sing together.
 
 ## Project layout
 
@@ -158,8 +176,9 @@ and both settings and a banner on the feed (for grown-ups, behind the gate) offe
 install it. The voice is slower and a little higher
 than the engine's default, says what is on the screen and what to do ("How many
 butterflies are there on the phone? Count them and tell me!"), and sounds brighter for
-praise and softer for "try again". Sound effects are synthesised on the device at
-start-up.
+praise and softer for "try again"; the fun reels' animals get two silly voices, tiny
+and booming. Sound effects and the music box the songs are played on are synthesised on
+the device at start-up.
 
 ## Build
 

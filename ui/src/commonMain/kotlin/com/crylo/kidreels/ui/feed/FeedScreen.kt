@@ -32,6 +32,10 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +45,12 @@ import com.crylo.kidreels.core.Tone
 import com.crylo.kidreels.core.TimeBudget
 import com.crylo.kidreels.core.TimeUp
 import com.crylo.kidreels.core.intro
+import com.crylo.kidreels.core.isFun
 import com.crylo.kidreels.ui.AppState
 import com.crylo.kidreels.ui.S
 import com.crylo.kidreels.ui.Screen
 import com.crylo.kidreels.ui.common.AvatarBadge
-import com.crylo.kidreels.ui.common.Confetti
+import com.crylo.kidreels.ui.common.Celebration
 import com.crylo.kidreels.ui.common.DrawnIcon
 import com.crylo.kidreels.ui.common.Icon
 import com.crylo.kidreels.ui.common.SadBubble
@@ -96,6 +101,7 @@ fun FeedScreen(app: AppState) {
             previous = page
             model.current = page
             model.fill(page)
+            model.onScreen(page)
             val reel = model.reels.getOrNull(page) ?: return@collectLatest
             delay(300)
             snapshotFlow { onScreenNow }.first { it }
@@ -106,6 +112,18 @@ fun FeedScreen(app: AppState) {
     }
     LaunchedEffect(pager) {
         snapshotFlow { pager.isScrollInProgress }.collectLatest { if (it) speaker.stop() }
+    }
+    // Five seconds on a reel counts as doing something with it, as a tap does: an explore
+    // card can be just listened to. A reel flicked past sooner does not count, so swiping
+    // fast does not bring the next fun reel nearer. Not mid-swipe, as a fun reel may be put
+    // in below.
+    LaunchedEffect(pager.settledPage, onScreen) {
+        if (!onScreen) return@LaunchedEffect
+        val page = pager.settledPage
+        val reel = model.reels.getOrNull(page) ?: return@LaunchedEffect
+        delay(ENGAGED_MILLIS)
+        snapshotFlow { pager.isScrollInProgress }.first { !it }
+        if (pager.settledPage == page) model.engaged(reel)
     }
 
     // Only time with the feed on screen counts toward the limit.
@@ -155,17 +173,18 @@ fun FeedScreen(app: AppState) {
                 val state = model.state(reel)
                 val env = ReelEnv(
                     settings.langs, active = onScreen && page == pager.settledPage, speak = speaker::speak, play = host::play,
-                    grownUps = app.uiLang,
+                    grownUps = app.uiLang, calm = windingDown, note = host::playNote,
                 )
                 CompositionLocalProvider(LocalReelEnv provides env) {
-                    Box(Modifier.fillMaxSize()) {
+                    Box(Modifier.fillMaxSize().onTap(model, reel) { model.engaged(reel) }) {
                         ReelFrame(
                             settings.look,
                             FrameInfo(reel, page, state.liked, state.hearts, settings.langs, timeFraction),
                             onLike = { model.like(reel) },
                             onAgain = { env.say(reel.intro(settings.langs)) },
                             // The question again too: a memory game's timing waits for it.
-                            onRestart = if (reel.needsSolving) {
+                            // Fun reels too: start over plays the song again.
+                            onRestart = if (reel.needsSolving || reel.isFun) {
                                 {
                                     model.restart(reel)
                                     env.say(reel.intro(settings.langs))
@@ -195,7 +214,7 @@ fun FeedScreen(app: AppState) {
                                 )
                             }
                         }
-                        Confetti(state.celebrate)
+                        Celebration(state.celebrate, state.burst, calm = windingDown, note = env::note)
                     }
                 }
             }
@@ -265,6 +284,26 @@ private fun Chip(text: String, dark: Boolean) {
  * child has got it, and a hint on every reel would just be noise.
  */
 private const val HINTED_REELS = 4
+
+/** On screen this long and a reel counts as engaged with, touched or not. */
+private const val ENGAGED_MILLIS = 5_000L
+
+/**
+ * Sees every tap on a reel, whatever inside it takes the tap, without taking it: a touch
+ * that lifts where it went down. A swipe moves, so it is not one.
+ */
+private fun Modifier.onTap(vararg keys: Any?, onTap: () -> Unit): Modifier = pointerInput(*keys) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+        var moved = false
+        while (true) {
+            val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+            if ((change.position - down.position).getDistance() > viewConfiguration.touchSlop) moved = true
+            if (!change.pressed) break
+        }
+        if (!moved) onTap()
+    }
+}
 
 @Composable
 private fun SwipeHintFor(page: Int, done: Boolean, main: com.crylo.kidreels.core.Lang) {

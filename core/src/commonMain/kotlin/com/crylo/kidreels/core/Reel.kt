@@ -1,7 +1,11 @@
 package com.crylo.kidreels.core
 
-/** The "channel" a reel appears to come from in the familiar-looking skins. */
-enum class Channel(val handle: Txt, val emoji: String) {
+/**
+ * The "channel" a reel appears to come from in the familiar-looking skins. [isFun] marks
+ * the two channels of fun reels, songs and toys: the feed gives them a slot of their own
+ * (see [Feed]) and keeps them out of every learning number.
+ */
+enum class Channel(val handle: Txt, val emoji: String, val isFun: Boolean = false) {
     MATHS(txt("Maths", "गणित"), "🔢"),
     LETTERS(txt("Letters", "अक्षर"), "🔤"),
     SHAPES(txt("Shapes", "आकार"), "🔷"),
@@ -11,6 +15,8 @@ enum class Channel(val handle: Txt, val emoji: String) {
     MEMORY(txt("Memory", "याददाश्त"), "💭"),
     WORDS(txt("Words", "शब्द"), "📝"),
     SCIENCE(txt("Science", "विज्ञान"), "🔬"),
+    SONGS(txt("Songs", "गाने"), "🎵", isFun = true),
+    PLAY(txt("Play", "मस्ती"), "🎈", isFun = true),
 }
 
 enum class Topic(val channel: Channel, val title: Txt) {
@@ -89,8 +95,18 @@ enum class Topic(val channel: Channel, val title: Txt) {
     STATES(Channel.SCIENCE, txt("Solid, liquid, gas", "ठोस, द्रव, गैस")),
     ALIVE(Channel.SCIENCE, txt("Living or not", "सजीव या निर्जीव")),
     PLANETS(Channel.SCIENCE, txt("The solar system", "सौर मंडल")),
+    TAP_TUNE(Channel.SONGS, txt("Tap the tune", "धुन बजाओ")),
+    SILLY_ANIMALS(Channel.PLAY, txt("Silly animals", "मज़ेदार जानवर")),
+    BUBBLES(Channel.PLAY, txt("Bubble pop", "बुलबुले फोड़ो")),
+    COPY_ME(Channel.PLAY, txt("Copy me", "मेरी नकल करो")),
     BREAK(Channel.WORLD, txt("Break time", "आराम का समय")),
 }
+
+/** A song or a toy rather than something to learn: see [Channel.isFun]. */
+val Topic.isFun: Boolean get() = channel.isFun
+
+/** Fun reels are outside the learning numbers: no skill, no retries, no sad face, not in the weekly puzzles. */
+val Reel.isFun: Boolean get() = topic.isFun
 
 /**
  * One screen of the feed. Reels are plain data made by the generators in `gen/`; the UI
@@ -459,8 +475,16 @@ fun Reel.intro(langs: List<Lang>): List<Say> {
             planet.order?.let { named(Science.planetOrder(planet), name, planet.fact) }
                 ?: (listOf(line(planet.fact)) + bridge(name))
         }
+        // Fun reels. The silly animal is named and bridged like a picture card, then says
+        // hello in its silly voice: "This is a cow!" · "cow means" … "गाय" · "Moooooo!".
+        is SillyAnimalReel -> listOf(line(animal.word.thisIs())) + bridge(animal.word.name) +
+            line(Silly.tapParts) + Say(animal.sound[lang], lang, animal.voice)
+        is BubblePop -> listOf(line(Bubbles.say(this)))
+        // The song's name, what to do, then its first line, so the child hears the words before playing them.
+        is TuneReel -> listOf(line(song.title), line(Songs.tapAnywhere), Say(song.lines.first().words, lang))
+        is CopyMe -> listOf(line(if (simon) CopyMoves.simonIntro else CopyMoves.intro))
         // Named, bridged, then named again with the child, as on the alphabet card.
-        is WordCard -> listOf(line(word.thisIs())) + bridge(word.name) + listOfNotNull(
+        is WordCard ->listOf(line(word.thisIs())) + bridge(word.name) + listOfNotNull(
             line(Phrases.sayWithMe), Say(word.title[lang], lang, pauseMillis = Letter.PART_PAUSE),
             word.fact?.takeIf { showFact }?.let { line(it) },
         )

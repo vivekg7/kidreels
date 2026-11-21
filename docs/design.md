@@ -21,9 +21,15 @@ apps hard to put down:
   6 am rather than later, so a child up at dawn is not told good night.
 - **No streaks, badges, points or "just one more".** A right answer is celebrated on the
   spot and then it is over. Nothing accumulates that a child would be afraid to lose.
-- **Nothing to watch passively.** Every reel needs a tap, a drag or a count.
+- **Nothing to watch passively.** Every reel needs a tap, a drag or a count. Fun reels
+  bend this only as far as [Fun reels](#fun-reels) says: a payoff the child's own tap
+  starts, and Copy me, where looking away from the screen to copy is the point.
 - **No feeling of failure.** Wrong answers shake and fade; the word "wrong" never
   appears. Skipping a puzzle shows a short sad face, not a penalty.
+- **Some fun, on purpose.** Children used to Shorts found a feed of nothing but questions
+  felt like homework, and a child who refuses the app goes back to Shorts. So there are
+  songs and toys between the learning reels, more in the first weeks and fewer once a
+  child has settled in, with the parent setting how many: see [Fun reels](#fun-reels).
 - **Any puzzle can start over.** A puzzle reel has a start-over button beside the
   speaker, for a child who wants to play a game they liked again or who is stuck
   halfway. It brings back the same puzzle, says the question again (a memory game's
@@ -308,6 +314,93 @@ A channel of its own (`core/Science.kt`, `ui/reels/ScienceViews.kt`).
   balls, Saturn with its rings, each with its place ("the 4th planet from the Sun") and
   one fact.
 
+### Fun reels
+
+Two channels of their own, **Songs / गाने** 🎵 and **Play / मस्ती** 🎈 (`Channel.isFun`),
+with songs and toys rather than something to learn (`core/FunReels.kt`, `core/Songs.kt`,
+`ui/reels/FunViews.kt`). The plan they came from, with what was left for later, is
+[plan-entertainment.md](plan-entertainment.md). The line they keep to: Shorts hold a
+child with endless novelty, nothing that ends and rewards that come at random, so a fun
+reel is something **the child makes happen**, that **ends by itself** or never escalates,
+where **the same songs and toys come back** and **nothing is kept**.
+
+| Reel          | Ages | What the child does                                                                        |
+| ------------- | ---- | ------------------------------------------------------------------------------------------ |
+| Tap the tune  | 2–7  | Every tap anywhere plays the next note of a rhyme; the word for it lights up               |
+| Silly animals | 2–6  | Tap the nose and it sneezes, the tummy and it giggles, the feet and it hops, the ears flap |
+| Bubble pop    | 2–7  | Pop bubbles, counting; from 4 only the red ones, 1 to 10 in order, or a word's letters     |
+| Copy me       | 2–8  | Copy the drawn child: touch your nose, clap three times; from 5 sometimes Simon says       |
+
+- **Not puzzles.** Every fun reel has `needsSolving` false: no skill score, no retry, no
+  sad face when swiped past, not in the age check-in or the weekly puzzle numbers. A
+  wrong bubble wobbles and the voice says what to look for; nothing is "wrong". One that
+  ends by itself (a song played through, the last bubble, the last move) "solves" only
+  to be cheered.
+- **Tap the tune** plays our own synth, never a recording: a recording of a public-domain
+  song is still someone's copyright. Four rhymes whose words and tune are both out of
+  copyright: Twinkle Twinkle, Baa Baa Black Sheep (the same tune), Row Row Row Your Boat
+  and Old MacDonald, one verse with a farm animal picked each time. A song is data: a
+  note and a syllable per tap, a picture per line, that hops and spins at the end of its
+  line. The voice says each line before it is played, so the child hears the words. Tap
+  fast and the song goes fast; stop and it waits. It ends with the song, and start over
+  plays it again. English only for now, so a child without English gets no songs; Hindi
+  needs care, as many rhymes children know are film songs still in copyright.
+- **The music box is the main new sound.** Fifteen notes, C major from the G below middle
+  C to the G two octaves up, 400 ms each, synthesised once at start-up (about 260 KB of
+  memory) in `androidApp/…/Sounds.kt` and played by `Host.playNote`. Songs, the bubbles'
+  rising scale and the celebrations' fanfares all play on it, and every song is written
+  in those notes (a test checks). Drum, clap, boing and sneeze are synthesised too: a
+  sine falling in pitch, bursts of noise, a sliding pitch.
+- **Silly animals are emoji on a drawn body.** A face emoji (🐮, 🦁, 🐷, 🐭, 🐱, 🐶) is
+  drawn front-on by every font, so its ears and nose are where the tap zones expect them;
+  a full-body emoji faces left in one font and right in another. The body under it is an
+  oval drawn in the animal's colour with a lighter tummy and two feet, so there is a
+  tummy to tickle and feet to hop on. Each speaks in a silly voice, `Tone.TINY` for the
+  small ones and `Tone.GIANT` for the big. From 4 a tap names the part ("That's the
+  cow's nose!" / "यह गाय की नाक है!"), and the animal is named and bridged like a picture
+  card ("This is a cow!" · "cow means" … "गाय"). It never escalates: the hundredth sneeze
+  is as funny as the first.
+- **Bubbles have a fixed count**, 5 at 2, 7 at 3, 10 at 4 and 20 from 5, as count-along
+  climbs, and then no new ones come: bubble popping is a classic time-waster. Each pop
+  says the count and plays the next note up the scale, so popping makes a tune. The
+  in-order games (numbers, a short English word's letters) hold their bubbles in place,
+  bobbing, so the next one can be found; the others float up and come round again until
+  popped.
+- **Copy me waits for nothing once Go is tapped**: the point is to look away and copy,
+  so the moves go on by the clock, timed to roughly how long each line takes to say (the
+  engine does not report when it is done). The part is ringed on the drawn child from the
+  body reels, which bounces, wobbles or hops with the move, and claps and pats are
+  counted to a drum. **Sitting moves only**, unless a parent turns on Jumping games: the
+  app is often used at meals, and a child told to jump at the table is a spilt plate.
+  With it on, two standing moves come last and the game ends "Now sit down again!". In
+  Simon says, one or two moves (never the first) come without "Simon says", the drawn
+  child stays still, and the voice says "Gotcha!". Swiped away and back, it waits for
+  Go again: a game half seen is no game.
+- **The voice may be cartoonish here, and only here.** `Tone.TINY` and `Tone.GIANT` push
+  pitch and pace past the four learning tones, which stay as they are. Engines clamp
+  pitch differently, so a silly voice is less silly on some phones; it never sounds wrong.
+- **The mascot is not in yet.** The plan's baby elephant (Gappu / गप्पू) is being drawn;
+  until then the silly animals and the drawn child do its jobs, and nothing in the fun
+  reels assumes a character, so it can be swapped in.
+
+#### Bigger celebrations
+
+A right answer used to end the same way every time: confetti from the middle and a
+chime. Now **the things in the puzzle celebrate**: the counted apples jump one after
+another and spin, a quiz's picture hops, the right answer card bounces, the fed animals
+wag, the maze runner dances on the goal, the found pairs bow (`Modifier.moveOn` in
+`ui/common/Motion.kt`: hop, squash and stretch, wobble, spin, shake, wag). Around that,
+one of eight bursts (confetti, fireworks, balloons, a rainbow, stars, bubbles, streamers,
+sparkles), each about 1.5 seconds with a short fanfare of its own after the chime.
+
+- **Taken in turn, not at random**, and all the same size. A celebration that is
+  sometimes bigger for no reason is a slot machine.
+- **In the wind-down, the plain chime and confetti**, and no puzzle picture moves: the
+  last minutes get no new excitement.
+- **Never in the way.** A burst takes no taps, so the next swipe is never held up, and no
+  sparkle flashes more than once, well under three flashes a second.
+- Celebrations belong to every puzzle, so they stay when fun reels are turned off.
+
 ### Adding a reel type
 
 1. Add a `Topic` (and, if it needs new data, a list in `World.kt`).
@@ -318,6 +411,9 @@ A channel of its own (`core/Science.kt`, `ui/reels/ScienceViews.kt`).
 3. A new explore reel needs a `Reel` class and a view in `ui/reels/`, plus a branch in
    `ReelView`.
 4. `TemplatesTest` picks it up automatically; add a check that the answer is right.
+5. A fun reel is a topic in a fun channel (Songs or Play): the feed then gives it the fun
+   slot and keeps it out of the learning mix and numbers by itself. Mark it `calm` if it
+   suits the wind-down, and make it end by itself.
 
 ### Adding a language
 
@@ -351,10 +447,46 @@ A channel of its own (`core/Science.kt`, `ui/reels/ScienceViews.kt`).
    resets it.
 6. **Likes.** A liked topic comes up a little more often, up to 1.5×.
 7. **Wind-down.** In the last two minutes before the limit or bedtime: difficulty 1, mostly explore.
+8. **The fun slot.** One reel in N is a fun reel, N from the child's setting (below);
+   fun reels never come from the mix itself.
 
 Reels are generated two ahead of the one on screen, so a swipe never waits. The "after a
 hard one, an easy one" rule uses the _difficulty_ of the previous reel, which is known
 when it is made; outcomes (skips, struggles) affect the reels after that.
+
+### The fun slot
+
+How many fun reels a child gets follows the days they have played and the parent's
+setting, **never how much they skip or how long they stay**: a feed that adds fun when a
+child gets bored is how an engagement-optimised app works.
+
+- **A fixed gap, not a random one.** With 1 in 3, two learning reels then a fun one,
+  every time. A fun reel that might come at any moment is a reason to keep swiping; one
+  that comes along steadily is not.
+- **Only reels the child did something with move the count**: touched (a tap anywhere on
+  the reel, a swipe is not one), or on screen for 5 seconds, since an explore card can be
+  just listened to (`Feed.engaged`). A puzzle flicked past does not, so swiping fast does
+  not bring the next fun reel sooner, and the Shorts habit of hunting for the good one
+  does not pay.
+- **Straight after a reel finished well, and only then** (`Feed.funAfter`): an explore
+  reel engaged with, a puzzle right first time. The feed makes reels two ahead, decided
+  before the child got there, so a fun reel made then could land after a skip and teach
+  skipping, and counting only what had already happened would make 1 in 2 come out as 1
+  in 4. So the fun reel is made at that moment and put next, on the page below the one on
+  screen, which is not visible yet. No reel is thrown away for it (that would skip a
+  letter of the alphabet): the reels made ahead just come one later. A struggle's
+  breather is still made, one reel later.
+- **The first reel of a session is fun while easing in**, since the first seconds decide
+  whether a child stays.
+- **Never two in a row**, and the four-reel wait before a topic comes back applies to fun
+  topics too, so the same toy does not come round every few minutes.
+- **Likes raise a fun topic within the fun slots**, by the same up to 1.5×, and never the
+  number of fun reels, or a child hearting every song would turn the feed into songs.
+- **Wind-down: only calm fun**, a gentle song or slow bubbles, never a silly animal or
+  Copy me. An age with no fun reel that fits (9 and over for now; 8 in the wind-down)
+  just gets its usual reels.
+- **The end of the day does not move.** Fun reels use the same minutes, stop at bedtime,
+  and the goodbye reel comes as before.
 
 ### A topic picked by the parent
 
@@ -373,6 +505,8 @@ none of the rules above apply:
   first time in a row (`Feed.FOCUS_STEP`), one step down after a skip. No retries: they
   would break the order.
 - **One topic, not several**: "in order" means nothing across two topics.
+- **Fun topics can be picked too**, under their channels: a parent who wants just songs
+  while a child eats can have them, Twinkle first. There is no fun slot then.
 - **Gone on the next start.** It lives in memory only. A parent who forgets it is on would
   otherwise leave a child on one topic for days. Android may also end the app in the
   background, which then counts as a new start; for a session-long choice that is fine.
@@ -417,10 +551,12 @@ before: age, languages, look, limit, check-in, slow speech, progress, today's ti
   bed by the goodbye reel could carry on as their brother. A tile with time up shows a
   moon. A grown-up opening the picker from the feed (the avatar beside the gear, behind
   the gate) can pick anyone.
-- **Each child has a settings page.** Settings opens on the list of children; tapping one
-  opens their page, whether or not they are the one playing. A new child copies the
-  current child's languages, look and limit (siblings usually share them), and saving
-  goes straight to their page. Switching who plays stays with the avatar on the feed.
+- **Each child has a settings page.** Settings opens on the list of children; tapping
+  one opens their page, whether or not they are the one playing. A new child copies the
+  current child's languages, look, limit and fun reels setting (siblings usually share
+  them), and saving goes straight to their page. Automatic fun starts again from day 1 for
+  them: easing in is about that child's first days. Switching who plays stays with the
+  avatar on the feed.
 - **Each child's feed is kept while the app runs**, so switching back finds the reel
   they left, mid-puzzle, with their "Show only" topic still on. Voices are the phone's,
   not a child's.
@@ -453,20 +589,22 @@ Tapping any line speaks it in that line's own language.
   as "means"; the textbook "सेब को अंग्रेज़ी में … कहते हैं" switches voice twice in one
   phrase and sounds chopped. Neither frame names the language, so a third language
   only adds its own frame.
-- **What is bridged**: the alphabet, number, picture, body and plant, shape, solid, curve
-  and planet cards and "words in a sentence"; a right answer that names one thing (a
+- **What is bridged**: the alphabet, number, picture, body and plant, shape, solid,
+  curve and planet cards and "words in a sentence"; a right answer that names one thing (a
   colour, the animal that made the sound, the animal's home, a shape, the first letter's
   word, a part found on the body or plant, the opposite, the kind-of-word word, solid,
-  liquid or gas, "alive"); and a tapped picture ("This is an elephant!" · "elephant
-  means" … "हाथी"). The word is the one the child's age hears: तिकोना at 4, त्रिभुज
-  at 7.
+  liquid or gas, "alive"); a tapped picture ("This is an elephant!" · "elephant means" …
+  "हाथी"); and the silly animal, when it is introduced. The word is the one the child's
+  age hears: तिकोना at 4, त्रिभुज at 7.
 - **What is not**: a reel about one language's grammar (plurals, male and female,
   rhymes, मात्राएँ: they do not translate), counting, sums and number puzzles (the word is
-  a numeral the voice already reads), figure reasoning, memory games, mazes, processes
-  and the other puzzles whose answer is a reason rather than a name (float or sink,
-  magnets, odd one out, sizes). Nor the first-letter quiz's picture before it is
-  answered: "ball means गेंद" before "Ball starts with which letter?" sends the child to
-  ग. Angles are named as the arm moves, too often to bridge each time.
+  a numeral the voice already reads), figure reasoning, memory games, mazes, processes and
+  the other puzzles whose answer is a reason rather than a name (float or sink, magnets,
+  odd one out, sizes). Nor a song: it is in one language and sung in it, as an alphabet is
+  spoken in its own, so Twinkle is English for a Hindi-first child too. Nor the
+  first-letter quiz's picture before it is answered: "ball means गेंद" before "Ball starts
+  with which letter?" sends the child to ग. Angles are named as the arm moves, too often
+  to bridge each time.
 - **Nor a word that is the same in both.** A `Txt.same`, a missing translation, or a
   borrowed word: "Bus means बस" and "कंप्यूटर यानी computer" teach nothing, and a quarter of
   the picture cards' words are borrowed. `Bridge.borrowed` tells them by sound rather than a
@@ -523,6 +661,15 @@ unlucky puzzle is not a verdict. The running totals in `Progress` cannot say how
 week went, so `History` keeps the last 14 days separately, one key per day and topic, and
 sweeps older days once a day. "Finds hard" says "try one together" because the point is
 a parent sitting with the child, not a score.
+
+The note also counts the reels played (engaged with, as the fun slot counts them) and how
+many of them were fun, with where the fun setting has got to: "112 reels, 31 of them fun
+(songs and toys). Automatic: day 9 of 21, now 1 in 3." A parent should see the fun and not
+be surprised by it. A song played at least twice in the week is named, "Their favourite
+song this week: Twinkle Twinkle Little Star. Sing it with them!": singing with a child is
+worth more than any reel, and it is the "try one together" idea again. Fun reels only add
+plays and likes to `History` (a fifth number per day and topic, and a count per song), so
+they stay out of the puzzle numbers; days stored before plays were kept read as none.
 
 **A skip is not a wrong answer.** A skip counts as tried and not right first time, so
 without its number a child who mostly scrolls on reads like one who gets everything
@@ -590,8 +737,10 @@ the feed, and picking another child once the last one's time is up.
   calm. Lines are separated by a 300 ms pause; "A", "for", "Apple" are three lines with
   500 ms between them, on the card and in the first-letter quiz's answer, so the letter
   stands apart from the word; a bridge's "Apple means" … "सेब" has 200 ms, so it sounds
-  like one phrase. Pushed further, the voice sounds cartoonish.
-- Sound effects are a few notes synthesised into `AudioTrack`s at start-up.
+  like one phrase. Pushed further, the voice sounds cartoonish, which only the fun
+  reels' two silly voices (`Tone.TINY`, `Tone.GIANT`) do.
+- Sound effects are a few notes synthesised into `AudioTrack`s at start-up, and so is
+  the fun reels' music box: see [Fun reels](#fun-reels).
 
 ## Small decisions worth knowing
 
@@ -647,6 +796,25 @@ the feed, and picking another child once the last one's time is up.
   with every release. Topics are folded by channel and list the child's age unless
   asked for more. Age sits with the name and animal: it is who the child is, not a
   preference. The gear always opens on the first page.
+- **Fun reels are a row on each child's page**, "Automatic · day 9 of 21, now 1 in 3",
+  opening a page of three choices (decided by the owner, 2026-11-21: the share is the
+  parent's, not a number in code):
+  - **Automatic** (the default): from 1 in 2 down to 1 in 6 over 2, 3, 4, 6 or 8 weeks of
+    play (3 by default), cut into four equal stages of 1 in 2, 3, 4 and 5, then settled at
+    1 in 6. With three weeks: days 1–5 one in 2, 6–10 one in 3, 11–15 one in 4, 16–21 one
+    in 5. A week is seven **days played** (a minute on the feed, as the weekly note
+    counts), not seven calendar days, so a child who plays once a week is eased in at
+    their own pace. It never goes back up by itself; "Start again" returns to day 1,
+    after a holiday on YouTube, say. Settled is not zero: a few songs in a session keep
+    the app a place a child likes coming back to. `FunDays` keeps the count apart from
+    `History`, which forgets after two weeks while a taper can run for eight. Children
+    who played before fun reels existed start at day 1, as a new child does: there was
+    no record of their days to start from, and the taper is the gentle way in for them
+    too.
+  - **Fixed**, 1 in 2 to 1 in 6, held until changed; picking it starts from where
+    automatic is now, so nothing jumps.
+  - **Off**: learning reels only. Celebrations stay; they are part of every puzzle.
+  - **Jumping games**, off by default: standing moves in Copy me.
 - **The usual limits and bedtimes are one tap; any other is "Custom".** Custom sets
   hours and minutes with − and + buttons, in 5 minutes or an hour at a time: no keyboard
   or dial, which are fiddly one-handed. The limit goes up to 6 hours, past which a limit

@@ -73,6 +73,8 @@ class MainActivity : ComponentActivity(), Host {
 
     override fun play(sfx: Sfx) = sounds.play(sfx)
 
+    override fun playNote(semitones: Int) = sounds.note(semitones)
+
     override fun openVoiceSettings() = tts.openVoiceInstall(this)
 
     override fun keepScreenOn(on: Boolean) {

@@ -14,6 +14,10 @@ import com.crylo.kidreels.ui.common.popOn
 import com.crylo.kidreels.ui.common.tap
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.crylo.kidreels.core.AngleLab
+import com.crylo.kidreels.core.BubblePop
+import com.crylo.kidreels.core.CopyMe
+import com.crylo.kidreels.core.SillyAnimalReel
+import com.crylo.kidreels.core.TuneReel
 import com.crylo.kidreels.core.DiagramCard
 import com.crylo.kidreels.core.DiagramTap
 import com.crylo.kidreels.core.CountAlong
@@ -57,6 +61,9 @@ class ReelEnv(
     private val play: (Sfx) -> Unit,
     /** The app's language, for the odd line on a reel meant for a grown-up: "hold for 10 more minutes". */
     val grownUps: Lang,
+    /** The last minutes before the end: no new excitement, the plain chime. */
+    val calm: Boolean = false,
+    private val note: (Int) -> Unit = {},
 ) {
     val main: Lang get() = langs.first()
 
@@ -86,6 +93,11 @@ class ReelEnv(
 
     fun sfx(s: Sfx) {
         if (active) play(s)
+    }
+
+    /** A music-box note, semitones from middle C: see [com.crylo.kidreels.ui.Host.playNote]. */
+    fun note(semitones: Int) {
+        if (active) note.invoke(semitones)
     }
 
     /**
@@ -133,6 +145,11 @@ fun ReelView(
         is LabReel -> LabView(reel, padding)
         is PlanetCard -> PlanetView(reel, padding)
         is DragGame -> DragView(reel, state, padding, onSolved)
+        is SillyAnimalReel -> SillyAnimalView(reel, padding)
+        // Fun reels "solve" when they end by themselves: a cheer, nothing scored.
+        is BubblePop -> BubbleView(reel, padding, onSolved)
+        is TuneReel -> TuneView(reel, padding, onSolved)
+        is CopyMe -> CopyMeView(reel, padding, onSolved)
         is TimeUp -> TimeUpView(reel.bedtime, padding, onMoreTime)
     }
 }

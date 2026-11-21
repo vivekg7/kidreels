@@ -46,6 +46,20 @@ class ContentTest {
             Categories.all.forEach { add(it.name) }
             (Alphabets.english + Alphabets.hindi).forEach { add(it.meaning) }
             Words.byTopic.values.flatten().forEach { add(it.name); add(it.fact!!) }
+            // Fun reels.
+            Silly.all.forEach { add(it.sound); add(Silly.tapThe(it)); SillyPart.entries.forEach { p -> add(Silly.thatsThe(it, p)) } }
+            SillyPart.entries.forEach { add(it.word); add(it.does) }
+            add(Silly.tapParts)
+            (2..8).forEach { level -> (CopyMoves.sitting(level) + CopyMoves.standing(level)).forEach { add(it.say) } }
+            addAll(listOf(CopyMoves.sitDown.say, CopyMoves.title, CopyMoves.simonTitle, CopyMoves.intro, CopyMoves.simonIntro, CopyMoves.go, CopyMoves.simonSays, CopyMoves.gotcha, CopyMoves.done, CopyMoves.again))
+            Songs.all.forEach { add(it.title); add(Songs.played(it)) }
+            add(Songs.tapAnywhere)
+            val cursor = Progress(MapStore())
+            for (level in 2..7) for (seed in 0 until 30) {
+                val b = Bubbles.make(Gen(level, 3, Random(seed), Lang.entries, 1, cursor))
+                add(Bubbles.prompt(b)); add(Bubbles.say(b)); add(Bubbles.done(b)); add(Bubbles.notThis(b, 0))
+            }
+            (1..20).forEach { add(Bubbles.counted(it)) }
         }
         for (t in texts) for (lang in Lang.entries) assertTrue(t.has(lang), "'$t' has no $lang")
     }
@@ -96,6 +110,10 @@ class ContentTest {
             Curves.all.forEach { add(it.example) }
             addAll(Phrases.goodbyeThings)
             addAll(Phrases.bedtimeThings)
+            Silly.all.forEach { add(it.face) }
+            Bubbles.words.forEach { add(it.second) }
+            Songs.all.forEach { song -> song.lines.forEach { add(it.picture) } }
+            Songs.farm.forEach { add(it.emoji) }
         }
         val missing = pictures.distinct().filter { Words.of(it) == null }
         assertTrue(missing.isEmpty(), "No name for $missing")

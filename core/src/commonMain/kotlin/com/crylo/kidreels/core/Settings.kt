@@ -52,6 +52,14 @@ data class Settings(
     val slowSpeech: Boolean = false,
     /** No reels from this time (minutes after midnight) until [Bedtime.MORNING]; 0 is off. */
     val bedtime: Int = 0,
+    /** How many fun reels: tapering by itself, a share the parent fixed, or none. See [FunShare]. */
+    val funMode: FunMode = FunMode.AUTO,
+    /** [FunMode.AUTO]: the taper from 1 in 2 to 1 in 6 takes this many weeks of play. */
+    val funWeeks: Int = FunShare.DEFAULT_WEEKS,
+    /** [FunMode.FIXED]: one reel in this many is fun, 2 to 6. */
+    val funEvery: Int = FunShare.DEFAULT_EVERY,
+    /** Standing and jumping moves in "Copy me". Off by default: the app is often used at meals. */
+    val jumping: Boolean = false,
 ) {
     val main: Lang get() = langs.first()
 
@@ -91,6 +99,12 @@ class SettingsStore(private val kv: KeyValueStore) {
             ageSetDay = kv.get("ageSetDay")?.toLongOrNull() ?: d.ageSetDay,
             slowSpeech = kv.get("slowSpeech") == "true",
             bedtime = kv.get("bedtime")?.toIntOrNull()?.takeIf { it == 0 || it in Settings.BEDTIME_RANGE } ?: d.bedtime,
+            // Children set up before fun reels existed have none of these keys: they start
+            // on automatic, as a new child does (and at day 1, see FunDays).
+            funMode = kv.get("funMode")?.let { m -> FunMode.entries.firstOrNull { it.name == m } } ?: d.funMode,
+            funWeeks = kv.get("funWeeks")?.toIntOrNull()?.takeIf { it in FunShare.WEEKS } ?: d.funWeeks,
+            funEvery = kv.get("funEvery")?.toIntOrNull()?.takeIf { it in FunShare.EVERY } ?: d.funEvery,
+            jumping = kv.get("jumping") == "true",
         )
     }
 
@@ -104,6 +118,10 @@ class SettingsStore(private val kv: KeyValueStore) {
         kv.put("ageSetDay", s.ageSetDay.toString())
         kv.put("slowSpeech", s.slowSpeech.toString())
         kv.put("bedtime", s.bedtime.toString())
+        kv.put("funMode", s.funMode.name)
+        kv.put("funWeeks", s.funWeeks.toString())
+        kv.put("funEvery", s.funEvery.toString())
+        kv.put("jumping", s.jumping.toString())
     }
 }
 

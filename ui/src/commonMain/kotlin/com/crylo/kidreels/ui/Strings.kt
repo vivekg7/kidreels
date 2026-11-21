@@ -1,5 +1,6 @@
 package com.crylo.kidreels.ui
 
+import com.crylo.kidreels.core.FunMode
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.LevelStats
 import com.crylo.kidreels.core.Look
@@ -84,8 +85,8 @@ object S {
         if (minutes == 0) txt("Age $age · no limit", "$age साल · कोई सीमा नहीं") else perDay(minutes).let { txt("Age $age · ${it[Lang.EN]}", "$age साल · ${it[Lang.HI]}") }
 
     fun newChildBody(name: String): Txt = txt(
-        "Languages, look and time limit start the same as $name's. You can change them on the next page.",
-        "भाषाएँ, रूप और समय $name जैसे ही रहेंगे। इन्हें अगले पेज पर बदल सकते हैं।",
+        "Languages, look, time limit and fun reels start the same as $name's, with automatic fun from day 1. You can change them on the next page.",
+        "भाषाएँ, रूप, समय और मज़े वाली रील्स $name जैसी ही रहेंगी, और अपने-आप वाली मज़े की रील्स पहले दिन से शुरू होंगी। इन्हें अगले पेज पर बदल सकते हैं।",
     )
 
     val save = txt("Save", "सहेजें")
@@ -243,6 +244,81 @@ object S {
         "$hi$n ${if (n == 1) "पहेली" else "पहेलियाँ"}, $pct% पहली बार में सही" +
             if (skips > 0) ", $skips छोड़ दी ${if (skips == 1) "गई" else "गईं"}" else "",
     )
+
+    val funReels = txt("Fun reels", "मज़े वाली रील्स")
+    val funAuto = txt("Automatic", "अपने-आप")
+    val funFixed = txt("Fixed", "तय")
+    val funBody = txt(
+        "Songs and toys between the learning reels: lots at first, so the switch from other apps is easy, then fewer. They use the same minutes as every reel and stop at bedtime like every reel; only calm ones come in the last minutes. Nothing in them is scored.",
+        "सीखने वाली रील्स के बीच गाने और खिलौने: शुरू में ज़्यादा, ताकि दूसरी ऐप्स से यहाँ आना आसान हो, फिर कम। ये भी बाकी रील्स की तरह उसी समय में गिनी जाती हैं और सोने के समय रुक जाती हैं; आख़िरी मिनटों में सिर्फ़ शांत वाली आती हैं। इनमें कोई नंबर नहीं मिलते।",
+    )
+    val funAutoBody = txt(
+        "From 1 in 2 down to 1 in 6, over the weeks of play you pick, in four equal steps. A week is 7 days played, not 7 calendar days, so a child who plays once a week is eased in at their own pace. It never goes back up by itself.",
+        "2 में 1 से घटकर 6 में 1 तक, आपके चुने खेलने के हफ़्तों में, चार बराबर कदमों में। एक हफ़्ता यानी खेलने के 7 दिन, कैलेंडर के 7 दिन नहीं, ताकि हफ़्ते में एक बार खेलने वाला बच्चा भी अपनी रफ़्तार से आदत डाले। यह अपने-आप कभी वापस नहीं बढ़ता।",
+    )
+    val funOver = txt("Over", "कितने समय में")
+    val funFixedBody = txt("Held until you change it.", "जब तक आप न बदलें, यही रहेगा।")
+    val funOffBody = txt(
+        "Learning reels only. The celebrations after a right answer stay: they are part of every puzzle.",
+        "सिर्फ़ सीखने वाली रील्स। सही जवाब के बाद की ख़ुशी वैसी ही रहेगी: वह हर पहेली का हिस्सा है।",
+    )
+    val funStartAgain = txt("Start again from 1 in 2", "फिर से 2 में 1 से शुरू करें")
+    val funStartAgainBody = txt(
+        "For a fresh start, after a holiday spent on other apps, say.",
+        "नई शुरुआत के लिए, जैसे दूसरी ऐप्स पर छुट्टियाँ बिताने के बाद।",
+    )
+    val funSongsEnglish = txt("Songs are English nursery rhymes for now.", "अभी गाने अंग्रेज़ी की बाल-कविताएँ हैं।")
+    val jumpingTitle = txt("Jumping games", "उछल-कूद वाले खेल")
+    val jumpingBody = txt(
+        "Standing and jumping moves in Copy me, ending with \"now sit down again\". Off, every move can be done sitting down, at the table.",
+        "'मेरी नकल करो' में खड़े होकर और कूदकर करने वाले काम, आख़िर में \"अब फिर से बैठ जाओ\"। बंद हो तो हर काम बैठे-बैठे, खाने की मेज़ पर भी हो सकता है।",
+    )
+
+    fun oneIn(n: Int): Txt = txt("1 in $n", "$n में 1")
+
+    fun weeksOfPlay(n: Int): Txt = txt("$n weeks of play", "खेलने के $n हफ़्ते")
+
+    fun funNoneForAge(age: Int, ages: IntRange): Txt = txt(
+        "There are no fun reels for age $age yet: for now they are for ages ${ages.first} to ${ages.last}. The celebrations stay.",
+        "$age साल के लिए अभी मज़े वाली रील्स नहीं हैं: अभी ये ${ages.first} से ${ages.last} साल के लिए हैं। सही जवाब की ख़ुशी वैसी ही रहेगी।",
+    )
+
+    /** Where automatic has got to: "day 9 of 21, now 1 in 3", or settled. */
+    fun funProgress(day: Int, span: Int, every: Int): Txt =
+        if (day > span) {
+            txt("settled at ${oneIn(every)[Lang.EN]}", "अब ${oneIn(every)[Lang.HI]} पर टिका")
+        } else {
+            txt("day $day of $span, now ${oneIn(every)[Lang.EN]}", "$span में से दिन $day, अभी ${oneIn(every)[Lang.HI]}")
+        }
+
+    /** The fun reels row: "Automatic · day 9 of 21, now 1 in 3", "Fixed · 1 in 4", "Off". */
+    fun funLine(mode: FunMode, day: Int, span: Int, every: Int?): Txt = when (mode) {
+        FunMode.OFF -> off
+        FunMode.FIXED -> joined(funFixed, " · ", oneIn(every ?: 0))
+        FunMode.AUTO -> joined(funAuto, " · ", funProgress(day, span, every ?: 0))
+    }
+
+    /** The weekly note's line: "112 reels, 31 of them fun (songs and toys)." */
+    fun weekFun(reels: Int, funReels: Int): Txt = txt(
+        "$reels ${if (reels == 1) "reel" else "reels"}, $funReels of them fun (songs and toys).",
+        "$reels रील्स, इनमें $funReels मज़े वाली (गाने और खिलौने)।",
+    )
+
+    /** After it, what is set: "Automatic: day 9 of 21, now 1 in 3." */
+    fun funNote(mode: FunMode, day: Int, span: Int, every: Int?): Txt = when (mode) {
+        FunMode.OFF -> txt("Fun reels are off.", "मज़े वाली रील्स बंद हैं।")
+        FunMode.FIXED -> sentence(joined(funFixed, ": ", oneIn(every ?: 0)))
+        FunMode.AUTO -> sentence(joined(funAuto, ": ", funProgress(day, span, every ?: 0)))
+    }
+
+    fun favouriteSong(title: Txt): Txt = txt(
+        "Their favourite song this week: ${title[Lang.EN]}. Sing it with them!",
+        "इस हफ़्ते का पसंदीदा गाना: ${title[Lang.HI]}। इसे बच्चे के साथ गाइए!",
+    )
+
+    private fun sentence(t: Txt): Txt = txt(t[Lang.EN] + ".", t[Lang.HI] + "।")
+
+    private fun joined(a: Txt, sep: String, b: Txt): Txt = txt(a[Lang.EN] + sep + b[Lang.EN], a[Lang.HI] + sep + b[Lang.HI])
 
     val about = txt("About", "जानकारी")
 

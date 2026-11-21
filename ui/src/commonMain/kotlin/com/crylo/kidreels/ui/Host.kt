@@ -25,8 +25,11 @@ interface Speaker {
     fun setSlow(slow: Boolean)
 }
 
-/** Short sounds, made on the device (no audio files): a chime, a soft boop, a pop. */
-enum class Sfx { CORRECT, WRONG, POP, SAD, TICK }
+/**
+ * Short sounds, made on the device (no audio files): a chime, a soft boop, a pop; and for
+ * the fun reels a boing, a drum, a clap and a sneeze.
+ */
+enum class Sfx { CORRECT, WRONG, POP, SAD, TICK, BOING, DRUM, CLAP, SNEEZE }
 
 /** What the platform shell provides. Android's is MainActivity; a desktop or iOS shell implements the same. */
 interface Host {
@@ -36,6 +39,13 @@ interface Host {
     val appVersion: String
 
     fun play(sfx: Sfx)
+
+    /**
+     * One music-box note, [semitones] from middle C: one of [com.crylo.kidreels.core.Songs.NOTES],
+     * C major from the G below to the G two octaves up. Tap the tune, the bubbles' scale and
+     * the celebrations' fanfares are all played on it. A shell without sound plays nothing.
+     */
+    fun playNote(semitones: Int) = Unit
 
     /** The phone's voice settings, to install a missing language. Only reached past the parent gate. */
     fun openVoiceSettings()

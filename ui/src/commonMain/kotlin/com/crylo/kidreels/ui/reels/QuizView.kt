@@ -53,7 +53,9 @@ import com.crylo.kidreels.ui.ReelState
 import com.crylo.kidreels.ui.Sfx
 import com.crylo.kidreels.ui.art.Picture
 import com.crylo.kidreels.ui.art.artFor
+import com.crylo.kidreels.ui.common.Motion
 import com.crylo.kidreels.ui.common.MultiText
+import com.crylo.kidreels.ui.common.moveOn
 import com.crylo.kidreels.ui.common.T
 import com.crylo.kidreels.ui.common.floating
 import com.crylo.kidreels.ui.common.popOn
@@ -136,16 +138,19 @@ fun QuizView(quiz: Quiz, state: ReelState, padding: PaddingValues, onSolved: () 
 private fun StageView(quiz: Quiz, state: ReelState, looking: Boolean, onLooked: () -> Unit) {
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
+    // The puzzle's own pictures celebrate a right answer: the counted apples jump, the
+    // fish spins. Not in the wind-down, where nothing new gets lively.
+    val cheer = if (env.calm) 0 else state.celebrate
     when (val stage = quiz.stage) {
         Stage.None -> Unit
         is Stage.Sum -> SumStage(stage, if (state.solved) (quiz.choices[quiz.answer] as Choice.Number).n else null)
-        is Stage.Count -> CountStage(stage, quiz.id)
+        is Stage.Count -> CountStage(stage, quiz.id, cheer)
         is Stage.Picture -> {
             var pop by remember(quiz.id) { mutableStateOf(0) }
             // Its name, then the question again: "This is a fish. Where does the fish live?"
             T(
                 stage.emoji,
-                Modifier.floating().popOn(pop).tap {
+                Modifier.floating().popOn(pop).moveOn(cheer, Motion.HOP, times = 2).moveOn(cheer, Motion.SPIN, delayMillis = 1040).tap {
                     pop++
                     env.say(quiz.pictureTapped(env.langs))
                 },
@@ -203,7 +208,7 @@ private fun NumberWithSticks(n: Int, sticks: Boolean, size: androidx.compose.ui.
 
 /** Things to count. Tapping one marks it and says the count so far: counting along. */
 @Composable
-private fun CountStage(stage: Stage.Count, id: Long) {
+private fun CountStage(stage: Stage.Count, id: Long, cheer: Int) {
     val env = LocalReelEnv.current
     val colors = LocalReelColors.current
     val counted = remember(id) { mutableStateListOf<Int>() }
@@ -225,7 +230,13 @@ private fun CountStage(stage: Stage.Count, id: Long) {
             },
             contentAlignment = Alignment.TopEnd,
         ) {
-            T(stage.emoji, Modifier.popOn(number).graphicsLayer { alpha = if (number > 0) 0.55f else 1f }, size = emojiSize)
+            // On a right answer they jump one after another, then spin.
+            T(
+                stage.emoji,
+                Modifier.popOn(number).moveOn(cheer, Motion.HOP, delayMillis = i * 70).moveOn(cheer, Motion.SPIN, delayMillis = 520 + i * 70)
+                    .graphicsLayer { alpha = if (number > 0) 0.55f else 1f },
+                size = emojiSize,
+            )
             if (number > 0) {
                 Box(Modifier.size(22.dp).clip(CircleShape).background(colors.good), contentAlignment = Alignment.Center) {
                     T(number.toString(), color = Color.White, size = 12.sp, weight = FontWeight.Bold)
@@ -373,6 +384,7 @@ private fun Choices(quiz: Quiz, state: ReelState, shake: Int, shaking: Int, big:
                 row.forEach { i ->
                     ChoiceCard(
                         quiz.choices[i],
+                        cheer = if (i == quiz.answer && !LocalReelEnv.current.calm) state.celebrate else 0,
                         right = state.solved && i == quiz.answer,
                         faded = i in state.wrong || (state.solved && i != quiz.answer),
                         shakeKey = if (shaking == i) shake else 0,
@@ -388,7 +400,7 @@ private fun Choices(quiz: Quiz, state: ReelState, shake: Int, shaking: Int, big:
 }
 
 @Composable
-private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey: Int, modifier: Modifier, big: Boolean, onClick: () -> Unit) {
+private fun ChoiceCard(choice: Choice, cheer: Int, right: Boolean, faded: Boolean, shakeKey: Int, modifier: Modifier, big: Boolean, onClick: () -> Unit) {
     val colors = LocalReelColors.current
     val env = LocalReelEnv.current
     val alpha by animateFloatAsState(if (faded) 0.35f else 1f)
@@ -400,6 +412,7 @@ private fun ChoiceCard(choice: Choice, right: Boolean, faded: Boolean, shakeKey:
         modifier
             .shakeOn(shakeKey)
             .popOn(if (right) 1 else 0)
+            .moveOn(cheer, Motion.HOP, delayMillis = 150, times = 2)
             .graphicsLayer { this.alpha = alpha }
             .clip(shape)
             .background(

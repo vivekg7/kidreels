@@ -1,6 +1,10 @@
 package com.crylo.kidreels.ui
 
 import com.crylo.kidreels.core.Clock
+import com.crylo.kidreels.core.FunMode
+import com.crylo.kidreels.core.FunShare
+import com.crylo.kidreels.core.Topic
+import com.crylo.kidreels.core.isFun
 import com.crylo.kidreels.core.KeyValueStore
 import com.crylo.kidreels.core.Lang
 import com.crylo.kidreels.core.MapStore
@@ -385,5 +389,129 @@ class AppStateTest {
         assertEquals(0.91f, screenScale(1280f, 800f), 0.01f)
         // A big screen is not blown up without end.
         assertEquals(1.6f, screenScale(1600f, 2400f))
+    }
+
+    // Fun reels.
+
+    @Test
+    fun aChildFromBeforeFunReelsStartsOnAutomaticAtDayOne() {
+        children(Settings(age = 4))
+        // As 1.3 left it: none of the fun keys.
+        val store = Profiles(host.store).storeOf(1)
+        listOf("funMode", "funWeeks", "funEvery", "jumping").forEach { store.put(it, null) }
+        val app = AppState(host)
+        assertEquals(FunMode.AUTO, app.settings.funMode)
+        assertEquals(1, app.funDay(app.child))
+        assertEquals(2, FunShare.every(app.settings, app.funDay(app.child)))
+    }
+
+    @Test
+    fun aMinuteOnTheFeedIsADayOfPlayAndStartAgainGoesBackToDayOne() {
+        children(Settings(dailyMinutes = 0))
+        val app = AppState(host)
+        app.feed.fill(0)
+        repeat(60) { app.feed.tick(1000, 0) }
+        assertEquals(1, app.funDay(app.child))
+        host.day += 1
+        assertEquals(2, app.funDay(app.child))
+        repeat(60) { app.feed.tick(1000, 0) }
+        host.day += 3
+        // Three days away: still the third day of play, not the sixth.
+        assertEquals(3, app.funDay(app.child))
+        repeat(60) { app.feed.tick(1000, 0) }
+        app.restartFun(app.child)
+        assertEquals(1, app.funDay(app.child), "today, played, is day 1 again")
+        host.day += 1
+        assertEquals(2, app.funDay(app.child))
+    }
+
+    @Test
+    fun aNewChildCopiesTheFunSettingButStartsAutomaticAtDayOne() {
+        children(Settings(dailyMinutes = 0, funWeeks = 6, jumping = true))
+        val app = AppState(host)
+        repeat(4) {
+            repeat(60) { app.feed.tick(1000, 0) }
+            host.day += 1
+        }
+        assertEquals(5, app.funDay(app.child))
+        app.addChild(Profile(0, "Meera"), age = 5)
+        assertEquals(6, app.settings.funWeeks)
+        assertTrue(app.settings.jumping)
+        assertEquals(1, app.funDay(app.child))
+    }
+
+    /** A child who plays every reel: fill, show, engage (and solve right away), move on. */
+    private fun playAll(app: AppState, n: Int) {
+        val feed = app.feed
+        repeat(n) {
+            feed.fill(feed.current)
+            feed.onScreen(feed.current)
+            val reel = feed.reels[feed.current]
+            feed.engaged(reel)
+            if (reel.needsSolving) feed.solved(reel)
+            feed.left(reel, forward = true)
+            feed.current++
+        }
+    }
+
+    @Test
+    fun aFunReelComesStraightAfterTheReelThatMadeItDue() {
+        children(Settings(age = 4, dailyMinutes = 0, funMode = FunMode.FIXED, funEvery = 3))
+        val app = AppState(host)
+        playAll(app, 60)
+        val seen = app.feed.reels.take(60)
+        val at = seen.mapIndexedNotNull { i, r -> i.takeIf { r.isFun } }
+        assertTrue(at.size >= 15, "fun reels at $at")
+        at.zipWithNext().forEach { (a, b) -> assertEquals(3, b - a) }
+        // The weekly note counts every reel played, the fun ones apart.
+        val week = app.child.history.week()
+        assertEquals(60, week.reels)
+        assertEquals(at.size, week.funReels)
+        assertTrue(week.tried < 60)
+    }
+
+    @Test
+    fun aReelFlickedPastDoesNotMoveTheFunSlot() {
+        children(Settings(age = 4, dailyMinutes = 0, funMode = FunMode.FIXED, funEvery = 2))
+        val app = AppState(host)
+        val feed = app.feed
+        repeat(20) {
+            feed.fill(feed.current)
+            feed.onScreen(feed.current)
+            feed.left(feed.reels[feed.current], forward = true)
+            feed.current++
+        }
+        assertTrue(feed.reels.none { it.isFun }, "flicking alone brought a fun reel")
+    }
+
+    @Test
+    fun aFunReelSwipedPastHasNoSadFaceAndIsNotAPuzzle() {
+        children(Settings(age = 4, dailyMinutes = 0))
+        val app = AppState(host)
+        app.feed.pick(Topic.BUBBLES)
+        app.feed.fill(0)
+        val bubbles = app.feed.reels.first()
+        assertTrue(bubbles.isFun)
+        app.feed.engaged(bubbles)
+        app.feed.solved(bubbles)
+        app.feed.left(bubbles, forward = true)
+        assertEquals(0, app.feed.skippedPuzzle)
+        assertEquals(0, app.progress.stats(4).tried)
+        assertEquals(0, app.child.history.week().tried)
+        // Played to the end, it is cheered.
+        assertEquals(1, app.feed.state(bubbles).celebrate)
+    }
+
+    @Test
+    fun theFunReelsPageIsAChildsPageAndBackGoesToIt() {
+        val (aarav) = children(Settings())
+        val app = AppState(host)
+        app.openSettings()
+        app.page = Page.Part(aarav, ChildPart.FUN)
+        app.update(app.settings.copy(funMode = FunMode.FIXED, funEvery = 4))
+        assertEquals("Fixed · 1 in 4", S.funLine(app.settings.funMode, 1, 21, FunShare.every(app.settings, 1))[Lang.EN])
+        assertTrue(app.onBack())
+        assertEquals(Page.OfChild(aarav), app.page)
+        assertEquals(FunMode.FIXED, SettingsStore(Profiles(host.store).storeOf(aarav)).load().funMode)
     }
 }

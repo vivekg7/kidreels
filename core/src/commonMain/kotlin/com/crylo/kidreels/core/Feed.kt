@@ -66,12 +66,26 @@ class Progress(private val kv: KeyValueStore) : Cursor {
  *    it comes back, where the age has enough topics to allow it.
  * 5. Within a topic, difficulty follows how the child has been doing on it.
  * 6. In the last minutes before the time limit ([windDown]), only easy reels.
+ *
+ * Fun reels (songs and toys, [Topic.isFun]) have a slot of their own, never the learning
+ * mix: one reel in N, N from the child's fun setting and day of play ([FunShare]).
+ *
+ * 7. The gap is fixed, not random, and counted in reels the child did something with
+ *    ([engaged]): a puzzle flicked past does not bring the next fun reel nearer.
+ * 8. A fun reel only ever comes straight after a reel finished well ([funAfter]): never
+ *    after a skip or a struggle, which would teach skipping, and never two in a row.
+ * 9. While easing in, the first reel of a session is fun: the first seconds decide
+ *    whether a child stays.
+ * 10. Likes raise a fun topic within the fun slots, never how many there are. In the
+ *    wind-down only calm fun. A picked topic ([focus]) has no fun slot.
  */
 class Feed(
     private val settings: () -> Settings,
     private val progress: Progress,
     private val random: Random = Random.Default,
     private val templates: List<Template> = Templates.all,
+    /** The child's day of play, 1 on the first, for automatic fun: see [FunDays]. */
+    private val funDay: () -> Int = { 1 },
 ) {
     private class Retry(val topic: Topic, val level: Int, val difficulty: Int, val due: Int)
 
@@ -81,6 +95,13 @@ class Feed(
     private var made = 0
     private var nextId = 1L
     private var struggled = false
+
+    /** Learning reels engaged with since the last fun reel was on screen: what moves the fun slot on. */
+    private var sinceFun = 0
+    private val counted = mutableSetOf<Long>()
+
+    /** A fun reel made to go next and not on screen yet: there is never a second one waiting. */
+    private var funWaiting: Long? = null
 
     var windDown: Boolean = false
 
@@ -124,16 +145,91 @@ class Feed(
         val topic = focus
         // A picked topic the child's languages no longer allow (Hindi मात्राएँ, then Hindi
         // taken out) is ignored rather than made with no language.
-        val reel = if (topic != null && Templates.of(topic).fits(s.langs)) focused(topic, s, age) else dueRetry(s, age) ?: fresh(s, age)
+        val reel = if (topic != null && Templates.of(topic).fits(s.langs)) {
+            focused(topic, s, age)
+        } else {
+            firstFun(s, age) ?: dueRetry(s, age) ?: fresh(s, age)
+        }
+        remember(reel)
+        return reel
+    }
+
+    private fun remember(reel: Reel) {
         recent.addLast(reel)
         if (recent.size > HISTORY) recent.removeFirst()
-        return reel
+    }
+
+    /** One reel in this many is fun now, or null when fun reels are off. */
+    fun funEvery(): Int? = FunShare.every(settings(), funDay())
+
+    /** While easing in, a session starts with a fun reel. */
+    private fun firstFun(s: Settings, age: Int): Reel? {
+        if (made != 1 || !FunShare.easingIn(s, funDay())) return null
+        return makeFun(s, age)?.also { funWaiting = it.id }
+    }
+
+    /** [reel] came on screen. A fun reel starts the count to the next one again. */
+    fun shown(reel: Reel) {
+        if (!reel.isFun) return
+        if (funWaiting == reel.id) funWaiting = null
+        sinceFun = 0
+    }
+
+    /**
+     * The child did something with [reel]: touched it, or stayed on it a while. Only these
+     * reels move the fun slot on, each once, so swiping fast through puzzles does not
+     * bring the next fun reel sooner.
+     */
+    fun engaged(reel: Reel) {
+        if (!reel.isFun && reel !is TimeUp && counted.add(reel.id)) sinceFun++
+    }
+
+    /**
+     * [reel] was finished well: an explore reel engaged with, a puzzle right first time. If
+     * the next fun reel is due, it is made now, for the caller to put straight after
+     * [reel]: the reels already made ahead were decided before the child got here, and a
+     * fun reel there could follow a skip. Null when none is due, none fits (the age has no
+     * fun reels, or the wind-down no calm ones), or a topic is picked. A skip or a struggle
+     * earlier does not hold it back once a later reel went well: the breather the struggle
+     * asked for is still made, one reel later.
+     */
+    fun funAfter(reel: Reel): Reel? {
+        if (focus != null || reel.isFun || funWaiting != null) return null
+        val every = funEvery() ?: return null
+        if (sinceFun < every - 1) return null
+        val s = settings()
+        val next = makeFun(s, s.age.coerceIn(Settings.AGES)) ?: return null
+        made++
+        remember(next)
+        funWaiting = next.id
+        return next
+    }
+
+    /** Reels made but taken out unseen (settings changed, time is up): a fun one among them is no longer waiting. */
+    fun dropped(reels: Collection<Reel>) {
+        if (reels.any { it.id == funWaiting }) funWaiting = null
+    }
+
+    /**
+     * A fun reel for the child's age: in the wind-down only a calm one, made calm. The
+     * four-reel wait applies to fun topics too, so the same toy does not come round every
+     * few minutes; likes weigh as in the mix, within the fun reels only.
+     */
+    private fun makeFun(s: Settings, age: Int): Reel? {
+        val fits = templates.filter { it.isFun && age in it.ages && it.fits(s.langs) && (!windDown || it.calm) }
+        if (fits.isEmpty()) return null
+        val recentTopics = recent.takeLast(RECENT_TOPICS).map { it.topic }.toSet()
+        val lastFun = recent.lastOrNull { it.isFun }?.topic
+        val pool = fits.filter { it.topic !in recentTopics }.ifEmpty { fits.filter { it.topic != lastFun }.ifEmpty { fits } }
+        val template = weightedPick(pool)
+        return make(template, s, age, if (windDown) 1 else 3)
     }
 
     fun timeUp(bedtime: Boolean = false): Reel = TimeUp(nextId++, bedtime)
 
     fun record(reel: Reel, outcome: Outcome) {
-        if (!reel.needsSolving) return
+        // Fun reels are outside the learning numbers: no skill, no stats, no retry.
+        if (!reel.needsSolving || reel.isFun) return
         if (focus != null) {
             // Three right first time and the next ones are a step harder; a skip, a step easier.
             when (outcome) {
@@ -197,7 +293,8 @@ class Feed(
             }
         }.coerceIn(Settings.AGES)
 
-        val eligible = templates.filter { level in it.ages && it.fits(s.langs) }
+        // Fun reels come only through their own slot.
+        val eligible = templates.filter { !it.isFun && level in it.ages && it.fits(s.langs) }
         val solvingRun = recent.reversed().takeWhile { it.needsSolving }.size
         val exploreRun = recent.reversed().takeWhile { !it.needsSolving }.size
         var pool = when {
@@ -231,13 +328,13 @@ class Feed(
         val usable = template.usable(s.langs)
         val langs = listOf(usable[focusLang % usable.size])
         focusCursor.wrapped = false
-        val reel = template.make(Gen(level, difficulty, random, langs, nextId++, focusCursor, age = s.age, ordered = true))
+        val reel = template.make(Gen(level, difficulty, random, langs, nextId++, focusCursor, age = s.age, ordered = true, calm = windDown, jumping = s.jumping))
         if (focusCursor.wrapped) focusLang++
         return reel
     }
 
     private fun make(template: Template, s: Settings, level: Int, difficulty: Int): Reel =
-        template.make(Gen(level, difficulty, random, template.usable(s.langs), nextId++, progress, age = s.age))
+        template.make(Gen(level, difficulty, random, template.usable(s.langs), nextId++, progress, age = s.age, calm = windDown, jumping = s.jumping))
 
     /** Liked topics come up a little more often: up to half as often again. */
     private fun weightedPick(pool: List<Template>): Template {
