@@ -372,7 +372,12 @@ where **the same songs and toys come back** and **nothing is kept**.
   says the count and plays the next note up the scale, so popping makes a tune. The
   in-order games (numbers, a short English word's letters) hold their bubbles in place,
   bobbing, so the next one can be found; the others float up and come round again until
-  popped.
+  popped. Rising bubbles fade in from below and out at the top, rather than appear at the
+  edge of their room.
+- **A pop is a pop**: the bubble swells for a moment, then bursts into a ring and a
+  spray of drops in its colour, and what was inside floats up and fades, with a "plop"
+  under the note (`Sfx.BUBBLE`). The count under the bubbles and a word's newest letter
+  jump as they change. All of it is over in under a second and takes no taps.
 - **Copy me waits for nothing once Go is tapped**: the point is to look away and copy,
   so the moves go on by the clock, timed to roughly how long each line takes to say (the
   engine does not report when it is done). The part is ringed on the drawn child from the

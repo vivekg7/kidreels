@@ -29,7 +29,7 @@ interface Speaker {
  * Short sounds, made on the device (no audio files): a chime, a soft boop, a pop; and for
  * the fun reels a boing, a drum, a clap and a sneeze.
  */
-enum class Sfx { CORRECT, WRONG, POP, SAD, TICK, BOING, DRUM, CLAP, SNEEZE }
+enum class Sfx { CORRECT, WRONG, POP, SAD, TICK, BOING, DRUM, CLAP, SNEEZE, BUBBLE }
 
 /** What the platform shell provides. Android's is MainActivity; a desktop or iOS shell implements the same. */
 interface Host {

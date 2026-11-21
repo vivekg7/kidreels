@@ -29,6 +29,7 @@ class Sounds {
         Sfx.DRUM to track(drum(), 0.5),
         Sfx.CLAP to track(noise(90, decay = 40.0, seed = 1), 0.28),
         Sfx.SNEEZE to track(noise(260, decay = 9.0, seed = 2), 0.22),
+        Sfx.BUBBLE to track(plop(), 0.3),
     )
 
     /**
@@ -87,6 +88,21 @@ class Sounds {
             val hz = 220 + 600 * (t / 0.32) + 40 * sin(2 * PI * 18 * t)
             phase += 2 * PI * hz / RATE
             sin(phase) * exp(-t * 6) * (i / (RATE * 0.004)).coerceAtMost(1.0)
+        }
+    }
+
+    /**
+     * A soap bubble popping: a short "plop" whose pitch leaps up as it dies, with a breath
+     * of noise at the start for the film tearing. Under the music-box note each pop plays.
+     */
+    private fun plop(): DoubleArray {
+        var phase = 0.0
+        val r = Random(4)
+        return DoubleArray(70 * RATE / 1000) { i ->
+            val t = i.toDouble() / RATE
+            val hz = 500 + 1400 * (t / 0.07).pow(0.6)
+            phase += 2 * PI * hz / RATE
+            sin(phase) * exp(-t * 55) * (i / (RATE * 0.002)).coerceAtMost(1.0) + (r.nextDouble() * 2 - 1) * 0.25 * exp(-t * 300)
         }
     }
 

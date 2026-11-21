@@ -29,7 +29,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -202,8 +201,8 @@ private fun Sneeze(trigger: Int, nose: Offset, modifier: Modifier) {
 fun BubbleView(reel: BubblePop, padding: PaddingValues, onDone: () -> Unit) {
     val env = LocalReelEnv.current
     val colors = LocalReelColors.current
-    val popped = remember(reel.id) { mutableStateListOf<Int>() }
-    val counted = popped.count { reel.bubbles[it].wanted }
+    val popped = remember(reel.id) { mutableStateMapOf<Int, Popped>() }
+    val counted = popped.keys.count { reel.bubbles[it].wanted }
     val done = counted >= reel.toPop
     var doneAt by remember(reel.id) { mutableLongStateOf(Long.MAX_VALUE) }
     var shake by remember(reel.id) { mutableIntStateOf(0) }
@@ -213,6 +212,10 @@ fun BubbleView(reel: BubblePop, padding: PaddingValues, onDone: () -> Unit) {
     val period = if (reel.slow) 10_000L else 6_500L
     val gap = period / 5
     val scale = remember { Songs.NOTES.drop(3) }
+    val (lanes, spots) = remember(reel.id) {
+        val r = Random(reel.id)
+        reel.bubbles.indices.map { 0.08f + 0.84f * r.nextFloat() } to staticSpots(reel.bubbles.size, r)
+    }
 
     // Time only runs on screen: off-screen pages stay still.
     LaunchedEffect(reel.id, env.active) {
@@ -221,9 +224,27 @@ fun BubbleView(reel: BubblePop, padding: PaddingValues, onDone: () -> Unit) {
         while (true) withFrameMillis { clock = it - start }
     }
 
+    /**
+     * Where bubble [i] is at [t], as fractions of the room (see [staticSpots]), and how much
+     * of it shows: a rising bubble fades in from below and out at the top, instead of
+     * appearing at the edge of the room. Null when it is not there.
+     */
+    fun place(i: Int, t: Long): Popped? {
+        if (!rising) return Popped(t, spots[i].first, spots[i].second + 0.015f * sin(t / 600f + i * 1.7f), 1f)
+        val spawn = i * gap
+        if (t < spawn) return null
+        val loops = floor((t - spawn).toDouble() / period).toLong()
+        // No new bubbles once it is over: those on their way up float off.
+        if (spawn + loops * period > doneAt) return null
+        val q = ((t - spawn) % period).toFloat() / period
+        val y = 1.1f - q * 1.35f
+        val shown = minOf((1.12f - y) / 0.22f, (y + 0.25f) / 0.2f).coerceIn(0f, 1f)
+        return Popped(t, (lanes[i] + 0.03f * sin(t / 700f + i)).coerceIn(0f, 1f), y, shown)
+    }
+
     fun pop(i: Int) {
         // Read afresh: two taps can land before the screen catches up.
-        val counted = popped.count { reel.bubbles[it].wanted }
+        val counted = popped.keys.count { reel.bubbles[it].wanted }
         if (i in popped || counted >= reel.toPop) return
         val b = reel.bubbles[i]
         val next = when (reel.game) {
@@ -237,8 +258,9 @@ fun BubbleView(reel: BubblePop, padding: PaddingValues, onDone: () -> Unit) {
             env.say(Bubbles.notThis(reel, counted), reel.voice, Tone.GENTLE)
             return
         }
-        popped += i
+        popped[i] = place(i, clock) ?: return
         val n = counted + 1
+        env.sfx(Sfx.BUBBLE)
         env.note(scale[(n - 1) % scale.size])
         if (n >= reel.toPop) {
             doneAt = clock
@@ -261,54 +283,114 @@ fun BubbleView(reel: BubblePop, padding: PaddingValues, onDone: () -> Unit) {
         reel.word?.let { (word, picture) ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Pic(picture, 40.sp, voice = reel.voice)
-                T(word.take(counted) + "_".repeat(word.length - counted), color = colors.ink, size = 30.sp, weight = FontWeight.Black)
+                // Each letter as it is popped jumps into its place.
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    word.forEachIndexed { at, letter ->
+                        T(
+                            if (at < counted) letter.toString() else "_",
+                            Modifier.popOn(if (at == counted - 1) counted else 0),
+                            color = colors.ink, size = 30.sp, weight = FontWeight.Black,
+                        )
+                    }
+                }
             }
         }
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
             val bubble = if (reel.bubbles.size > 12) 74.dp else 86.dp
-            val r = Random(reel.id)
-            val lanes = reel.bubbles.indices.map { 0.08f + 0.84f * r.nextFloat() }
-            val spots = staticSpots(reel.bubbles.size, r)
+            fun at(p: Popped) = DpOffset((maxWidth - bubble) * p.x, (maxHeight - bubble) * p.y)
             reel.bubbles.forEachIndexed { i, b ->
-                if (i in popped) return@forEachIndexed
-                val x: Float
-                val y: Float
-                if (rising) {
-                    val spawn = i * gap
-                    if (clock < spawn) return@forEachIndexed
-                    val loops = floor((clock - spawn).toDouble() / period).toLong()
-                    // No new bubbles once it is over: those on their way up float off.
-                    if (spawn + loops * period > doneAt) return@forEachIndexed
-                    val q = ((clock - spawn) % period).toFloat() / period
-                    x = lanes[i] + 0.03f * sin(clock / 700f + i)
-                    y = 1.1f - q * 1.35f
-                } else {
-                    if (done) return@forEachIndexed
-                    x = spots[i].first
-                    y = spots[i].second + 0.015f * sin(clock / 600f + i * 1.7f)
-                }
+                val pop = popped[i]
+                // Popped: it swells for a moment, then bursts (drawn below).
+                val swell = pop?.let { (clock - it.at).toFloat() / SWELL_MILLIS }
+                if (swell != null && swell >= 1f) return@forEachIndexed
+                val p = pop ?: place(i, clock) ?: return@forEachIndexed
+                if (pop == null && !rising && done) return@forEachIndexed
+                val o = at(p)
                 Box(
-                    Modifier.offset((maxWidth - bubble) * x.coerceIn(0f, 1f), (maxHeight - bubble) * y)
+                    Modifier.offset(o.x, o.y)
                         .size(bubble)
+                        .graphicsLayer {
+                            alpha = p.shown
+                            val s = 1f + 0.22f * (swell ?: 0f)
+                            scaleX = s
+                            scaleY = s
+                        }
                         .shakeOn(if (shaking == i) shake else 0)
                         .clip(CircleShape)
-                        .tap { pop(i) },
+                        .then(if (pop == null) Modifier.tap { pop(i) } else Modifier),
                     contentAlignment = Alignment.Center,
                 ) {
                     BubbleBall(Color(b.argb))
-                    T(b.inside, color = Color.White, size = if (b.inside.length == 1 && b.inside[0].isLetterOrDigit()) 34.sp else (bubble.value * 0.42f).sp, weight = FontWeight.Black)
+                    BubbleInside(b, bubble)
+                }
+            }
+            // The bursts: a ring and a spray of drops, and what was inside floats up and away.
+            popped.forEach { (i, pop) ->
+                val age = clock - pop.at
+                if (age < SWELL_MILLIS || age > SWELL_MILLIS + FLOAT_MILLIS) return@forEach
+                val o = at(pop)
+                val q = (age - SWELL_MILLIS).toFloat() / FLOAT_MILLIS
+                Box(
+                    Modifier.offset(o.x, o.y).size(bubble).graphicsLayer {
+                        translationY = -q * bubble.toPx() * 0.9f
+                        alpha = 1f - q * q
+                        scaleX = 1f + 0.35f * q
+                        scaleY = 1f + 0.35f * q
+                    },
+                    contentAlignment = Alignment.Center,
+                ) { BubbleInside(reel.bubbles[i], bubble) }
+            }
+            Canvas(Modifier.fillMaxSize()) {
+                val r0 = bubble.toPx() / 2
+                popped.forEach { (i, pop) ->
+                    val q = (clock - pop.at - SWELL_MILLIS).toFloat() / BURST_MILLIS
+                    if (q < 0f || q >= 1f) return@forEach
+                    val o = at(pop)
+                    burst(Offset(o.x.toPx() + r0, o.y.toPx() + r0), r0 * 1.22f, Color(reel.bubbles[i].argb), q, Random(reel.id * 31 + i))
                 }
             }
             if (done) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    MultiText(Bubbles.done(reel), env.langs, colors.ink, size = 30.sp, say = { env.say(it) }, first = reel.voice ?: env.main)
+                    MultiText(Bubbles.done(reel), env.langs, colors.ink, Modifier.popOn(1), size = 30.sp, say = { env.say(it) }, first = reel.voice ?: env.main)
                 }
             }
         }
         Box(Modifier.fillMaxWidth().height(40.dp), contentAlignment = Alignment.Center) {
-            T("${counted} / ${reel.toPop}", color = colors.ink.copy(alpha = 0.8f), size = 18.sp, weight = FontWeight.Bold)
+            T("${counted} / ${reel.toPop}", Modifier.popOn(counted), color = colors.ink.copy(alpha = 0.8f), size = 18.sp, weight = FontWeight.Bold)
         }
     }
+}
+
+/** A popped bubble: when ([at], on the reel's clock) and where it was, and how much of it showed. */
+private data class Popped(val at: Long, val x: Float, val y: Float, val shown: Float)
+
+/** How long a popped bubble swells before it bursts; then the burst, and what was inside floating off. */
+private const val SWELL_MILLIS = 70L
+private const val BURST_MILLIS = 420L
+private const val FLOAT_MILLIS = 650L
+
+/**
+ * A bubble bursting, [q] of the way through: a thin ring flies out and fades, and drops of
+ * its film spray out and fall a little.
+ */
+private fun DrawScope.burst(centre: Offset, r: Float, colour: Color, q: Float, random: Random) {
+    val ease = 1f - (1f - q) * (1f - q)
+    // A flash of the film where the bubble was, gone in the first quarter.
+    if (q < 0.25f) drawCircle(colour.copy(alpha = 0.5f * (1f - q * 4f)), r * (1f + 0.15f * q), centre)
+    drawCircle(Color.White.copy(alpha = 0.85f * (1f - q)), r * (1f + 0.5f * ease), centre, style = Stroke(r * 0.09f * (1f - q) + 1f))
+    repeat(12) { k ->
+        val a = (k / 12f + random.nextFloat() * 0.05f) * 2 * PI.toFloat()
+        val d = r * (0.8f + (0.6f + 0.35f * random.nextFloat()) * ease)
+        val drop = centre + Offset(cos(a) * d, sin(a) * d + r * 0.6f * q * q)
+        drawCircle((if (k % 3 == 0) Color.White else colour).copy(alpha = 1f - q), r * (0.13f - 0.07f * q), drop)
+    }
+}
+
+/** What a bubble holds: a big numeral or letter, or a picture. */
+@Composable
+private fun BubbleInside(b: Bubble, bubble: Dp) {
+    val glyph = b.inside.length == 1 && b.inside[0].isLetterOrDigit()
+    T(b.inside, color = Color.White, size = if (glyph) 34.sp else (bubble.value * 0.42f).sp, weight = FontWeight.Black)
 }
 
 /**
