@@ -13,7 +13,8 @@ Kid Reels collects nothing.
   was liked, per-age counts of puzzles tried and answered first time (shown to the parent
   in settings and at the age check-in), and for each of the last 14 days the minutes
   played and per-topic counts of puzzles and likes (for the weekly note in settings;
-  older days are deleted). A birthday is never asked for, and the name never
+  older days are deleted). For the whole phone it also keeps the language picked for
+  the app's own screens. A birthday is never asked for, and the name never
   leaves the phone. Android's own backup may copy this file to your Google account or a
   new phone if you have backup turned on; the app itself sends it nowhere.
 - **Speech:** words are handed to the text-to-speech engine installed on your phone (for

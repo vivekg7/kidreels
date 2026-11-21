@@ -67,7 +67,7 @@ fun Onboarding(app: AppState) {
     var step by remember { mutableIntStateOf(0) }
     var draft by remember { mutableStateOf(app.settings) }
     var profile by remember { mutableStateOf(app.child.profile) }
-    val main = draft.main
+    val ui = app.uiLang
     val last = 5
     ParentPage { c ->
         LaunchedEffect(c.dark) { app.host.darkSystemIcons(!c.dark) }
@@ -77,43 +77,43 @@ fun Onboarding(app: AppState) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 when (step) {
-                    0 -> Welcome()
+                    0 -> Welcome(app)
                     1 -> {
-                        Title(S.langsTitle[main])
-                        Body(S.langsBody[main])
-                        LanguagePicker(draft.langs, main) { draft = draft.copy(langs = it) }
+                        Title(S.langsTitle[ui])
+                        Body(S.langsBody[ui])
+                        LanguagePicker(draft.langs, ui) { draft = draft.copy(langs = it) }
                     }
                     2 -> {
-                        Title(S.childTitle[main])
-                        Body(S.childBody[main])
-                        ProfileFields(profile, main) { profile = it }
+                        Title(S.childTitle[ui])
+                        Body(S.childBody[ui])
+                        ProfileFields(profile, ui) { profile = it }
                     }
                     3 -> {
-                        Title(S.ageTitle[main])
-                        Body(S.ageBody[main])
-                        AgePicker(draft.age, main) { draft = draft.copy(age = it) }
+                        Title(S.ageTitle[ui])
+                        Body(S.ageBody[ui])
+                        AgePicker(draft.age, ui) { draft = draft.copy(age = it) }
                     }
                     4 -> {
-                        Title(S.lookTitle[main])
-                        Body(S.lookBody[main])
-                        LookPicker(draft.look, main) { draft = draft.copy(look = it) }
+                        Title(S.lookTitle[ui])
+                        Body(S.lookBody[ui])
+                        LookPicker(draft.look, ui) { draft = draft.copy(look = it) }
                     }
                     else -> {
-                        Title(S.limitTitle[main])
-                        Body(S.limitBody[main])
-                        LimitPicker(draft.dailyMinutes, main) { draft = draft.copy(dailyMinutes = it) }
-                        Body(S.limitAdvice[main])
+                        Title(S.limitTitle[ui])
+                        Body(S.limitBody[ui])
+                        LimitPicker(draft.dailyMinutes, ui) { draft = draft.copy(dailyMinutes = it) }
+                        Body(S.limitAdvice[ui])
                     }
                 }
             }
             Dots(step, last + 1)
             Row(Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (step > 0) SecondaryButton(S.back[main], { step-- }, Modifier.weight(1f))
+                if (step > 0) SecondaryButton(S.back[ui], { step-- }, Modifier.weight(1f))
                 PrimaryButton(
                     when (step) {
-                        0 -> S.setUp[main]
-                        last -> S.start[main]
-                        else -> S.next[main]
+                        0 -> S.setUp[ui]
+                        last -> S.start[ui]
+                        else -> S.next[ui]
                     },
                     { if (step < last) step++ else app.finishOnboarding(draft, profile) },
                     Modifier.weight(if (step > 0) 1.6f else 1f),
@@ -123,23 +123,27 @@ fun Onboarding(app: AppState) {
     }
 }
 
-/** Before a language is picked the welcome is shown in every language. */
+/**
+ * In the app's language, English until changed, with the switch at the top: a parent who
+ * reads Hindi better sets up in Hindi, whatever the child's reels will be in.
+ */
 @Composable
-private fun Welcome() {
+private fun Welcome(app: AppState) {
     val c = LocalParent.current
+    val ui = app.uiLang
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxWidth()) {
+        // Each language by its own name, so a parent who cannot read the other finds theirs.
+        UiLangPicker(ui, app::changeUiLang, Modifier.align(Alignment.End))
         Box(
-            Modifier.padding(top = 20.dp).size(110.dp).clip(RoundedCornerShape(30.dp)).background(Color(0xFF6C4CF5)),
+            Modifier.size(110.dp).clip(RoundedCornerShape(30.dp)).background(Color(0xFF6C4CF5)),
             contentAlignment = Alignment.Center,
         ) {
             Box(Modifier.size(54.dp, 80.dp).clip(RoundedCornerShape(10.dp)).background(Color.White), contentAlignment = Alignment.Center) {
                 T("⭐", size = 30.sp)
             }
         }
-        Lang.entries.forEachIndexed { i, lang ->
-            T(S.appName[lang], color = c.ink, size = if (i == 0) 32.sp else 22.sp, weight = FontWeight.ExtraBold)
-            T(S.tagline[lang], color = c.sub, size = if (i == 0) 16.sp else 14.sp, align = TextAlign.Center, lineHeight = 21.sp)
-        }
+        T(S.appName[ui], color = c.ink, size = 32.sp, weight = FontWeight.ExtraBold)
+        T(S.tagline[ui], color = c.sub, size = 16.sp, align = TextAlign.Center, lineHeight = 21.sp)
         Spacer(Modifier.height(4.dp))
         listOf(S.promiseNoAds to "🚫", S.promiseLimit to "⏱️", S.promiseGate to "🔒").forEach { (t, e) ->
             Row(
@@ -147,11 +151,7 @@ private fun Welcome() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 T(e, size = 22.sp)
-                Column(Modifier.padding(start = 12.dp)) {
-                    Lang.entries.forEachIndexed { i, lang ->
-                        T(t[lang], color = if (i == 0) c.ink else c.sub, size = if (i == 0) 15.sp else 13.sp)
-                    }
-                }
+                T(t[ui], Modifier.padding(start = 12.dp), color = c.ink, size = 15.sp)
             }
         }
     }
@@ -171,16 +171,16 @@ private fun Dots(step: Int, count: Int) {
 @Composable
 fun CheckInContent(app: AppState, child: Child, onDone: () -> Unit) {
     val s = child.settings
-    val main = app.settings.main
+    val ui = app.uiLang
     val today = app.host.clock.today()
     val months = (((today - s.ageSetDay) / 30).toInt()).coerceAtLeast(s.checkInMonths)
     val stats = child.progress.stats(s.age)
-    Title(S.checkInQuestion[main])
-    Body(S.checkInSince(months, s.age)[main])
-    if (stats.tried > 0) Body(S.levelLine(s.age, stats)[main])
-    if (s.age < Settings.AGES.last) PrimaryButton(S.moveUp(s.age + 1)[main], { app.update(s.copy(age = s.age + 1), child); onDone() }, Modifier.fillMaxWidth())
-    SecondaryButton(S.keep(s.age)[main], { app.update(s.copy(ageSetDay = today), child); onDone() }, Modifier.fillMaxWidth())
-    SecondaryButton(S.later[main], { app.update(CheckIn.snooze(s, today), child); onDone() }, Modifier.fillMaxWidth())
+    Title(S.checkInQuestion[ui])
+    Body(S.checkInSince(months, s.age)[ui])
+    if (stats.tried > 0) Body(S.levelLine(s.age, stats)[ui])
+    if (s.age < Settings.AGES.last) PrimaryButton(S.moveUp(s.age + 1)[ui], { app.update(s.copy(age = s.age + 1), child); onDone() }, Modifier.fillMaxWidth())
+    SecondaryButton(S.keep(s.age)[ui], { app.update(s.copy(ageSetDay = today), child); onDone() }, Modifier.fillMaxWidth())
+    SecondaryButton(S.later[ui], { app.update(CheckIn.snooze(s, today), child); onDone() }, Modifier.fillMaxWidth())
 }
 
 /** A dimmed screen with one card: the parent gate, or the age check-in after it. */
@@ -204,14 +204,14 @@ private fun Overlay(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 
 @Composable
 fun Gate(app: AppState) {
-    val main = app.settings.main
+    val ui = app.uiLang
     Overlay(app::gateCancelled) {
         val c = LocalParent.current
         T("🔒", size = 40.sp)
-        Title(S.gateTitle[main])
-        Body(S.gateBody[main])
-        HoldButton(S.hold[main], app::gatePassed, Modifier.fillMaxWidth(), background = c.accent, content = c.onAccent)
-        SecondaryButton(S.cancel[main], app::gateCancelled, Modifier.fillMaxWidth())
+        Title(S.gateTitle[ui])
+        Body(S.gateBody[ui])
+        HoldButton(S.hold[ui], app::gatePassed, Modifier.fillMaxWidth(), background = c.accent, content = c.onAccent)
+        SecondaryButton(S.cancel[ui], app::gateCancelled, Modifier.fillMaxWidth())
     }
 }
 
@@ -225,19 +225,19 @@ fun CheckInDialog(app: AppState) {
 /** Why a language's reels are silent, and the way to fix it. From the feed's banner. */
 @Composable
 fun VoiceDialog(app: AppState, lang: Lang) {
-    val main = app.settings.main
+    val ui = app.uiLang
     Overlay({ app.voiceOpen = null }) {
         T("🔇", size = 40.sp)
-        Title(S.voiceTitle(lang)[main])
-        Body(S.voiceBody(lang)[main])
+        Title(S.voiceTitle(lang)[ui])
+        Body(S.voiceBody(lang)[ui])
         PrimaryButton(
-            S.installVoice[main],
+            S.installVoice[ui],
             {
                 app.voiceOpen = null
                 app.host.openVoiceSettings()
             },
             Modifier.fillMaxWidth(),
         )
-        SecondaryButton(S.notNow[main], { app.voiceLater(lang) }, Modifier.fillMaxWidth())
+        SecondaryButton(S.notNow[ui], { app.voiceLater(lang) }, Modifier.fillMaxWidth())
     }
 }

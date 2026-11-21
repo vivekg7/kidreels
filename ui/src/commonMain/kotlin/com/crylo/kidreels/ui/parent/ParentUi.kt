@@ -167,7 +167,7 @@ fun Toggle(label: String, on: Boolean, onChange: (Boolean) -> Unit) {
 
 /** Up to three languages; tapping adds to the end of the order or takes it out. */
 @Composable
-fun LanguagePicker(langs: List<Lang>, main: Lang, onChange: (List<Lang>) -> Unit) {
+fun LanguagePicker(langs: List<Lang>, ui: Lang, onChange: (List<Lang>) -> Unit) {
     val c = LocalParent.current
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Lang.entries.forEach { lang ->
@@ -194,26 +194,35 @@ fun LanguagePicker(langs: List<Lang>, main: Lang, onChange: (List<Lang>) -> Unit
                 ) { if (selected) T((at + 1).toString(), color = c.onAccent, weight = FontWeight.Bold) }
                 T(lang.nativeName, Modifier.padding(start = 14.dp).weight(1f), color = c.ink, size = 18.sp, weight = FontWeight.SemiBold)
                 if (at == 0) {
-                    T(S.langsMain[main], color = c.accent, size = 13.sp, weight = FontWeight.Bold)
+                    T(S.langsMain[ui], color = c.accent, size = 13.sp, weight = FontWeight.Bold)
                 } else if (selected) {
-                    Pill(S.makeMain[main], false, { onChange(listOf(lang) + (langs - lang)) })
+                    Pill(S.makeMain[ui], false, { onChange(listOf(lang) + (langs - lang)) })
                 }
             }
         }
-        Body(S.langsMore[main])
+        Body(S.langsMore[ui])
+    }
+}
+
+/** The app's own language: every one, by its own name, one tap each. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun UiLangPicker(ui: Lang, onChange: (Lang) -> Unit, modifier: Modifier = Modifier) {
+    FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Lang.entries.forEach { lang -> Pill(lang.nativeName, lang == ui, { onChange(lang) }) }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AgePicker(age: Int, main: Lang, onChange: (Int) -> Unit) {
+fun AgePicker(age: Int, ui: Lang, onChange: (Int) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Settings.AGES.forEach { a -> Pill(S.years(a)[main], a == age, { onChange(a) }) }
+        Settings.AGES.forEach { a -> Pill(S.years(a)[ui], a == age, { onChange(a) }) }
     }
 }
 
 @Composable
-fun LookPicker(look: Look, main: Lang, onChange: (Look) -> Unit) {
+fun LookPicker(look: Look, ui: Lang, onChange: (Look) -> Unit) {
     val c = LocalParent.current
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Look.entries.forEach { l ->
@@ -224,8 +233,8 @@ fun LookPicker(look: Look, main: Lang, onChange: (Look) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 LookPreview(l, Modifier.fillMaxWidth().aspectRatio(0.62f))
-                T(S.lookName(l)[main], Modifier.padding(top = 8.dp), color = c.ink, weight = FontWeight.Bold)
-                T(S.lookAbout(l)[main], color = c.sub, size = 12.sp, align = TextAlign.Center, lineHeight = 15.sp)
+                T(S.lookName(l)[ui], Modifier.padding(top = 8.dp), color = c.ink, weight = FontWeight.Bold)
+                T(S.lookAbout(l)[ui], color = c.sub, size = 12.sp, align = TextAlign.Center, lineHeight = 15.sp)
             }
         }
     }
@@ -237,17 +246,17 @@ fun LookPicker(look: Look, main: Lang, onChange: (Look) -> Unit) {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
+fun LimitPicker(minutes: Int, ui: Lang, onChange: (Int) -> Unit) {
     var custom by remember { mutableStateOf(minutes !in Settings.DAILY_MINUTES) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Settings.DAILY_MINUTES.forEach { m ->
-                Pill(if (m == 0) S.noLimit[main] else S.duration(m)[main], !custom && m == minutes, {
+                Pill(if (m == 0) S.noLimit[ui] else S.duration(m)[ui], !custom && m == minutes, {
                     custom = false
                     onChange(m)
                 })
             }
-            Pill(S.custom[main], custom, {
+            Pill(S.custom[ui], custom, {
                 custom = true
                 // From what is set, or an hour when there was no limit to start from.
                 if (minutes == 0) onChange(60)
@@ -256,12 +265,12 @@ fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
         if (custom) {
             val range = Settings.STEP..Settings.MAX_DAILY_MINUTES
             TimeSteppers(
-                S.perDay(minutes)[main],
-                S.hours[main], (minutes / 60).toString(),
+                S.perDay(minutes)[ui],
+                S.hours[ui], (minutes / 60).toString(),
                 (minutes % 60).toString(),
-                minutes, range, main, onChange,
+                minutes, range, ui, onChange,
             )
-            Body(S.limitUpTo[main])
+            Body(S.limitUpTo[ui])
         }
     }
 }
@@ -269,29 +278,29 @@ fun LimitPicker(minutes: Int, main: Lang, onChange: (Int) -> Unit) {
 /** Off, the usual evening times, and "Custom" for any time from 4 pm, in 5 minutes. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun BedtimePicker(bedtime: Int, main: Lang, onChange: (Int) -> Unit) {
+fun BedtimePicker(bedtime: Int, ui: Lang, onChange: (Int) -> Unit) {
     var custom by remember { mutableStateOf(bedtime !in Settings.BEDTIMES) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Settings.BEDTIMES.forEach { m ->
-                Pill(if (m == 0) S.off[main] else S.clock(m)[main], !custom && m == bedtime, {
+                Pill(if (m == 0) S.off[ui] else S.clock(m)[ui], !custom && m == bedtime, {
                     custom = false
                     onChange(m)
                 })
             }
-            Pill(S.custom[main], custom, {
+            Pill(S.custom[ui], custom, {
                 custom = true
                 if (bedtime == 0) onChange(20 * 60)
             })
         }
         if (custom) {
             TimeSteppers(
-                S.from(S.clock(bedtime))[main],
-                S.hour[main], ((bedtime / 60 + 11) % 12 + 1).toString(),
+                S.from(S.clock(bedtime))[ui],
+                S.hour[ui], ((bedtime / 60 + 11) % 12 + 1).toString(),
                 (bedtime % 60).toString().padStart(2, '0'),
-                bedtime, Settings.BEDTIME_RANGE, main, onChange,
+                bedtime, Settings.BEDTIME_RANGE, ui, onChange,
             )
-            Body(S.bedtimeRange[main])
+            Body(S.bedtimeRange[ui])
         }
     }
 }
@@ -310,7 +319,7 @@ private fun TimeSteppers(
     minutesValue: String,
     value: Int,
     range: IntRange,
-    main: Lang,
+    ui: Lang,
     onChange: (Int) -> Unit,
 ) {
     val c = LocalParent.current
@@ -319,7 +328,7 @@ private fun TimeSteppers(
         RowLine()
         Stepper(hoursLabel, hoursValue, value - 60 >= range.first, value < range.last, { onChange(value - 60) }, { onChange((value + 60).coerceAtMost(range.last)) })
         RowLine()
-        Stepper(S.minutesLabel[main], minutesValue, value - Settings.STEP >= range.first, value < range.last, { onChange(value - Settings.STEP) }, { onChange((value + Settings.STEP).coerceAtMost(range.last)) })
+        Stepper(S.minutesLabel[ui], minutesValue, value - Settings.STEP >= range.first, value < range.last, { onChange(value - Settings.STEP) }, { onChange((value + Settings.STEP).coerceAtMost(range.last)) })
     }
 }
 
@@ -345,9 +354,9 @@ private fun StepButton(sign: String, enabled: Boolean, onClick: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
+fun CheckInPicker(months: Int, ui: Lang, onChange: (Int) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Settings.CHECK_IN_MONTHS.forEach { m -> Pill(S.everyMonths(m)[main], m == months, { onChange(m) }) }
+        Settings.CHECK_IN_MONTHS.forEach { m -> Pill(S.everyMonths(m)[ui], m == months, { onChange(m) }) }
     }
 }
 
@@ -358,13 +367,13 @@ fun CheckInPicker(months: Int, main: Lang, onChange: (Int) -> Unit) {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TopicPicker(focus: Topic?, age: Int, langs: List<Lang>, main: Lang, onPick: (Topic?) -> Unit) {
+fun TopicPicker(focus: Topic?, age: Int, langs: List<Lang>, ui: Lang, onPick: (Topic?) -> Unit) {
     val c = LocalParent.current
     val forAge = { topic: Topic -> age in Templates.of(topic).ages }
     var otherAges by remember { mutableStateOf(focus != null && !forAge(focus)) }
     var open by remember { mutableStateOf(setOfNotNull(focus?.channel)) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Pill(S.allTopics[main], focus == null, { onPick(null) })
+        Pill(S.allTopics[ui], focus == null, { onPick(null) })
         Channel.entries.forEach { channel ->
             // A topic about a language the child does not have (English rhymes for Hindi only) is not offered.
             val topics = Topic.entries.filter { it.channel == channel && it != Topic.BREAK && Templates.of(it).fits(langs) && (otherAges || forAge(it)) }
@@ -377,8 +386,8 @@ fun TopicPicker(focus: Topic?, age: Int, langs: List<Lang>, main: Lang, onPick: 
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     T(channel.emoji, size = 20.sp)
-                    T(channel.handle[main], Modifier.padding(start = 12.dp).weight(1f), color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-                    T(picked?.title?.get(main) ?: topics.size.toString(), Modifier.padding(horizontal = 8.dp), color = if (picked != null) c.accent else c.sub, size = 14.sp, weight = FontWeight.SemiBold, maxLines = 1)
+                    T(channel.handle[ui], Modifier.padding(start = 12.dp).weight(1f), color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+                    T(picked?.title?.get(ui) ?: topics.size.toString(), Modifier.padding(horizontal = 8.dp), color = if (picked != null) c.accent else c.sub, size = 14.sp, weight = FontWeight.SemiBold, maxLines = 1)
                     DrawnIcon(if (expanded) Icon.DOWN else Icon.NEXT, c.sub, Modifier.size(20.dp))
                 }
                 if (expanded) {
@@ -389,13 +398,13 @@ fun TopicPicker(focus: Topic?, age: Int, langs: List<Lang>, main: Lang, onPick: 
                     ) {
                         topics.forEach { topic ->
                             val ages = Templates.of(topic).ages
-                            val label = topic.title[main] + if (age in ages) "" else " · " + S.forAges(ages)[main]
+                            val label = topic.title[ui] + if (age in ages) "" else " · " + S.forAges(ages)[ui]
                             Pill(label, topic == focus, { onPick(if (topic == focus) null else topic) })
                         }
                     }
                 }
             }
         }
-        Rows { Toggle(S.otherAges[main], otherAges) { otherAges = it } }
+        Rows { Toggle(S.otherAges[ui], otherAges) { otherAges = it } }
     }
 }

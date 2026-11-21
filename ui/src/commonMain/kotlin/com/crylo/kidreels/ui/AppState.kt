@@ -34,6 +34,9 @@ sealed interface Page {
 
     data object NewChild : Page
 
+    /** The language of these screens: the phone's, so it sits on the first page, not a child's. */
+    data object AppLanguage : Page
+
     data class OfChild(val id: Int) : Page
 
     data class Part(val id: Int, val part: ChildPart) : Page
@@ -75,6 +78,19 @@ class AppState(val host: Host) {
         private set
 
     val settings: Settings get() = child.settings
+
+    /**
+     * The language of every screen a grown-up reads: settings, setup, the gate, the notes
+     * for grown-ups. The phone's ([Profiles.uiLang]), apart from the children's languages:
+     * what a reel shows and says, and what is said to a child, stays in those.
+     */
+    var uiLang by mutableStateOf(profiles.uiLang)
+        private set
+
+    fun changeUiLang(lang: Lang) {
+        profiles.uiLang = lang
+        uiLang = lang
+    }
     val progress: Progress get() = child.progress
     val budget: TimeBudget get() = child.budget
     val feed: FeedModel get() = child.feed
@@ -175,7 +191,8 @@ class AppState(val host: Host) {
         host.speaker.setSlow(settings.slowSpeech)
     }
 
-    fun text(t: Txt): String = t[settings.main]
+    /** A grown-up's text, in [uiLang]. */
+    fun text(t: Txt): String = t[uiLang]
 
     val checkInDue: Boolean get() = checkInDue(child)
 
@@ -196,7 +213,7 @@ class AppState(val host: Host) {
     fun pageBack() {
         page = when (val p = page) {
             is Page.Part -> Page.OfChild(p.id)
-            is Page.OfChild, Page.NewChild -> Page.Home
+            is Page.OfChild, Page.NewChild, Page.AppLanguage -> Page.Home
             Page.Home -> return closeSettings()
         }
     }

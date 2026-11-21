@@ -103,6 +103,28 @@ class ProfilesTest {
     }
 
     @Test
+    fun theAppsLanguageIsThePhonesAndEnglishUntilChanged() {
+        val kv = MapStore()
+        val profiles = Profiles(kv)
+        // A child whose reels are in Hindi does not make the grown-up's screens Hindi.
+        SettingsStore(profiles.storeOf(1)).save(Settings(onboarded = true, langs = listOf(Lang.HI)))
+        assertEquals(Lang.EN, profiles.uiLang)
+
+        profiles.uiLang = Lang.HI
+        assertEquals("hi", kv.get("device.uiLang"))
+        assertEquals(Lang.HI, Profiles(kv).uiLang)
+        // Phone-wide: no child's keys hold it, and removing a child keeps it.
+        val two = profiles.add(Profile(0), Settings(onboarded = true))
+        profiles.remove(two)
+        assertEquals(Lang.HI, Profiles(kv).uiLang)
+        assertEquals(listOf(Lang.HI), SettingsStore(profiles.storeOf(1)).load().langs)
+
+        // A language this version does not know reads as English.
+        kv.put("device.uiLang", "xx")
+        assertEquals(Lang.EN, Profiles(kv).uiLang)
+    }
+
+    @Test
     fun namesAreTrimmedAndKeptShort() {
         val profiles = Profiles(MapStore())
         profiles.save(Profile(1, "  " + "x".repeat(40) + "  "))

@@ -389,10 +389,11 @@ animal and a colour (`core/Profiles.kt`), plus everything that was the app's set
 before: age, languages, look, limit, check-in, slow speech, progress, today's time.
 
 - **Storage.** Each child's keys sit under `p<id>.` and the phone's own under `device.`
-  (the list of children, who played last). `Settings`, `Progress` and `TimeBudget` did not
-  change: they are handed a `PrefixedStore` and read plain keys as before. On the first
-  start of a version with profiles, every top-level key moves under `p1.`, so an update
-  keeps all of 1.1's settings and progress. Removing a child removes their keys.
+  (the list of children, who played last, the app's language). `Settings`, `Progress`
+  and `TimeBudget` did not change: they are handed a `PrefixedStore` and read plain keys
+  as before. On the first start of a version with profiles, every top-level key moves
+  under `p1.`, so an update keeps all of 1.1's settings and progress. Removing a child
+  removes their keys.
 - **An animal, not a photo.** A toddler finds their own animal without reading their
   name, and nothing needs the camera. The name is optional; a child without one is called
   by their animal ("Tiger", "बाघ"). A new child starts on an animal and colour nobody
@@ -428,8 +429,24 @@ first and large. Speech follows one rule: **speak the main language, unless the 
 about another language** (its alphabet, its first-letter quiz), which is spoken in that
 language (`Reel.voice`). Tapping any line speaks it in that line's own language.
 
-Parent screens use the main language only (the welcome screen shows all, since no
-language is chosen yet).
+**What a grown-up reads is in the app's language; what is said or shown to the child is
+in the child's.** The app's language is one setting for the whole phone
+(`device.uiLang`, `AppState.uiLang`), English until a grown-up changes it, on the first
+settings page or with the switch at the top of the welcome screen. It covers settings,
+setup, the gate, the check-in and missing-voice banners and their cards, the weekly
+note, the crash report, the "Show only" chip and the "hold for 10 more minutes" button.
+The reels keep the child's languages: their text and voice, their buttons (Like, Again,
+Start over), "Swipe up", the sad face, "Almost done", and the goodbye and good-night
+reels. So do "Who's playing?" and the greeting, which are said to a child.
+
+It used to be one: the main language ran the parent screens too. But the reels' language
+is about what the child is learning, and a family that wants Hindi reels may well have a
+parent who reads English better, or the other way round. The setting is the phone's,
+not each child's, because one grown-up sets up every child. Existing installs start on
+English as well rather than taking the playing child's main language: which child is
+playing says nothing about who reads settings. The welcome screen used to show every
+language, as none was chosen yet; now it shows one, with each language listed by its own
+name at the top, so a parent who reads only Hindi can still find theirs.
 
 ## Age, and checking in on it
 
@@ -572,14 +589,14 @@ the feed, and picking another child once the last one's time is up.
   it shows once a reel is done. Laid over the reel at a fixed height, it covered
   whatever was there: a shape's example pictures, a quiz's answer line. Those four
   reels give up 48 dp of height for it; the rest keep it all.
-- **Settings are pages, a row each.** The first page lists the children, the phone's
-  voices and About; a child's page has one row per choice, saying what is set now
-  ("20 min · 12 min left today"), and each row opens that choice on its own page. One
-  long page used to hold the playing child's choices with every topic below them, and
-  it read as being about the whole phone; the topic list alone grows with every
-  release. Topics are folded by channel and list the child's age unless asked for more.
-  Age sits with the name and animal: it is who the child is, not a preference. The
-  gear always opens on the first page.
+- **Settings are pages, a row each.** The first page lists the children, the app's
+  language, the phone's voices and About; a child's page has one row per choice, saying
+  what is set now ("20 min · 12 min left today"), and each row opens that choice on its
+  own page. One long page used to hold the playing child's choices with every topic
+  below them, and it read as being about the whole phone; the topic list alone grows
+  with every release. Topics are folded by channel and list the child's age unless
+  asked for more. Age sits with the name and animal: it is who the child is, not a
+  preference. The gear always opens on the first page.
 - **The usual limits and bedtimes are one tap; any other is "Custom".** Custom sets
   hours and minutes with − and + buttons, in 5 minutes or an hour at a time: no keyboard
   or dial, which are fiddly one-handed. The limit goes up to 6 hours, past which a limit

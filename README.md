@@ -90,6 +90,10 @@ choice below, and each row opens that choice:
   Once a child's time is up, picking a different child needs the gate, so a sibling's
   profile is not a way round the limit.
 - **Languages**: up to 3, in order; the first is the main one. English and Hindi for now.
+  These are the reels' languages, set for each child.
+- **App language**: the language of settings and of everything else a grown-up reads,
+  for the whole phone, English or Hindi. English until changed, on the first settings
+  page or on the welcome screen.
 - **Age**, 2 to 12. Reels are made for that age, with an occasional one a level above or
   below, and an easy reel always follows a hard one. Up to age 5 the words are the ones
   children hear at home ("तिकोना", "take away"); from 6, the ones used at school

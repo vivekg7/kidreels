@@ -130,11 +130,12 @@ fun FeedScreen(app: AppState) {
     val windingDown = model.windingDown
     val focus = model.focus
     // One note for a grown-up at a time, under the header: the age check-in first, as it
-    // changes what the child sees; then a voice the reels need and the phone lacks.
+    // changes what the child sees; then a voice the reels need and the phone lacks. In the
+    // app's language, like everything a grown-up reads; the reels keep the child's.
     val missingVoice = app.missingVoice
     val banner: Pair<String, () -> Unit>? = when {
-        app.checkInDue -> "👋  " + S.checkInBanner[settings.main] to { app.requestGate { app.checkInOpen = true } }
-        missingVoice != null -> "🔇  " + S.voiceBanner(missingVoice)[settings.main] to { app.requestGate { app.voiceOpen = missingVoice } }
+        app.checkInDue -> "👋  " + S.checkInBanner[app.uiLang] to { app.requestGate { app.checkInOpen = true } }
+        missingVoice != null -> "🔇  " + S.voiceBanner(missingVoice)[app.uiLang] to { app.requestGate { app.voiceOpen = missingVoice } }
         else -> null
     }
     val extraTop = (if (banner != null) 44.dp else 0.dp) + (if (focus != null) 40.dp else 0.dp)
@@ -152,7 +153,10 @@ fun FeedScreen(app: AppState) {
             ) { page ->
                 val reel = model.reels[page]
                 val state = model.state(reel)
-                val env = ReelEnv(settings.langs, active = onScreen && page == pager.settledPage, speak = speaker::speak, play = host::play)
+                val env = ReelEnv(
+                    settings.langs, active = onScreen && page == pager.settledPage, speak = speaker::speak, play = host::play,
+                    grownUps = app.uiLang,
+                )
                 CompositionLocalProvider(LocalReelEnv provides env) {
                     Box(Modifier.fillMaxSize()) {
                         ReelFrame(
@@ -230,7 +234,7 @@ fun FeedScreen(app: AppState) {
             // into the channel pill beside the gear.
             if (focus != null) {
                 Box(Modifier.align(Alignment.TopCenter).padding(top = if (banner != null) 102.dp else 60.dp)) {
-                    Chip(focus.channel.emoji + " " + S.onlyTopic(focus.title)[settings.main], colors.dark)
+                    Chip(focus.channel.emoji + " " + S.onlyTopic(focus.title)[app.uiLang], colors.dark)
                 }
             }
             SadBubble(model.skippedPuzzle, Phrases.skipped[settings.main], Modifier.align(BiasAlignment(0f, -0.45f)))

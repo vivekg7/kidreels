@@ -55,6 +55,8 @@ class ReelEnv(
     val active: Boolean,
     private val speak: (List<Say>) -> Unit,
     private val play: (Sfx) -> Unit,
+    /** The app's language, for the odd line on a reel meant for a grown-up: "hold for 10 more minutes". */
+    val grownUps: Lang,
 ) {
     val main: Lang get() = langs.first()
 

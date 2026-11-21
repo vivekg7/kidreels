@@ -314,6 +314,6 @@ fun TimeUpView(bedtime: Boolean, padding: PaddingValues, onMoreTime: () -> Unit)
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             (if (bedtime) Phrases.bedtimeThings else Phrases.goodbyeThings).forEach { Pic(it, 38.sp) }
         }
-        HoldButton(S.moreTime[env.main], onMoreTime, Modifier.fillMaxWidth(), background = colors.ink.copy(alpha = 0.16f), content = colors.ink)
+        HoldButton(S.moreTime[env.grownUps], onMoreTime, Modifier.fillMaxWidth(), background = colors.ink.copy(alpha = 0.16f), content = colors.ink)
     }
 }

@@ -7,9 +7,10 @@ import com.crylo.kidreels.core.Txt
 import com.crylo.kidreels.core.txt
 
 /**
- * The parent screens' text, shown in the main language. Kept with the shared UI rather
- * than in Android resources, because a reel shows several languages at once and every
- * platform needs the same words.
+ * The parent screens' text, shown in the app's language ([AppState.uiLang]), and the few
+ * words on a reel's buttons, shown in the child's. Kept with the shared UI rather than in
+ * Android resources, because a reel shows several languages at once and every platform
+ * needs the same words.
  */
 object S {
     val appName = txt("Kid Reels", "किड रील्स")
@@ -28,12 +29,24 @@ object S {
 
     val langsTitle = txt("Which languages does your child hear at home?", "बच्चा घर में कौन सी भाषाएँ सुनता है?")
     val langsBody = txt(
-        "Pick up to 3. The first one is the main language: reels speak it. Alphabet reels of the other languages speak their own.",
-        "3 तक चुनें। पहली मुख्य भाषा है: रील्स उसी में बोलती हैं। दूसरी भाषाओं की वर्णमाला वाली रील्स अपनी भाषा में बोलती हैं।",
+        "Pick up to 3. The first one is the main language: reels speak it. Alphabet reels of the other languages speak their own. " +
+            "These are the reels' languages; the app's own language is in settings.",
+        "3 तक चुनें। पहली मुख्य भाषा है: रील्स उसी में बोलती हैं। दूसरी भाषाओं की वर्णमाला वाली रील्स अपनी भाषा में बोलती हैं। " +
+            "ये रील्स की भाषाएँ हैं; ऐप की अपनी भाषा सेटिंग्स में है।",
     )
     val langsMain = txt("Main", "मुख्य")
     val makeMain = txt("Make main", "मुख्य बनाएँ")
     val langsMore = txt("More languages are coming.", "और भाषाएँ जल्द आएँगी।")
+
+    val appLanguage = txt("App language", "ऐप की भाषा")
+    val appLanguageLine = txt(
+        "For settings and notes for grown-ups. Reels use each child's languages.",
+        "सेटिंग्स और बड़ों के लिए संदेशों की भाषा। रील्स हर बच्चे की अपनी भाषाओं में चलती हैं।",
+    )
+    val appLanguageBody = txt(
+        "The language of settings, setup and the notes for grown-ups, for everyone on this phone. What the reels show and say is set for each child, under Languages on their page.",
+        "सेटिंग्स, शुरुआत और बड़ों के लिए संदेशों की भाषा, इस फ़ोन पर सबके लिए। रील्स क्या दिखाती और बोलती हैं, यह हर बच्चे के पेज पर भाषाएँ में तय होता है।",
+    )
 
     val ageTitle = txt("How old is your child?", "बच्चे की उम्र कितनी है?")
     val ageBody = txt(

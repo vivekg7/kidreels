@@ -78,6 +78,16 @@ class Profiles(private val kv: KeyValueStore) {
         get() = kv.get(LAST)?.toIntOrNull()?.takeIf { it in ids() } ?: ids().first()
         set(id) = kv.put(LAST, id.toString())
 
+    /**
+     * The language of the grown-up's screens: settings, setup, the gate, the notes for
+     * grown-ups. The phone's, not a child's, since one grown-up sets up every child, and
+     * apart from the reels' languages: those are what a child is learning, while a parent
+     * may read English or Hindi better either way. English until a grown-up changes it.
+     */
+    var uiLang: Lang
+        get() = kv.get(UI_LANG)?.let { tag -> Lang.entries.firstOrNull { it.tag == tag } } ?: Lang.EN
+        set(lang) = kv.put(UI_LANG, lang.tag)
+
     /** The phone's own keys, shared by every child: a missing voice is missing for all of them. */
     val device: KeyValueStore = PrefixedStore(kv, DEVICE)
 
@@ -141,6 +151,7 @@ class Profiles(private val kv: KeyValueStore) {
         private const val DEVICE = "device."
         private const val LIST = DEVICE + "profiles"
         private const val LAST = DEVICE + "last"
+        private const val UI_LANG = DEVICE + "uiLang"
 
         private fun prefix(id: Int) = "p$id."
 

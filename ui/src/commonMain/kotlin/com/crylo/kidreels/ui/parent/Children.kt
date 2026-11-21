@@ -41,18 +41,18 @@ private const val PICTURES_PER_ROW = 6
 
 /** Name, picture and colour: the same in first-run setup, adding a child and on a child's page. */
 @Composable
-fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
+fun ProfileFields(p: Profile, ui: Lang, onChange: (Profile) -> Unit) {
     val c = LocalParent.current
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AvatarBadge(p, 72.dp)
             Column(Modifier.padding(start = 14.dp).weight(1f)) {
-                T(S.name[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
+                T(S.name[ui], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
                 Box(
                     Modifier.padding(top = 4.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surface)
                         .border(1.5.dp, c.line, RoundedCornerShape(14.dp)).padding(horizontal = 14.dp, vertical = 12.dp),
                 ) {
-                    if (p.name.isEmpty()) T(S.nameHint[main] + " · " + p.label(main), color = c.sub.copy(alpha = 0.7f), size = 17.sp)
+                    if (p.name.isEmpty()) T(S.nameHint[ui] + " · " + p.label(ui), color = c.sub.copy(alpha = 0.7f), size = 17.sp)
                     BasicTextField(
                         p.name,
                         { onChange(p.copy(name = it.take(Profile.MAX_NAME))) },
@@ -68,7 +68,7 @@ fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
         // Both grids share out the full width, so their edges line up with the name field
         // above on any phone. Flowing at a fixed size left a gap on the right, and the last
         // colour alone on a second line.
-        T(S.picture[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
+        T(S.picture[ui], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Avatar.entries.chunked(PICTURES_PER_ROW).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -85,7 +85,7 @@ fun ProfileFields(p: Profile, main: Lang, onChange: (Profile) -> Unit) {
                 }
             }
         }
-        T(S.colour[main], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
+        T(S.colour[ui], color = c.sub, size = 13.sp, weight = FontWeight.SemiBold)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             AvatarColours.forEachIndexed { i, colour ->
                 Box(

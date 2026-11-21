@@ -198,6 +198,36 @@ class AppStateTest {
     }
 
     @Test
+    fun grownUpScreensAreInTheAppsLanguageNotTheChildsMainOne() {
+        val (aarav, meera) = children(Settings(langs = listOf(Lang.HI)), Settings(langs = listOf(Lang.HI, Lang.EN)))
+        val app = AppState(host)
+        app.choose(aarav)
+        app.feed.fill(0)
+        val reels = app.feed.reels.toList()
+        // Hindi reels, English settings: the app's language starts as English for everyone.
+        assertEquals(Lang.EN, app.uiLang)
+        assertEquals("Settings", app.text(S.settings))
+
+        app.openSettings()
+        app.page = Page.AppLanguage
+        app.changeUiLang(Lang.HI)
+        assertEquals("सेटिंग्स", app.text(S.settings))
+        // The children's languages, and the reels made in them, are left alone.
+        assertEquals(listOf(Lang.HI), app.settings.langs)
+        assertEquals(listOf(Lang.HI, Lang.EN), app.childOf(meera).settings.langs)
+        assertEquals(reels, app.feed.reels.take(reels.size))
+        // It is the phone's: kept for the next start and the same whoever plays.
+        assertEquals(Lang.HI, AppState(host).uiLang)
+        app.choose(meera)
+        assertEquals(Lang.HI, app.uiLang)
+        // Its page is on the first one, so back goes there.
+        app.openSettings()
+        app.page = Page.AppLanguage
+        assertTrue(app.onBack())
+        assertEquals(Page.Home, app.page)
+    }
+
+    @Test
     fun removingAChildFromTheirPageGoesBackToTheList() {
         val (_, meera) = children(Settings(), Settings())
         val app = AppState(host)

@@ -64,6 +64,7 @@ fun SettingsScreen(app: AppState) {
         when (page) {
             Page.Home -> Home(app)
             Page.NewChild -> NewChild(app)
+            Page.AppLanguage -> AppLanguage(app)
             is Page.OfChild -> ChildPage(app, app.childOf(page.id))
             is Page.Part -> PartPage(app, app.childOf(page.id), page.part)
         }
@@ -99,43 +100,46 @@ private fun PageScaffold(
     }
 }
 
-/** The children, then what is the phone's rather than a child's: voices, and about. */
+/** The children, then what is the phone's rather than a child's: the app's language, voices, and about. */
 @Composable
 private fun Home(app: AppState) {
-    val main = app.settings.main
-    PageScaffold(app, S.settings[main]) {
-        SectionTitle(S.children[main])
-        Body(S.childrenBody[main])
+    val ui = app.uiLang
+    PageScaffold(app, S.settings[ui]) {
+        SectionTitle(S.children[ui])
+        Body(S.childrenBody[ui])
         Rows {
             app.all.forEachIndexed { i, p ->
                 if (i > 0) RowLine()
                 val child = app.childOf(p.id)
                 val s = child.settings
                 val notes = listOfNotNull(
-                    S.childLine(s.age, s.dailyMinutes)[main],
-                    S.playingNow[main].takeIf { p.id == app.child.id },
+                    S.childLine(s.age, s.dailyMinutes)[ui],
+                    S.playingNow[ui].takeIf { p.id == app.child.id },
                 )
                 val due = app.checkInDue(child)
                 NavRow(
-                    p.label(main),
-                    if (due) S.checkInDue[main] else notes.joinToString(" · "),
+                    p.label(ui),
+                    if (due) S.checkInDue[ui] else notes.joinToString(" · "),
                     { app.page = Page.OfChild(p.id) },
                     valueColor = if (due || p.id == app.child.id) LocalParent.current.accent else null,
                     leading = { AvatarBadge(p, 44.dp) },
                 )
             }
         }
-        if (app.all.size < Profiles.MAX_CHILDREN) SecondaryButton("+  " + S.addChild[main], { app.page = Page.NewChild }, Modifier.fillMaxWidth())
+        if (app.all.size < Profiles.MAX_CHILDREN) SecondaryButton("+  " + S.addChild[ui], { app.page = Page.NewChild }, Modifier.fillMaxWidth())
 
-        SectionTitle(S.voices[main])
+        SectionTitle(S.appLanguage[ui])
+        Rows { NavRow(ui.nativeName, S.appLanguageLine[ui], { app.page = Page.AppLanguage }) }
+
+        SectionTitle(S.voices[ui])
         Voices(app)
 
-        SectionTitle(S.about[main])
-        Body(S.aboutBody(app.host.appVersion)[main])
+        SectionTitle(S.about[ui])
+        Body(S.aboutBody(app.host.appVersion)[ui])
         // Behind the gate like everything here: a child never reaches the browser.
         // Opening a link needs no internet permission; the browser does the fetching.
         val links = LocalUriHandler.current
-        Pill(S.privacyPolicy[main], false, { runCatching { links.openUri(S.PRIVACY_URL) } })
+        Pill(S.privacyPolicy[ui], false, { runCatching { links.openUri(S.PRIVACY_URL) } })
         app.crashReport?.let { CrashCard(app, it) }
     }
 }
@@ -144,12 +148,12 @@ private fun Home(app: AppState) {
 @Composable
 private fun ChildPage(app: AppState, child: Child) {
     val c = LocalParent.current
-    val main = app.settings.main
+    val ui = app.uiLang
     val s = child.settings
     val p = child.profile
     val open = { part: ChildPart -> app.page = Page.Part(child.id, part) }
     var confirmRemove by remember { mutableStateOf(false) }
-    PageScaffold(app, p.label(main)) {
+    PageScaffold(app, p.label(ui)) {
         if (app.checkInDue(child)) {
             Column(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(LocalParent.current.surface).padding(16.dp),
@@ -157,65 +161,65 @@ private fun ChildPage(app: AppState, child: Child) {
             ) { CheckInContent(app, child, onDone = {}) }
         }
         Rows {
-            NavRow(S.profile[main], profileLine(p, s.age, main), { open(ChildPart.PROFILE) }, leading = { AvatarBadge(p, 44.dp) })
+            NavRow(S.profile[ui], profileLine(p, s.age, ui), { open(ChildPart.PROFILE) }, leading = { AvatarBadge(p, 44.dp) })
         }
 
-        SectionTitle(S.timeGroup[main])
+        SectionTitle(S.timeGroup[ui])
         Rows {
             val left = child.budget.remainingMillis(s.dailyMinutes)
-            val limit = if (s.dailyMinutes == 0) S.noLimit[main] else S.duration(s.dailyMinutes)[main]
-            NavRow(S.limitTitle[main], limit + (left?.let { " · " + S.leftToday(it / 60_000)[main] } ?: ""), { open(ChildPart.LIMIT) })
+            val limit = if (s.dailyMinutes == 0) S.noLimit[ui] else S.duration(s.dailyMinutes)[ui]
+            NavRow(S.limitTitle[ui], limit + (left?.let { " · " + S.leftToday(it / 60_000)[ui] } ?: ""), { open(ChildPart.LIMIT) })
             RowLine()
-            NavRow(S.bedtimeTitle[main], if (s.bedtime == 0) S.off[main] else S.clock(s.bedtime)[main], { open(ChildPart.BEDTIME) })
+            NavRow(S.bedtimeTitle[ui], if (s.bedtime == 0) S.off[ui] else S.clock(s.bedtime)[ui], { open(ChildPart.BEDTIME) })
         }
 
-        SectionTitle(S.reelsGroup[main])
+        SectionTitle(S.reelsGroup[ui])
         Rows {
             val focus = child.feed.focus
             NavRow(
-                S.showOnly[main], focus?.title?.get(main) ?: S.allTopics[main], { open(ChildPart.TOPICS) },
+                S.showOnly[ui], focus?.title?.get(ui) ?: S.allTopics[ui], { open(ChildPart.TOPICS) },
                 valueColor = if (focus != null) c.accent else null,
             )
             RowLine()
-            NavRow(S.languages[main], s.langs.joinToString(", ") { it.nativeName }, { open(ChildPart.LANGUAGES) })
+            NavRow(S.languages[ui], s.langs.joinToString(", ") { it.nativeName }, { open(ChildPart.LANGUAGES) })
             RowLine()
-            NavRow(S.look[main], S.lookName(s.look)[main], { open(ChildPart.LOOK) })
+            NavRow(S.look[ui], S.lookName(s.look)[ui], { open(ChildPart.LOOK) })
             RowLine()
-            Toggle(S.slowSpeech[main], s.slowSpeech) { app.update(s.copy(slowSpeech = it), child) }
+            Toggle(S.slowSpeech[ui], s.slowSpeech) { app.update(s.copy(slowSpeech = it), child) }
         }
 
-        SectionTitle(S.progress[main])
+        SectionTitle(S.progress[ui])
         WeekNote(app, child)
         val levels = (s.age - 1..s.age + 1).filter { it in Settings.AGES }.map { it to child.progress.stats(it) }.filter { it.second.tried > 0 }
-        if (levels.isEmpty()) Body(S.noProgress[main])
-        levels.forEach { (level, st) -> Body(S.levelLine(level, st)[main]) }
+        if (levels.isEmpty()) Body(S.noProgress[ui])
+        levels.forEach { (level, st) -> Body(S.levelLine(level, st)[ui]) }
 
         if (app.all.size > 1) {
-            val label = p.label(main)
+            val label = p.label(ui)
             Spacer(Modifier.height(12.dp))
             if (!confirmRemove) {
-                SecondaryButton(S.removeChild(label)[main], { confirmRemove = true }, Modifier.fillMaxWidth())
+                SecondaryButton(S.removeChild(label)[ui], { confirmRemove = true }, Modifier.fillMaxWidth())
             } else {
                 Column(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(c.surface).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Body(S.removeBody(label)[main])
-                    DangerButton(S.remove[main]) { app.removeChild(child.id) }
-                    SecondaryButton(S.cancel[main], { confirmRemove = false }, Modifier.fillMaxWidth())
+                    Body(S.removeBody(label)[ui])
+                    DangerButton(S.remove[ui]) { app.removeChild(child.id) }
+                    SecondaryButton(S.cancel[ui], { confirmRemove = false }, Modifier.fillMaxWidth())
                 }
             }
         }
     }
 }
 
-private fun profileLine(p: Profile, age: Int, main: com.crylo.kidreels.core.Lang): String =
-    listOfNotNull(p.name.ifBlank { null }, p.avatar.word.title[main], S.years(age)[main]).joinToString(" · ")
+private fun profileLine(p: Profile, age: Int, ui: com.crylo.kidreels.core.Lang): String =
+    listOfNotNull(p.name.ifBlank { null }, p.avatar.word.title[ui], S.years(age)[ui]).joinToString(" · ")
 
 /** One choice for one child, with what it does. */
 @Composable
 private fun PartPage(app: AppState, child: Child, part: ChildPart) {
-    val main = app.settings.main
+    val ui = app.uiLang
     val s = child.settings
     val set = { next: Settings -> app.update(next, child) }
     val title = when (part) {
@@ -231,51 +235,51 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
     // list, so it is there however far down the topic was.
     var picked by remember { mutableStateOf(false) }
     val toReels: (@Composable () -> Unit)? = if (part == ChildPart.TOPICS && picked && child.id == app.child.id) {
-        { PrimaryButton(S.goToReels[main], app::closeSettings, Modifier.fillMaxWidth()) }
+        { PrimaryButton(S.goToReels[ui], app::closeSettings, Modifier.fillMaxWidth()) }
     } else {
         null
     }
-    PageScaffold(app, title[main], toReels) {
+    PageScaffold(app, title[ui], toReels) {
         // Whose this is, when a phone has several children to mix up.
         if (app.all.size > 1 && part != ChildPart.PROFILE) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AvatarBadge(child.profile, 32.dp)
-                T(child.profile.label(main), Modifier.padding(start = 10.dp), color = LocalParent.current.ink, size = 16.sp, weight = FontWeight.Bold)
+                T(child.profile.label(ui), Modifier.padding(start = 10.dp), color = LocalParent.current.ink, size = 16.sp, weight = FontWeight.Bold)
             }
         }
         when (part) {
             ChildPart.PROFILE -> {
                 // Saved as typed, like every other choice here.
-                ProfileFields(child.profile, main) { app.saveProfile(it) }
-                SectionTitle(S.ageTitle[main])
-                Body(S.ageBody[main])
-                AgePicker(s.age, main) { set(s.copy(age = it)) }
-                SectionTitle(S.checkInTitle[main])
-                Body(S.checkInBody[main])
-                CheckInPicker(s.checkInMonths, main) { set(s.copy(checkInMonths = it)) }
+                ProfileFields(child.profile, ui) { app.saveProfile(it) }
+                SectionTitle(S.ageTitle[ui])
+                Body(S.ageBody[ui])
+                AgePicker(s.age, ui) { set(s.copy(age = it)) }
+                SectionTitle(S.checkInTitle[ui])
+                Body(S.checkInBody[ui])
+                CheckInPicker(s.checkInMonths, ui) { set(s.copy(checkInMonths = it)) }
             }
             ChildPart.LIMIT -> {
-                Body(S.limitBody[main])
-                child.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[main]) }
-                LimitPicker(s.dailyMinutes, main) { set(s.copy(dailyMinutes = it)) }
-                Body(S.limitAdvice[main])
+                Body(S.limitBody[ui])
+                child.budget.remainingMillis(s.dailyMinutes)?.let { Body(S.leftToday(it / 60_000)[ui]) }
+                LimitPicker(s.dailyMinutes, ui) { set(s.copy(dailyMinutes = it)) }
+                Body(S.limitAdvice[ui])
             }
             ChildPart.BEDTIME -> {
-                Body(S.bedtimeBody[main])
-                BedtimePicker(s.bedtime, main) { set(s.copy(bedtime = it)) }
+                Body(S.bedtimeBody[ui])
+                BedtimePicker(s.bedtime, ui) { set(s.copy(bedtime = it)) }
             }
             ChildPart.TOPICS -> {
-                Body(S.showOnlyBody[main])
-                TopicPicker(child.feed.focus, s.age, s.langs, main) {
+                Body(S.showOnlyBody[ui])
+                TopicPicker(child.feed.focus, s.age, s.langs, ui) {
                     child.feed.pick(it)
                     picked = true
                 }
             }
             ChildPart.LANGUAGES -> {
-                Body(S.langsBody[main])
-                LanguagePicker(s.langs, main) { set(s.copy(langs = it)) }
+                Body(S.langsBody[ui])
+                LanguagePicker(s.langs, ui) { set(s.copy(langs = it)) }
             }
-            ChildPart.LOOK -> LookPicker(s.look, main) { set(s.copy(look = it)) }
+            ChildPart.LOOK -> LookPicker(s.look, ui) { set(s.copy(look = it)) }
         }
     }
 }
@@ -283,7 +287,7 @@ private fun PartPage(app: AppState, child: Child, part: ChildPart) {
 /** Name, animal, colour and age; the rest starts as the current child's. */
 @Composable
 private fun NewChild(app: AppState) {
-    val main = app.settings.main
+    val ui = app.uiLang
     // A new child starts on an animal and colour no other child has, so no two look alike.
     var draft by remember {
         val taken = app.all
@@ -296,13 +300,13 @@ private fun NewChild(app: AppState) {
         )
     }
     var age by remember { mutableIntStateOf(app.settings.age) }
-    PageScaffold(app, S.addChild[main]) {
-        ProfileFields(draft, main) { draft = it }
-        SectionTitle(S.ageTitle[main])
-        AgePicker(age, main) { age = it }
-        Body(S.newChildBody(app.child.profile.label(main))[main])
+    PageScaffold(app, S.addChild[ui]) {
+        ProfileFields(draft, ui) { draft = it }
+        SectionTitle(S.ageTitle[ui])
+        AgePicker(age, ui) { age = it }
+        Body(S.newChildBody(app.child.profile.label(ui))[ui])
         PrimaryButton(
-            S.save[main],
+            S.save[ui],
             {
                 val id = app.addChild(draft, age)
                 // Straight to their page: the limit and languages are likely next.
@@ -313,14 +317,27 @@ private fun NewChild(app: AppState) {
     }
 }
 
+/**
+ * The language of these screens, for the whole phone. The page itself switches as soon as
+ * one is tapped, which is the clearest sign of what the choice does.
+ */
+@Composable
+private fun AppLanguage(app: AppState) {
+    val ui = app.uiLang
+    PageScaffold(app, S.appLanguage[ui]) {
+        Body(S.appLanguageBody[ui])
+        UiLangPicker(ui, app::changeUiLang)
+    }
+}
+
 /** Every language any child's reels speak: voices are the phone's, not a child's. */
 @Composable
 private fun Voices(app: AppState) {
     val c = LocalParent.current
-    val main = app.settings.main
+    val ui = app.uiLang
     val speaker = app.host.speaker
     if (!speaker.hasEngine) {
-        Body(S.noEngine[main])
+        Body(S.noEngine[ui])
         return
     }
     val langs = app.all.flatMap { app.childOf(it.id).settings.langs }.distinct()
@@ -331,9 +348,9 @@ private fun Voices(app: AppState) {
             Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     T(lang.nativeName, color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-                    T(if (ready) S.voiceReady[main] else S.voiceMissing[main], color = if (ready) c.sub else Color(0xFFD9434A), size = 13.sp)
+                    T(if (ready) S.voiceReady[ui] else S.voiceMissing[ui], color = if (ready) c.sub else Color(0xFFD9434A), size = 13.sp)
                 }
-                if (!ready) Pill(S.installVoice[main], true, { app.host.openVoiceSettings() })
+                if (!ready) Pill(S.installVoice[ui], true, { app.host.openVoiceSettings() })
             }
         }
     }
@@ -343,25 +360,25 @@ private fun Voices(app: AppState) {
 @Composable
 private fun WeekNote(app: AppState, child: Child) {
     val c = LocalParent.current
-    val main = app.settings.main
+    val ui = app.uiLang
     // Read afresh each time the page opens: the feed underneath keeps adding to it.
     val week = remember(child.id) { child.history.week() }
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        T(S.thisWeek[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+        T(S.thisWeek[ui], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
         if (week.minutes == 0 && week.tried == 0) {
-            Body(S.nothingThisWeek[main])
+            Body(S.nothingThisWeek[ui])
             return@Column
         }
-        Body(S.weekTime(week.minutes, week.days)[main])
-        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent, week.skipped)[main])
-        val names = { topics: List<Topic> -> topics.joinToString(", ") { it.title[main] } }
-        if (week.strong.isNotEmpty()) Body(S.doingWell[main] + " " + names(week.strong))
-        if (week.hard.isNotEmpty()) Body(S.findsHard[main] + " " + names(week.hard))
-        if (week.skips.isNotEmpty()) Body(S.oftenSkips[main] + " " + names(week.skips))
-        if (week.liked.isNotEmpty()) Body(S.likesMost[main] + " " + names(week.liked))
+        Body(S.weekTime(week.minutes, week.days)[ui])
+        if (week.tried > 0) Body(S.weekPuzzles(week.tried, week.firstTryPercent, week.skipped)[ui])
+        val names = { topics: List<Topic> -> topics.joinToString(", ") { it.title[ui] } }
+        if (week.strong.isNotEmpty()) Body(S.doingWell[ui] + " " + names(week.strong))
+        if (week.hard.isNotEmpty()) Body(S.findsHard[ui] + " " + names(week.hard))
+        if (week.skips.isNotEmpty()) Body(S.oftenSkips[ui] + " " + names(week.skips))
+        if (week.liked.isNotEmpty()) Body(S.likesMost[ui] + " " + names(week.liked))
     }
 }
 
@@ -369,22 +386,22 @@ private fun WeekNote(app: AppState, child: Child) {
 @Composable
 private fun CrashCard(app: AppState, report: String) {
     val c = LocalParent.current
-    val main = app.settings.main
+    val ui = app.uiLang
     var copied by remember { mutableStateOf(false) }
     Column(
         Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(c.surface).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        T(S.crashTitle[main], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
-        Body(S.crashBody[main])
+        T(S.crashTitle[ui], color = c.ink, size = 16.sp, weight = FontWeight.SemiBold)
+        Body(S.crashBody[ui])
         // The first lines say which version, which phone, when, and what broke.
         T(report.lines().take(5).joinToString("\n"), color = c.sub, size = 12.sp, lineHeight = 16.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Pill(if (copied) S.copied[main] else S.copyReport[main], true, {
+            Pill(if (copied) S.copied[ui] else S.copyReport[ui], true, {
                 app.host.copyText(report)
                 copied = true
             })
-            Pill(S.deleteReport[main], false, { app.clearCrash() })
+            Pill(S.deleteReport[ui], false, { app.clearCrash() })
         }
     }
 }
